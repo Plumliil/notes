@@ -51,7 +51,6 @@ db.collection.insertOne() // 插入一个
 db.collection..insertMany() // 插入多个
 ```
 
-
 ```shell
 查询文档
 db.collection..find() // 返回数组
