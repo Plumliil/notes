@@ -78,8 +78,22 @@ app.patch('/todos/:id',async (req, res) => {
     }
 })
 
-app.delete('/todos/:id',(req, res) => {
-    res.send(`delete /todos/:${req.params.id}`)
+app.delete('/todos/:id',async (req, res) => {
+    try {
+        const todoId=parseInt(req.params.id);
+        const db=await getDb();
+        const index=db.todos.findIndex(todo=>todo.id===todoId);
+        if(index===-1){
+            return res.status(404).end()
+        }
+        db.todos.splice(index,1);
+        await saveDb(db);
+        res.status(204).end()
+    }catch (err){
+        res.status(500).json({
+            error:err.message
+        })
+    }
 })
 
 app.listen(3000,()=>{

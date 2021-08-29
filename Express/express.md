@@ -157,3 +157,15 @@ exports.getDb=async ()=>{
     return JSON.parse(data);
 }
 ```
+
+总结：
+
+配置解析请求体，配置要放到代码前
+
+```
+application/json req.body获取json格式的请求体
+```
+
+```
+application/x-www-form-urlencode req.params 获取普通格式请求体
+```
