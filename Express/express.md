@@ -169,3 +169,349 @@ application/json req.body获取json格式的请求体
 ```
 application/x-www-form-urlencode req.params 获取普通格式请求体
 ```
+
+## Express中间件
+
+~~~javascript
+// 中间件的顺序很重要
+// req 请求对象
+// res 响应对象
+// next 下一个中间件
+app.use((req,res,next)=>{
+    console.log('hellow');
+    console.log(req.method,req.url,Date.now())
+    // 交出执行权，往后继续匹配
+    next()
+})
+~~~
+
+### 严格来说所有的路由都是中间件
+
+### 中间件概念
+
+#### Express的最大特色，也是最重要的一个设计，就是中间件，一个Express应用，就是由许许多多的中间件来完成的
+
+为了理解中间件，我们先来看一下我们显示生活中的自来水厂的净水流程
+
+![image.png](./assets/image.png)
+
+在上图中，自来水厂从获取水源到净化处理交给用户，中间经历了一系列的处理环节，我们称其中的每一个处理环节就是一个中间件。这样做的目的既提高了生产效率也保证了可维护性。
+
+在我理解Express中间件和AOP面向切面编程就是一个意思，就是都需要经过的一些步骤，不去修改自己的代码，一次来扩展或处理一些功能。
+
+### AOP面向切面编程：
+
+* 将日志记录，性能统计，安全控制，事务处理，异常处理等代码从业务逻辑代码中划分出来，通过对这些行为的分离，我们希望可以将他们独立到非制导业务逻辑的方法中，进而改变这些行为的时候不影响业务逻辑的代码。
+* 利用AOP可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率和可维护性
+
+![image.png](./assets/1630284974240-image.png)
+
+总结：就是在西安有代码程序中，在程序生命周期或横向流程中加入或减去一个或多个功能，不影响原有的功能
+
+### Express中的中间件：
+
+在Express中，中间件就是一个可访问的请求对象，响应对象，和调用next()方法的一个函数
+
+![image.png](./assets/1630285149474-image.png)
+
+在中间件函数中可以执行以下任何任务：
+
+* 执行任何代码
+* 修改request或者response 响应对象
+* 结束请求响应周期
+* 调用下一个中间件
+
+注意：如果当前的中间件功能没有救赎请求-相应周期，则必须调用next（）将控制权传递给下一个中间件功能，否则请求将被挂起
+
+封装中间件函数
+
+~~~javascript
+function json(options){
+    return (req,res,next)=>{
+        console.log(`hello ${options.message}`);
+        next()
+    }
+}
+
+app.use(json({
+    message:'张三'
+}));
+
+~~~
+
+### Express中间件分类
+
+在Express中应用程序可以使用以下类型中间件：
+
+* 应用程序级别中间件
+* 路由级别中间件
+* 错误处理中间件
+* 内置中间件
+* 第三方中间件
+
+#### 应用程序级别中间件
+
+都是通过调用Express实例app来挂载的中间件
+
+~~~javascript
+// 不做任何限定的中间件
+app.use(((req, res, next) => {
+    console.log('Time:',Date.now())
+    next();
+}))
+~~~
+
+~~~javascript
+// 限定请求路径
+app.use('/user/:id',(req, res, next) => {
+    console.log('Request Type:',req.method);
+    next();
+})
+~~~
+
+~~~javascript
+// app.get
+// app.post
+// app.delete
+// app.patch
+// 限定请求方法和请求路径
+app.get('/',(req,res)=>{
+    res.send('Hello Word');
+})
+~~~
+
+~~~javascript
+// 多个处理函数
+app.use(
+    '/user/:id',
+    (req, res, next) => {
+        console.log('Request URL:',req.url);
+        next()
+    },
+    (req, res, next) => {
+        console.log('Request Type:',req.method);
+        next()
+    }
+)
+~~~
+
+**要从路由器中间件堆栈中跳过其余中间件功能，请调用next('route')将控制全传递给下一跳路由注意：next('route')尽在使用app.METHOD()或router.METHOD()函数加载的中间件函数中有效此实例显示了一个中间件子堆栈，该子堆栈处理对/user/:id路径的GET请求。**
+
+~~~javascript
+app.get('/user/:id',
+    (req, res, next) => {
+    if(req.params.id==='0') next('route');
+    else next();
+    },
+    (req,res,next)=>{
+    res.send('regular');
+    }
+)
+
+app.get('/user/:id',(req, res, next) => {
+    res.send('special');
+})
+~~~
+
+**中间件也可以在数组中声明为可重用，此示例显示了一个带有中间件子堆栈的数组，该子堆栈处理对/user/:id路径的GET请求**
+
+~~~javascript
+function logORiginalUrl(req,res,next){
+    console.log('Request URL:',req.originalUrl);
+    next()
+}
+function logMethod(req,res,next){
+    console.log('Request Type:',req.method);
+    next()
+}
+
+let logStuff=[logORiginalUrl,logMethod];
+
+app.get('/user/:id',logStuff,(req,res,next)=>{
+    res.send('USER INFO');
+})
+~~~
+
+#### 路由器级中间件
+
+路由器级中间件与应用程序级在中间件的工作方式相同，只不过它绑定到的实例express.Router( ).
+
+`const router=express.Router();`
+
+使用router.use( )和router.METHOD( )函数加载路由器级中间件
+
+以下示例代码通过路由器级中间件来复制上面显示的用于程序级中渐渐暗的中间件系统
+
+~~~javascript
+// 路由模块
+const express=require('express');
+const {getDb, saveDb} = require("./db");
+
+// 1.创建路由实例
+// 路由实例相当于一个mini Express 实例
+const router=express.Router();
+
+// app.get
+// app.post
+
+// 2.配置路由
+
+router.get('/',async (req, res) => {
+    // 异常捕获
+    try{
+        const db=await getDb();
+        res.status(200).json(db.todos);
+    }catch(err){
+        res.status(500).json({
+            error:err.message
+        })
+    }
+})
+
+router.get('/:id',async (req, res) => {
+    try{
+        const db=await getDb();
+        const todo=db.todos.find(todo=>todo.id===parseInt(req.params.id));
+        res.status(200).json(todo)
+    }catch (err){
+        res.status(500).json({
+            error:err.message
+        })
+    }
+})
+
+router.post('/',async (req, res) => {
+    try{
+        // 1.获取客户端请求体参数
+        const todo=req.body;
+        // 2.数据验证
+        if(!todo){
+            return res.status(422).json({
+                error:'The field title is required'
+            })
+        }
+        // 3.验证通过存储数据到db
+        const db=await getDb();
+        const lastTodo=db.todos[db.todos.length-1];
+        todo.id=lastTodo?lastTodo.id+1:1;
+        db.todos.push(todo);
+        await saveDb(db);
+        // 4.发送响应
+        res.status(200).json(todo)
+    }catch (err){
+        res.status(500).json({
+            error:err.message
+        })
+    }
+})
+
+router.patch('/:id',async (req, res) => {
+    try{
+        // 1.获取表单数据
+        const todo=req.body;
+        // 2.查找要修改的任务项
+        const db=await getDb();
+        const ret=db.todos.find(todo=>todo.id===parseInt(req.params.id));
+        if(!ret){
+            return res.status(404).end();
+        }
+        Object.assign(ret,todo);
+        await saveDb(db);
+        res.status(200).json(ret);
+    }catch (err){
+        res.status(500).json({
+            error:err.message
+        })
+    }
+})
+
+router.delete('/:id',async (req, res) => {
+    try {
+        const todoId=parseInt(req.params.id);
+        const db=await getDb();
+        const index=db.todos.findIndex(todo=>todo.id===todoId);
+        if(index===-1){
+            return res.status(404).end()
+        }
+        db.todos.splice(index,1);
+        await saveDb(db);
+        res.status(204).end()
+    }catch (err){
+        res.status(500).json({
+            error:err.message
+        })
+    }
+})
+
+// 3.导出路由实例
+// export default router
+module.exports=router;
+
+// 4.将路由集成到Express实例中
+~~~
+
+~~~javascript
+const express=require('express');
+const fs=require('fs');
+const {getDb}=require('./db');
+const {saveDb}=require('./db');
+const router=require('./router');
+
+const app=express();
+
+// 配置解析表单请求体： application/json
+app.use(express.json());
+// 配置解析表单请求体： application/x-www-form-urlencoded
+app.use(express.urlencoded());
+
+// 挂载路由
+// 给路由限制访问前缀
+app.use('/todos',router);
+
+
+app.listen(3000,()=>{
+    console.log('Server running at http://localhost:3000/')
+})
+~~~
+
+#### 错误处理中间件
+
+以与其他中间件函数相同的方式定义错误处理中间件函数，除了使用四个参数而不是三个参数（而别是使用签名（err,req,res,next ) ）之外
+
+错误处理中间件始终带有四个参数。使用时必须提供四个参数以将其表示为错误处理中间件函数。即使不需要使用该next对象，也必须指定它以维护签名。否则，该next对象将被解释为常规中间件
+
+~~~javascript
+// 在所有中间件后挂载错误处理中间件
+app.use((err,req,res,next)=>{
+    console.log('错误',err);
+    res.status(500).json({
+        error:err.message
+    })
+})
+~~~
+
+#### 处理404
+
+~~~javascript
+// 通常会在所有路由后配置处理 404 内容
+// 请求进来从上到下一次匹配
+app.use((req, res, next) => {
+    res.status(404).send('404 NOT FIND')
+})
+~~~
+
+#### 内置中间件
+
+Express 具有以下内置中间件函数：
+
+* express.json( ) 解析Content-Type为application/json格式的请求体
+* express.urlencoded( )  解析Content-Type为application/x-www-form-urlencoded格式请求体
+* express.raw( ) 解析Content-Type为application/octet-stream格式请求体
+* express.text( ) 解析Content-Type为text/plain格式的请求体
+* express.static( ) 托管静态资源文件
+
+#### 第三方中间件
+
+早期的Express内置了很多中间件。后来Express在4.x之后移除了这些内置中间件，官方把这些功能性中间件以包的形式单独提供出来。这样做的目的是为了保持Express本身几件灵活的特性，开发人员可以根据自己的需要去灵活使用。
+
+有关Express的第三方中间件功能的部分列表参阅[http://expressjs.com/en/resources/middleware.html](https://)
