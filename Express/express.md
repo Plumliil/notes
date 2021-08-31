@@ -515,3 +515,246 @@ Express 具有以下内置中间件函数：
 早期的Express内置了很多中间件。后来Express在4.x之后移除了这些内置中间件，官方把这些功能性中间件以包的形式单独提供出来。这样做的目的是为了保持Express本身几件灵活的特性，开发人员可以根据自己的需要去灵活使用。
 
 有关Express的第三方中间件功能的部分列表参阅[http://expressjs.com/en/resources/middleware.html](https://)
+
+## Express 路由
+
+路由是指应用程序的端点URI如何响应客户端请求。详细介绍看上述路由基础
+
+以下代码是一个非常基本的路由示例：
+
+~~~javascript
+const express=require('express');
+const app=express();
+app.get('/',(req,res)=>{
+    res.send('Hello Word');
+})
+~~~
+
+### 路由方法
+
+* **常见:GET/POST/DELETE/PATCH/PUT**
+* **特殊:app.all( )用于为所有HTTP请求方法的路径加载中间件功能。例如，无论是使用GET，POST,PUTDELETE还是http模块支持的任何其他HTTP请求方法，都会对路由/secret的请求执行以下处理程序。**
+
+~~~javascript
+app.all('/secret',(req, res, next) => {
+    console.log('Accessing the secret section ...');
+    next() // pass control to the next handler
+})
+~~~
+
+### 路由路径
+
+路由路径与请求方法结合，定义了可以精选请求的端点。路由路径可以是字符串，字符串模式或正则表达式。字符串 ? , + , * , 和 ( ) 是他们表达式的对应的自己。连字符串（-）和点（.）由基于字符串的路径按字面意义进行解释。如果需要在路径字符串中使用美元字符（）请将其转义（ [并括在和中] ）。例如，"data/$book”处用于请求路径字符串将为"/data/"[\美元字符])"。
+
+**Express使用path-to-regexp来匹配路由路径；有关定义路由由路径的所有可能性，参见正则表达式路径文档。Express Route Tester 尽管不支持模式匹配，但却是用于测试基本Express路由的便捷工具。**
+
+**查询字符串不是路由路径的一部分**
+
+**以下是一些基于字符串的路由路径示例：**
+
+~~~javascript
+// 此路由路径会将请求匹配到根路由
+app.get('/',(req,res)=>{
+    res.send('root');
+})
+~~~
+
+~~~javascript
+// 此路由路径会将请求匹配到/about路由
+app.get('/about',(req,res)=>{
+    res.send('/about');
+})
+~~~
+
+~~~javascript
+// 此路由路径会将请求匹配到/random.txt
+app.get('/random.text',(req,res)=>{
+    res.send('random.text');
+})
+~~~
+
+**以下是一些基于字符串模式的路由路径示例：**
+
+~~~javascript
+// 此路由路径将于acd和匹配abcd
+app.get('/ab?cd',(req, res) => {
+    res.send('ab?cd');
+})
+~~~
+
+~~~javascript
+// 此路由路径将会匹配abcd，abbcd，abbbcd
+app.get('/ab+cd',(req, res) => {
+    res.send('ab+cd');
+})
+~~~
+
+~~~javascript
+// 此路由路径将会匹配abcd，abxcd，abRANDOMcd，ab123cd
+app.get('/ab*cd',(req, res) => {
+    res.send('ab*cd');
+})
+~~~
+
+~~~javascript
+// 此路由路径将会匹配abe,abcde
+app.get('/ab(cd)?e',(req, res) => {
+    res.send('ab(cd)?e');
+})
+~~~
+
+基于正则表达式的路由路径示例：
+
+~~~javascript
+// 此路由路径将会匹配其中带有“a”的任何内容
+app.get(/a/,(req, res) => {
+    res.send('/a/');
+})
+~~~
+
+~~~javascript
+// 此路由路径将会匹配butterfly和dragonfly，但不butterflyman和dragonflyman
+// 等以fly结尾的路由
+app.get(/.*fly$/,(req, res) => {
+    res.send('/.*fly$/');
+})
+~~~
+
+### 路由参数
+
+**路由参数被命名为URL段，用于捕获URL中在其位置处指定的值。捕获的值将填充到`req.params`对象中，并将路径中指定的route参数的名称作为其各自的键。**
+
+~~~~javascript
+app.get('/users/:userid/books/:bookid',(req, res) => {
+    res.send('/users/:userid/books/:bookid')
+})
+~~~~
+
+**路径参数的名称必须由"文字字符"（[A-Za-z0-9 ]）组成。由于连字符 - 和 · 是按字面解释的，因此可以将他们与其他路由一起使用，以实现有用的目的**
+
+~~~javascript
+Route Path: /flights/:from-:to
+Request URL: http://localhost:3000/flights/LAX-SRO
+req.params:{"from":"LAX","to":"SFO"}
+~~~
+
+~~~javascript
+app.get('/flights/:from-:to',(req, res) => {
+    res.send(req.params)
+})
+~~~
+
+要更好地控制可以由route参数匹配的鹊起字符串，可以在括号 ( ( ) ) 后面附加一个正则表达式
+
+~~~javascript
+app.get('/user/:userId(\\d+)',(req, res) => {
+    res.send('/user/:userId(\\d+)'+req.params);
+})
+~~~
+
+### 路由处理程序
+
+可以提供行为类似于中间件的多个回调函数来处理请求。唯一的例外是这些回调可能会调用next('route')以绕过其余路由的回调，可以使用此机制在路由上施加先决条件，然后再没有例由继续使用当前路由的情况下将控制权传递给后续路由。
+
+路由处理程序可以采用函数，函数数组或者二者组合的形式，入以下示例所示:
+
+~~~javascript
+// 单个回调函数处理路由
+app.get('example/a',(req, res) => {
+    res.send('example/a');
+})
+~~~
+
+~~~javascript
+// 多个回调函数处理路由
+app.get('/example/b',
+    (req, res, next) => {
+        console.log('example/b  第一个回调函数');
+        next();
+    },
+    (req,res)=>{
+        res.send('第二个回调函数')
+    }
+)
+~~~
+
+~~~javascript
+// 回调函数以数组形式处理多个路由
+const fn1=(req,res,next)=>{
+    console.log('fn1')
+    next()
+}
+const fn2=(req,res,next)=>{
+    console.log('fn2');
+    next()
+}
+const fn3=(req,res,next)=>{
+    res.send('到达了fn3')
+}
+let fnArr=[fn1,fn2,fn3];
+app.get('/fn',fnArr);
+~~~
+
+~~~javascript
+// 独立功能与数组结合
+~~~
+
+### app.route( )
+
+可以为路由路径船舰可连接的路由处理程序app.route()。由于路径实在单个位置指定的，因此川江模块化路由非常有帮助，减少冗余和错别字也很有帮助。有关路由的更多信息参见：Router( )文档
+
+~~~javascript
+// app.route() 链式路由处理
+app.route('/book')
+    .get((req, res) => {
+        res.send('Get a random book');
+    })
+    .post((req, res) => {
+        res.send('Add a book');
+    })
+    .put((req, res) => {
+        res.send('Update the book');
+    })
+~~~
+
+### 快速路由器
+
+使用express.Router该类创建模块化的，可安装的路由处理程序。一个Router实例是一个完整的中间件和路由系统；因此，它通常被称为"迷你应用程序"。以下示例将路由器创建为模块，在其中加载中间件功能，定义一些路由，并将路由器模块安装在主应用程序的路径上。
+
+index.js在app目录中创建一个名为以下内容的路由器文件：
+
+~~~javascript
+// 路由模块
+const express=require('express');
+// 1.创建路由实例
+// 路由实例相当于一个mini Express 实例
+const router=express.Router();
+// app.get
+// app.post
+// 2.配置路由
+router.get('/',(req,res)=>{
+    res.send('Hello World');
+})
+// 3.导出路由实例
+// export default router
+module.exports=router;
+// 4.将路由集成到Express实例中
+~~~
+
+然后在应用程序中加载路由器模块：
+
+~~~javascript
+const router=require('./index');
+const app=express();
+// 配置解析表单请求体： application/json
+app.use(express.json());
+// 配置解析表单请求体： application/x-www-form-urlencoded
+app.use(express.urlencoded());
+
+// 挂载路由
+// 给路由限制访问前缀
+app.use('/index',router);
+
+~~~
+
+该应用程序现在能够处理对/index的请求以及调用特定于该路由的中间件功能
