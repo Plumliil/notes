@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <p>count值为：{{count}}</p>
+    <button @click="add(3,$event)">+1</button>
+</div>
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            count:0
+        },
+        methods:{
+            add(n,e){
+                this.count+=n
+                console.log(e)
+                if(this.count%2===0){
+                    e.target.style.backgroundColor='pink'
+                }else {
+                    e.target.style.backgroundColor=''
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>

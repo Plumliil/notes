@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Hello Express</h1>
+<!--    在页面中留一个标记用于解析替换-->
+<h2>{{foo}}</h2>
+<ul>
+    {{each todos}}
+    <li>{{$value.title}}</li>
+    {{/each}}
+</ul>
+</body>
+</html>

@@ -1,0 +1,21 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+body{
+  background-image: url("../../img/pc/pc_background.jpg");
+  /*background-position: center;*/
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow-y: scroll;
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, .6);
+}
+::-webkit-scrollbar-corner {
+  background-color: black;
+}
