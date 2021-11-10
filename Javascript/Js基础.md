@@ -1160,3 +1160,205 @@ array.reduce(function(total, currentValue, currentIndex, arr), initialValue)
 </html>
 ```
 
+## symbol
+
+#### 1.声明定义symbol的几种方式
+
+-  'let lyh = Symbol('带描述的symbol')' 该声明方式会重复创建symbol唯一
+
+   let l = Symbol('带描述的symbol')' 和 let y = Symbol('带描述的symbol')'不同
+
+  获取描述值用xxx..description
+
+- ‘  let h = Symbol.for('我是h')’ 该声明方式不会被重复创建，
+
+   let h = Symbol.for('我是h')和 let i = Symbol.for('我是h') 相同
+
+  获取值用xxx.keyFor()
+
+#### 2.使用Symbol解决字符串耦合的问题
+
+~~~javascript
+  let user1 ={
+      name:'李四',
+      key:Symbol()
+  }
+  let user2 ={
+      name:'李四',
+      key:Symbol()
+  }
+  let grade = {
+      [user1.key]: {js: 100,css: 89},
+      [user2.key]: {js: 60,css: 55},
+  }
+  console.log(grade[user1.key]); // 第一个李四
+  console.log(grade[user2.key]); // 第二个李四
+~~~
+
+#### 3.Symbol在缓存容器中的使用
+
+~~~javascript
+        class Catch {
+            static data = {}
+            static set(name, value) {
+                return (this.data[name] = value)
+            }
+            static get(name) {
+                return this.data[name]
+            }
+        }
+        // Catch.set('lyh', 'he is lyh')
+        // console.log(Catch.get('lyh'));
+        let user = {
+            name: 'apple',
+            desc: '用户资料',
+            key: Symbol('购物车数据')
+        };
+        let cart = {
+            name: 'apple',
+            desc: '购物车',
+            key: Symbol('购物车数据')
+
+        }
+        Catch.set(user.key, user)
+        Catch.set(cart.key, cart)
+        console.log(Catch.get(cart.key));
+~~~
+
+#### 4.扩展特性与对象属性的保护
+
+~~~javascript
+let symbol = Symbol('这是一个Symbol类型')
+        let lyh = {
+            name: 'LYH',
+            [symbol]: 'I am LYH'
+        }
+        for (const key in Reflect.ownKeys(lyh)) {
+            console.log(key);
+        }
+        let site = Symbol('this is a symbol')
+        class User {
+            constructor(name) {
+                this.name = name;
+                this[site] = 'LYH'
+            }
+            getName() {
+                return `${this[site]} ${this.getName}}`
+            }
+        }
+        let lisi=new User('李四')
+        for (const key in lisi){
+            console.log(key);
+        }
+~~~
+
+## Map类型
+
+#### 1.Map类型特点与创建方法
+
+~~~javascript
+        // 对象中的键只能是字符串
+        let obj = {
+            name: 'lyh'
+        }
+        let newObj = {
+            [obj]: 'new obj'
+        }
+        console.log(newObj);
+        console.log(newObj[obj.toString()]);
+        // Map对象中的键可以是多种类型
+        let map = new Map()
+        map.set('name', 'lyh')
+        map.set({}, 'l')
+        map.set(1, 'y')
+        console.log(map);
+        let map1=new Map([['firstName','L'],['lastName','YH']])
+        map1.set('sex','man')
+        map1.set('age','20')
+        console.log(map1);
+~~~
+
+#### 2.Map类型的增删改查操作
+
+~~~javascript
+     let obj = {
+            name: 'lyh'
+        }
+        let map = new Map()
+        // 设置
+        map.set(obj, 'lyh.com')
+        map.set('test', 'test')
+        // 获取
+        console.log(map.get(obj));
+        // 删除单个
+        console.log(map.delete(obj));
+        console.log(map);
+        // 删除全部
+        map.clear();
+        console.log(map);
+        // 查询
+        map.set('find','findValue')
+        console.log(map.has(obj)); // false
+        console.log(map.has('find')); // true
+~~~
+
+#### 3.遍历Map类型数据
+
+~~~javascript
+        let map = new Map([
+            ['firstName', 'L'],
+            ['lastName', 'YH']
+        ])
+        map.set('sex', 'man')
+        map.set('age', '20')
+        console.log(map);
+        console.log('keys:',map.keys());
+        console.log('values:',map.values());
+        console.log('entries:',map.entries());
+        for(const [key,value] of map.entries()){
+            console.log(key,value);
+        }
+        map.forEach((value,key)=>{
+            console.log(value,key);
+        })
+~~~
+
+#### 4.Map类型转换操作
+
+~~~javascript
+		// 获取值魏20的集合
+        let map = new Map([
+            ['firstName', 'L'],
+            ['lastName', 'YH'],
+            ['sex', 'man'],
+            ['age', '20']
+        ])
+        console.log([...map]);
+        let newArr = [...map].filter(item => {
+            return item[1].includes('20')
+        })
+        console.log(newArr);
+        let info = new Map(newArr)
+        console.log(info);
+~~~
+
+#### 5.Map操作DOM节点
+
+~~~javascript
+       // Map类型操作管理DOM节点
+        let map = new Map()
+        document.querySelectorAll('div').forEach(item => {
+            map.set(item, {
+                content: item.getAttribute('name')
+            })
+        })
+        console.log(map);
+        map.forEach((config, elem) => {
+            elem.addEventListener('click', () => {
+                alert(config.content)
+                console.log(config);
+                console.log(elem);
+            })
+        })
+~~~
+
