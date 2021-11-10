@@ -1345,7 +1345,9 @@ let symbol = Symbol('这是一个Symbol类型')
 #### 5.Map操作DOM节点
 
 ~~~javascript
-       // Map类型操作管理DOM节点
+        <div name="l">姓氏</div>
+    	<div name="yl">名字</div>
+	    // Map类型操作管理DOM节点
         let map = new Map()
         document.querySelectorAll('div').forEach(item => {
             map.set(item, {
@@ -1361,4 +1363,141 @@ let symbol = Symbol('这是一个Symbol类型')
             })
         })
 ~~~
+
+#### 6.使用Map类型控制网站表单提交
+
+~~~javascript
+    <form action="http://124.70.8.61" onsubmit="return post()">
+        接受协议：
+        <input type="checkbox" name="agreement" error="请接受协议">
+        我是学生：
+        <input type="checkbox" name="student" error="网站只对学生开放">
+        <input type="submit">
+    </form>
+        function post() {
+            let map = new Map();
+            let inputs = document.querySelectorAll('[error]')
+            inputs.forEach(item => {
+                map.set(item, {
+                    'error': item.getAttribute('error'),
+                    status: item.checked
+                })
+            });
+            return [...map].every(([elem, config]) => {
+                // console.log(config);
+                config.status || alert(config.error)
+                return config.status
+            })
+        }
+~~~
+
+#### 7.WeakMap的语法使用
+
+~~~javascript
+  	<div>l</div>
+    <div>yh</div>
+	let divs = document.querySelectorAll('div')
+        let map = new WeakMap()
+        divs.forEach(item => map.set(item, item.innerHTML))
+        // map.set([],'weakmap')
+        console.log(map);
+        let arr = []
+        let newMap=new WeakMap()
+        map.set(arr,'lyh.com')
+        console.log(arr);
+        console.log(map.has(arr));
+        console.log(map.keys); // undefined
+        console.log(map.size); // undefined
+        // let l=new Map([['name','lyh']])
+        // console.log(l.size);
+        // WeakMap为弱引用类型不可迭代
+        for(const interator of map){
+            console.log(interator); // Uncaught TypeError: map is not iterable
+        }
+~~~
+
+#### 8.WeakMap弱引用类型体验
+
+~~~javascript
+        // WeakMap弱引用类型体验
+        let lyh = {
+            name: 'lyh'
+        }
+        lll = lyh
+        let map = new WeakMap()
+        map.set(lyh, 'my name is lyh')
+        lyh = null
+        lll = null
+        console.log(map); // WeakMap {{…} => 'my name is lyh'}
+        // console.log(map.keys);
+        setTimeout(()=>{
+            console.log(map); // WeakMap {}
+        },1000)
+~~~
+
+#### 9.使用WeakMap开发选课组件
+
+~~~javascript
+      	<div
+        	style="width: 600px;height:100px;border: 3px solid red;display: flex;justify-content: center;align-items: center;">
+        	<ul style="border: 3px solid gray;flex: 1;height: 95%;">
+            	<li><span>js</span><a href="javascript:;">+</a></li>
+            	<li><span>html</span><a href="javascript:;">+</a></li>
+            	<li><span>css</span><a href="javascript:;">+</a></li>
+            	<li><span>node</span><a href="javascript:;">+</a></li>
+        	</ul>
+        	<div style="border: 3px solid gray;flex: 1;height: 95%;">
+            	<strong id="count">共选择了2门课</strong>
+            	<p id="lists"></p>
+        	</div>
+    	</div>
+		class Lesson {
+            constructor() {
+                this.lis = document.querySelectorAll('ul>li')
+                this.countElem = document.getElementById('count')
+                this.listElem = document.getElementById('lists')
+                this.map = new WeakMap()
+            }
+            run() {
+                this.lis.forEach(li => {
+                    li.querySelector('a').addEventListener('click', (event) => {
+                        const a = event.target
+                        const state = li.getAttribute('select');
+                        if (state) {
+                            li.removeAttribute('select');
+                            a.innerHTML = '+';
+                            this.map.delete(li)
+                            a.style.backgroundColor = 'green'
+                        } else {
+                            this.map.set(li)
+                            li.setAttribute('select', true);
+                            a.innerHTML = '-';
+                            a.style.backgroundColor = 'red'
+                            a.style.color = 'white'
+                        }
+                        this.render()
+                    });
+                });
+            }
+            count() {
+                return [...this.lis].reduce((count, li) => {
+                    return (count += this.map.has(li) ? 1 : 0);
+                }, 0)
+            }
+            lists() {
+                return [...this.lis].filter(li => {
+                    return this.map.has(li)
+                }).map(li => {
+                    return `<span>${li.querySelector('span').innerHTML}</span>`
+                })
+            }
+            render() {
+                this.countElem.innerHTML = `共选择了${this.count()}门课`;
+                this.listElem.innerHTML = this.lists();
+            }
+        }
+        new Lesson().run()
+~~~
+
+
 
