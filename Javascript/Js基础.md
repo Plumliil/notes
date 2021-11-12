@@ -1499,5 +1499,87 @@ let symbol = Symbol('这是一个Symbol类型')
         new Lesson().run()
 ~~~
 
+## Js中函数的秘密
 
+#### 1.函数声明的多种方式
+
+声明字符串也可以用声明对象的方法
+
+~~~JavaScript
+let str = new String('lyh');
+        console.log(str.substr(0, 1));
+        let func = new Function('title', 'console.log(title)')
+        func('Function')
+
+        function fn(title) {
+            console.log(title);
+        }
+        fn('fn')
+        let cms = function (title) {
+            console.log(title);
+        };
+        cms('cms')
+        // console.log(cms);
+        let user = {
+            name: null,
+            serUsername: function (name) {
+                this.name = name
+            },
+            getUsername: function () {
+                return this.name
+            }
+        }
+        user.serUsername('LYH')
+        console.log(user.getUsername());
+~~~
+
+#### 2.全局函数定义的特点
+
+​    声明的关键词不同体验的形式不同*
+
+​    用var声明的函数会被压到window里，此时winow也可以调用*
+
+​    用let声明的函数不会被压到window对象中，window无法调用*
+
+​    建议函数不要独立存，尽量都编写到类里面*
+
+~~~javascript
+        var varf=function(){
+            console.log('varf');
+        }
+        let letf=function(){
+            console.log('letf');
+        }
+        varf(); //varf
+        window.varf(); // varf
+        letf(); // letf
+        window.letf(); // 报错：Uncaught TypeError: window.letf is not a function
+~~~
+
+#### 3.匿名函数与函数提升
+
+函数是引用类型，是个对象
+
+函数的调用引用类型的内存地址的指针传递
+
+~~~javascript
+        // 定义匿名函数并赋值给变量
+        fn() 报错，匿名函数无变量提升
+        let fn = function () {
+            console.log('fn');
+        }
+        // 变量提升
+        show()
+        function show() {
+            console.log('show');
+        }
+        function sum(...args) {
+            return args.reduce((a, b) => {
+                return a + b
+            })
+        }
+        console.log(sum(1, 2, 3, 4, 5, 6, 77, 20));  // 118
+~~~
+
+#### 4.立即执行函数与块作用域解决冲突
 
