@@ -1583,3 +1583,65 @@ let str = new String('lyh');
 
 #### 4.立即执行函数与块作用域解决冲突
 
+##### 立即执行函数冲突解决
+
+把该函数命名后挂载到window对象上，然后再调用（作用域放到私有作用域里）
+
+~~~javascript
+(function (window) {
+    function fn() {
+        console.log('index fn()');
+    }
+
+    function show() {
+        console.log('index show()');
+    }
+    window.i={fn,show}
+})(window)
+
+// 调用时
+i.show()
+~~~
+
+##### 块级作用域 let，const
+
+#### 5.形参和实参
+
+例如买房子，其中房托就是形参，实实在在买房子就是实参
+
+~~~javascript
+     function sum(a, b) {
+            return a + b
+        }
+     console.log(sum(1,2,3,4)); // 3,4无意义，为形参，1，2有它实际的作用，为实参
+~~~
+
+#### 6.默认参数的使用技巧
+
+- 可以在传入的参数里使用等号设默认值
+
+- 没有必要使用的参数放后边，就不用传入
+
+~~~javascript
+ function sortArray(array, type="asc") {
+            return array.sort(function (a, b) {
+                return type === 'asc' ? a - b : b - a
+            })
+        }
+ console.log(sortArray([1,5,2,7,187]));
+~~~
+
+#### 7.函数参数与arguments
+
+arguments为函数传入的参数，在函数里可以打印出来当传入的参数过多时如果有需要可以使用点语法来进行收集与释放，结构和赋值
+
+~~~javascript
+        function sum(...args) {
+            console.log(args); // (6) [1, 23, 3, 45, 24, 53]
+            console.log(arguments); // Arguments(6) [1, 23, 3, 45, 24, 53, callee: (...), Symbol(Symbol.iterator): ƒ]
+        }
+        console.log(sum(1, 23, 3, 45, 24, 53));
+~~~
+
+#### 8.箭头函数的使用语法
+
