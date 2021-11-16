@@ -1815,3 +1815,215 @@ let lyh = [1, 2, 3, 4, 5, 6, 7].reduce((a, b) => a + b)
         console.log(lesson.show());
 ~~~
 
+#### 18.this的构造原理的实现
+
+~~~javascript
+        function User(name){
+            this.name=name;
+            // return {a:'lyh.com'}
+        }
+        // 构造
+        let lisi=new User('lisi')
+        let hdcms={url:'hdcms.com'}
+        console.log(lisi); // User {name: 'lisi'}
+        User.call(hdcms,'开源系统')
+        console.log(hdcms); // {url: 'hdcms.com', name: '开源系统'}
+~~~
+
+#### 19.call与apply
+
+call 的参数是直接放进去的，第二第三第 n 个参数全都用逗号分隔，直接放到后面 myFun.call(db,'成都', ... ,'string' )。
+
+apply 的所有参数都必须放在一个数组里面传进去myFun.apply(db,['成都', ..., 'string' ])。
+
+~~~javascript
+        // 获得数组中元素的最大值
+        // 通过apply传递数组this指向Math对象
+        let arr = [1, 2, 4, 7, 12, 23] 
+        console.log(Math.max(...arr)); // 23
+        console.log(Math.max.apply(Math,arr)); // 23
+	    // 又如
+        let lisi = {
+            name: 'lisi'
+        }
+        let wangwu = {
+            name: 'wangwu'
+        }
+
+        function User(web, url) {
+            console.log(web + url + this.name);
+        }
+        // call,app;y在调用后会立即执行
+        User.call(lisi, 'hdr', 'hdr.com');
+        User.apply(lisi, ['hdr', 'hdr.com'])
+
+~~~
+
+#### 20.构造函数的方法继承
+
+##### 未继承
+
+
+
+![image-20211116140244258](C:\Users\22584\AppData\Roaming\Typora\typora-user-images\image-20211116140244258.png)
+
+~~~javascript
+        function Article() {
+            this.url = 'article/lists'
+            Request.call(this)
+            this.get = function (params) {
+                //id=1&cat=js
+                console.log('params', params); // {id: 1, cat: 'js'}
+                console.log(Object.keys(params)); // (2) ['id', 'cat']
+                let newParasm = Object.keys(params).map(k => {
+                    return `${k}=${params[k]}`
+                }).join('&')
+                let url = `https://${this.url}` + '/' + newParasm
+                console.log(url); // https://article/lists/id=1&cat=js
+            }
+        }
+
+        function User() {
+            this.url = 'user/lists'
+            Request.call(this)
+            this.get = function (params) {
+                //id=1&cat=js
+                console.log('params', params); // {id: 1, cat: 'js'}
+                console.log(Object.keys(params)); // (2) ['id', 'cat']
+                let newParasm = Object.keys(params).map(k => {
+                    return `${k}=${params[k]}`
+                }).join('&')
+                let url = `https://${this.url}` + '/' + newParasm
+                console.log(url); // https://article/lists/id=1&cat=js
+                document.write(url); // https://article/lists/id=1&cat=js
+            }
+        }
+        let user = new User()
+        user.get({
+            id: 2,
+            role: 'admin'
+        })
+        let article = new Article()
+        article.get({
+            id: 1,
+            cat: 'js'
+        });
+~~~
+
+##### 继承
+
+![image-20211116140409048](C:\Users\22584\AppData\Roaming\Typora\typora-user-images\image-20211116140409048.png)
+
+~~~javascript
+function Request() {
+            this.get = function (params) {
+                console.log('params', params);
+                console.log(Object.keys(params));
+                let newParasm = Object.keys(params).map(k => {
+                    return `${k}=${params[k]}`
+                }).join('&')
+                let url = `https://${this.url}` + '/' + newParasm
+                console.log(url);
+                document.write(url);
+            }
+        }
+
+        function Article() {
+            this.url = 'article/lists'
+            Request.call(this)
+        }
+
+        function User() {
+            this.url = 'user/lists'
+            Request.call(this)
+        }
+        let user = new User()
+        user.get({
+            id: 2,
+            role: 'admin'
+        })
+        let article = new Article()
+        article.get({
+            id: 1,
+            cat: 'js'
+        });
+~~~
+
+##### 21.优雅的开发面板组件
+
+折叠面板组建的封装call应用，不传this传第二个参数
+
+~~~javascript
+	    // html 部分
+		<dl>
+        	<dt>后盾人</dt>
+        	<dd>1</dt>
+        	<dt>hdcms</dt>
+        	<dd hidden=hidden>2</dd>
+    	</dl>       
+	   // js部分
+	   function panel(i) {
+            let dds = document.querySelectorAll('dd')
+            dds.forEach(dd => dd.setAttribute('hidden', 'hidden'))
+            dds[i].removeAttribute('hidden')
+        }
+        document.querySelectorAll('dt').forEach((dt, i) => {
+            console.log(i);
+            dt.addEventListener('click', () => panel.call(null, i))
+        })
+~~~
+
+#### 22.bind的用法
+
+bind不立即执行，可以有两次传参的机会
+
+~~~javascript
+        function fn(a, b) {
+            return this.f+a+b
+        }
+        console.log(fn.bind({f:2})(1,1)); // 4
+        console.log(fn.bind({f:2},2)(1)); // 5
+~~~
+
+#### 23.bind改变this实现随即色效果
+
+~~~javascript
+        function Color(elem) {
+            this.elem = elem;
+            this.colors = ['#3498db', '#1abc9c', '#34495e', '#f1c40f']
+            this.run = function () {
+                setInterval(function(){
+                    // console.log(this);
+                    let i =Math.floor(Math.random()*this.colors.length)
+                    console.log(i);
+                    console.log(this.elem);
+                    this.elem.style.backgroundColor=this.colors[i]
+                }.bind(this),1000)
+                // console.log(this);
+            }
+        }
+        let obj = new Color(document.body)
+        obj.run()
+~~~
+
+## 24.JS的作用域和闭包
+
+#### 1.什么是环境和作用域
+
+~~~javascript
+        // js全局环境不会被回收
+        let title = 'lyh';
+
+        // function fn() {
+        //     alert('title')
+        // }
+        // console.log(title);
+        // document.querySelector('button').addEventListener('click',fn)
+        function show() {
+            alert('title')
+        }
+        show()
+~~~
+
+#### 2.函数的环境与作用域原理
+
