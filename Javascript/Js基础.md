@@ -2027,3 +2027,201 @@ bind不立即执行，可以有两次传参的机会
 
 #### 2.函数的环境与作用域原理
 
+声明的函数每次调用就会创造新的内存地址，第一个创建的函数和第二个创建的函数
+
+~~~javascript
+        function show() {
+            let url = 'hdrcms.com'
+
+            function fn() {
+                let site = 'hdcms'
+                console.log(site);
+            }
+            fn()
+            console.log(site);
+        }
+        show(); // 每次调用都会存到新的内存地址，数据不会共用
+~~~
+
+#### 3.延伸函数环境生命周期
+
+   如果数据被使用就不会被删除,就会被保留，延长含糊的生命周期
+
+~~~javascript
+        function fn() {
+            let n = 1
+            return function () {
+                let m = 1
+                return function show(){
+                    console.log('n',++n);
+                    console.log('m',++m);
+                }
+            }
+        }
+        let a = fn()();
+        a(); // n 2 m 2
+        a(); // n 3 m 3
+        a(); // n 4 m 4
+~~~
+
+#### 4.构造函数中作用域的使用形态
+
+~~~JavaScript
+        function Fn(){
+            let n = 1;
+            this.sum=function(){
+                console.log(++n);
+            }
+        }
+        let a=new Fn()
+        a.sum(); // 2
+        a.sum(); // 3
+~~~
+
+#### 5.什么是块级作用域
+
+第一个对象里的a能被全局访问
+
+第二个对象里定义的a不能被全局访问，只能在对像内所属的块级作用域使用
+
+~~~javascript
+        {
+            var a= 1;
+            console.log(a);
+        }
+        {
+            let a =2;
+            console.log(a);
+        }
+        console.log(a);
+~~~
+
+#### 6.let，const，var在for循环中的使用差异
+
+~~~javascript
+        for (var i = 1; i <= 3; i++) {
+            // console.log(i);
+            setTimeout(function () {
+                console.log(i); // 3 4
+            }, 1000)
+        }
+        console.log('i', i); // 4
+        console.log(window.i); // 4
+        for (let i = 1; i <= 3; i++) {
+            // console.log(i);
+            setTimeout(function () {
+                console.log(i); 
+                // 1 
+                // 2
+                // 3
+            }, 1000)
+        }
+        console.log('i', i); // Uncaught ReferenceError: i is not defined
+        console.log(window.i); // Uncaught ReferenceError: i is not defined
+~~~
+
+#### 7.模拟出var的伪块级作用域
+
+var有函数作用域，使用立即执行函数来封装使var定义的变量有块级作用域效果
+
+~~~javascript
+	   for (var i = 1; i <= 3; i++) {
+            (function (a) {
+                setTimeout(function () {
+                    console.log(a); // 3 4
+                }, 1000)
+            })(i)
+        }
+~~~
+
+#### 8.多级作用域嵌套详解
+
+~~~javascript
+        let arr=[]
+        for (var i = 1; i <= 3; i++) {
+            // var有函数作用域，使用立即执行函数来封装
+            (function(i){
+                arr.push(function(){
+                return i
+            })
+            })(i)
+        }
+        console.log(arr[0]()); // 1
+~~~
+
+#### 9.什么是闭包及与其他语言对比实例
+
+闭包的含义是某一函数可以访问其他函数作用域中的变量叫做闭包
+
+#### 10.使用闭包获取商品区间
+
+
+
+~~~JavaScript
+        let lessons = [
+            {
+            title: 'html',
+            click: 30,
+            price: 12
+            },
+            {
+            title: 'css',
+            click: 97,
+            price: 40
+            },
+            {
+            title: 'js',
+            click: 124,
+            price: 75
+            },
+            {
+            title: 'vur',
+            click: 105,
+            price: 70
+            },
+        ]
+        function between(a, b) {
+            return function (v) {
+                return v.price >= a && v.price <= b
+            }
+        }
+        console.table(lessons.filter(between(50, 100)));
+~~~
+
+![image-20211117140033427](C:\Users\22584\AppData\Roaming\Typora\typora-user-images\image-20211117140033427.png)
+
+#### 10移动动画的闭包使用
+
+##### 动画为什么会抖动
+
+~~~javascript
+
+	<button>BUTTON</button>
+
+	let buttons = document.querySelectorAll('button')
+        buttons.forEach(item => {
+            item.addEventListener('click', () => {
+                let left = 1;
+                setInterval(() => {
+                    item.style.left = left++ + 'px'
+                }, 100);
+            })
+        })
+~~~
+
+##### 动画为什么会加速
+
+```javascript
+<button>BUTTON</button>
+
+let buttons = document.querySelectorAll('button')
+    buttons.forEach(item => {
+        let left = 1;
+        item.addEventListener('click', () => {
+            setInterval(() => {
+                item.style.left = left++ + 'px'
+            }, 100);
+        })
+    })
+```
+
