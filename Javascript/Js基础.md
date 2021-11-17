@@ -2225,3 +2225,23 @@ let buttons = document.querySelectorAll('button')
     })
 ```
 
+##### 解决动画抖动及加速方法
+
+动画抖动和加速说到底使环境问题，当点击click使就会创建一个环境，此时需要判断一下定时器是否为真，如果定时器为真就返回一个空环境，否则创建定时器，执行动画
+
+~~~javascript
+        let buttons = document.querySelectorAll('button')
+        buttons.forEach(item => {
+            // parent
+            let bind = false
+            item.addEventListener('click', () => {
+                if (!bind) {
+                    let left = 1
+                    bind = setInterval(() => {
+                        item.style.left = left++ + 'px'
+                    }, 10);
+                }
+            })
+        })
+~~~
+
