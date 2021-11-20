@@ -2006,7 +2006,7 @@ bind不立即执行，可以有两次传参的机会
         obj.run()
 ~~~
 
-## 24.JS的作用域和闭包
+## JS的作用域和闭包
 
 #### 1.什么是环境和作用域
 
@@ -2244,4 +2244,353 @@ let buttons = document.querySelectorAll('button')
             })
         })
 ~~~
+
+11.利用闭包根据字段排序商品
+
+~~~javascript
+ let lessons = [{
+                title: 'html',
+                click: 30,
+                price: 12
+            },
+            {
+                title: 'css',
+                click: 107,
+                price: 40
+            },
+            {
+                title: 'js',
+                click: 124,
+                price: 75
+            },
+            {
+                title: 'vur',
+                click: 99,
+                price: 70
+            },
+        ]
+        function order(field,type='asc') {
+            return function (a, b) {
+                if(type==='asc') return a[field] > b[field] ? 1 : -1;
+                return a[field] > b[field] ? -1 : 1
+            }
+        }
+        let hd = lessons.sort(order('click','desc'))
+~~~
+
+#### 12.闭包的内存泄漏解决办法
+
+~~~JavaScript
+        let divs = document.querySelectorAll('div')
+        divs.forEach(item => {
+            let desc = item.getAttribute('desc')
+            item.addEventListener('click', () => {
+                console.log(desc);
+                console.log(item);
+            })
+            item = null
+        })
+~~~
+
+#### 13.this在闭包中的历史遗留问题
+
+this的指向问题
+
+~~~javascript
+        // this指的是当前调用函数的对象
+        let obj = {
+            user: 'lyh',
+            get: function () {
+                return () => {
+                    this.user
+                }
+            }
+        }
+        obj.get()
+~~~
+
+## 对象
+
+#### 1.函数编程与面向对象的实例
+
+~~~javascript
+        let user = {
+            name: 'lyh',
+            grade: [{
+                    name: 'js',
+                    score: 99
+                },
+                {
+                    name: 'docker',
+                    score: 80
+                },
+            ],
+            average: function () {
+                let total = this.grade.reduce((t, l) => t + l.score, 0)
+                console.log(total / this.grade.length);
+                return total
+            }
+        }
+        console.log(user.average());
+~~~
+
+#### 2.属性的基本操作方法
+
+~~~javascript
+        let user={
+            name:'lyh',
+            'my age':18
+        }
+        console.log(user.name); // lyh
+        console.log(user['name']); // lyh
+        console.log(user['my age']); // 18
+        for(const key in user){
+            console.log(key); // name my age
+            console.log(user[key]); // lyh  18
+        }
+        user.age=19;
+        user.get=function(){
+            return `${this.name}的年龄是${this.age}`
+        }
+        console.log(user.get()); // lyh的年龄是19
+        delete user.age
+        console.log(user.get()); // lyh的年龄是undefined
+~~~
+
+
+
+#### 3.对象的引用传值
+
+​	对象函数传值传地址，普通字符串传值直接复制
+
+~~~javascript
+     let user = {
+            name: "了以后"
+        };
+        function show(a){
+            a+=100
+            console.log(a); // 101
+        }
+        let a=1
+        show(a);
+        console.log(a); // 1
+        function showFn(user){
+            user.age=18
+        }
+        showFn(user)
+        console.log(user); // {name: '了以后', age: 18}
+~~~
+
+
+
+#### 4.使用展开语法完成参数合并
+
+在对象当中出现同名属性的时候，后边的属性值会把前边的属性值覆盖
+
+~~~javascript
+        function upload(params) {
+            let config = {
+                type: '*.jpg,*.png',
+                size: 10000
+            }
+            config={...config,...params}
+            console.log(config); // {type: '*.jpg,*.png', size: 99}
+        }
+        upload({size:99})
+~~~
+
+#### 5.解构赋值新增特性】
+
+可以全部解构，也可以部分解构
+
+~~~javacript
+        let user={name:'了以后',age:18}
+        console.log(user);
+        let {name,age}=user;
+        console.log('user',name,age); // 了以后 18
+
+        function fn(){
+            return {name1:'了以后1',age1:19}
+        }
+        let {name1,age1}=fn()
+        console.log('fn()',name1,age1); // 了以后1 19
+        function userFn({name,age}){
+            console.log(name,age);
+        }
+        userFn(user); // 了以后 18
+        let {random}=Math
+        console.log(random());
+~~~
+
+#### 6.严格模式下的结构特性
+
+~~~javascript
+    "use strict";
+        let {name,age}={name:'了以后',age:18}
+        {name,age}={name:'了以后',age:18} // 报错
+~~~
+
+#### 7.结构操作的简写形式与对象结构
+
+~~~javascript
+      let arr=['了以后','plumli.com'];
+        let[,b]=arr
+        console.log(b);
+        let user={name:'了以后',age:18}
+        let {age}=user; // 18
+        console.log(age);
+~~~
+
+#### 8.多层对象的就够操作
+
+~~~javascript
+        let obj={
+            name:'了以后',
+            lesson:{
+                title:'javascript'
+            }
+        };
+        let {name,lesson:{title}}=obj
+        console.log(title); // javascript
+~~~
+
+#### 9.解构默认值实现配置项合并
+
+建议以后敲代码时可以频繁用到解构，可以带来很大方便
+
+~~~javascript
+        let user={name:'了以后',url:'plumli.com',title:'web'};
+        let {name,url,title='plumli'}=user;
+        console.log(name,url,title);
+        function createElement(options={}){
+            let {width=200,height=100,backgroundColor='red'}=options;
+            const div=document.createElement('div');
+            div.style.width=width+'px';
+            div.style.height=height+'px';
+            div.style.backgroundColor=backgroundColor;
+            document.body.appendChild(div)
+        }
+        createElement({width:100})
+~~~
+
+#### 10.函数参数的解构使用技巧
+
+~~~javascript
+        function fn(name,{age:a,sex:b}){
+            console.log(name,a,b);
+        }
+        fn('了以后',{age:18,sex:'男'})
+~~~
+
+#### 11.对象属性的 添加删除操作
+
+~~~javascript
+        let obj = {};
+        obj.name = '了以后';
+        obj['age'] = 18;
+        console.log(obj);
+        delete obj.name;
+        console.log(obj);
+~~~
+
+#### 12.对象与原型链属性检测实例
+
+~~~javascript
+        let arr= ['plumli.com','lyh']
+        console.log(arr); // (2) ['plumli.com', 'lyh']
+        // hasOwnProperty只能看见当前的对象中，无法查询prototype中的属性
+        console.log(arr.hasOwnProperty('length')); // 判断数组中是否含有length这个属性 true
+        console.log(arr.hasOwnProperty('concat')); // 判断数组中是否含有concat这个属性 false
+        // in 可以查看整个对象中的属性
+        console.log('concat' in arr); // 判断数组中是否含有concat这个属性
+        function oss(options){
+            if(!options.hasOwnProperty('host')){
+                throw new Error('必须设置主机地址'); // Uncaught Error: 必须设置主机地址
+            }
+        }
+        oss({user:'admin'})
+~~~
+
+#### 13.计算属性与assign的使用
+
+计算属性
+
+~~~javascript
+        const lessons = [{
+                title: '媒体查询响应式布局',
+                category: 'css'
+            },
+            {
+                title: 'FlEX 弹性盒模型',
+                category: 'css'
+            },
+            {
+                title: 'MYSQL多表查询随意操作',
+                category: 'MYSQL'
+            },
+        ]
+        let res = lessons.reduce((obj, cur, index) => {
+            obj[`${cur['category']}-${index+1}`] = cur
+            return obj
+        },{})
+        console.log(res);
+~~~
+
+assign
+
+~~~javascript
+        let hd = Object.assign({a:1},{b:2})
+        console.log(hd); // {a: 1, b: 2}
+        function upload(params){
+            let options={
+                size:19999
+            }
+            options=Object.assign(options,params)
+            console.log(JSON.stringify(options));
+        }
+        upload({size:99,type:'jpeg'}); // {"size":99,"type":"jpeg"}
+~~~
+
+#### 14.遍历操作和DOM绘制
+
+普通方法遍历对象
+
+~~~javascript
+        for (const key in lyh) {
+            console.log(lyh[key]);
+        }
+~~~
+
+
+
+数组方法遍历对象
+
+~~~javascript
+    for(const [key,value] of Object.entries(lyh)){
+            console.log(key); // ['year', 2001]
+            console.log(value);
+        }
+~~~
+
+DOM绘制
+
+~~~javascript
+       let lessons = [{
+            name: 'js',
+            click: 999
+        },
+        {
+            name: 'node',
+            click: 127
+        }]
+        let ul=document.createElement('ul')
+        for(const lesson of lessons){
+            let li=document.createElement('li')
+            li.innerHTML=`课程:${lesson.name},点击数:${lesson.click}`
+            ul.appendChild(li)
+        }
+        document.body.appendChild(ul)
+~~~
+
+#### 15.对象的浅拷贝多种操作方法
 
