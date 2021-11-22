@@ -2594,3 +2594,45 @@ DOM绘制
 
 #### 15.对象的浅拷贝多种操作方法
 
+`let pl ={name:'lyh',url:'plumli.xyz'};`
+
+1.
+
+~~~javascript
+ 	    let pl={name:'plumli'}
+        let plum={name:pl.name}
+        console.log(plum);
+        plum.name='plum'
+        console.log(plum);
+~~~
+
+2.
+
+~~~javascript
+ let obj={};
+        for(const key in pl){
+            obj[key]=pl[key]
+        }
+        obj.name='plumli'
+        console.log(obj);
+        console.log(pl);
+~~~
+
+3.
+
+~~~javascript
+    let pl ={name:'lyh',url:'plumli.xyz'};
+        let obj=Object.assign({},pl)
+        obj.name='plumli'
+        console.log(obj);
+~~~
+
+4.
+
+~~~javascript
+  let obj={...pl}
+        console.log(obj);
+~~~
+
+#### 16.深拷贝多层次分析
+
