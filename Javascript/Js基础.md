@@ -1853,7 +1853,7 @@ apply 的所有参数都必须放在一个数组里面传进去myFun.apply(db,['
         function User(web, url) {
             console.log(web + url + this.name);
         }
-        // call,app;y在调用后会立即执行
+        // call,apply在调用后会立即执行
         User.call(lisi, 'hdr', 'hdr.com');
         User.apply(lisi, ['hdr', 'hdr.com'])
 
@@ -2635,4 +2635,344 @@ DOM绘制
 ~~~
 
 #### 16.深拷贝多层次分析
+
+~~~javascript
+        let obj1 = {
+            name: 'obj1name',
+            age: 18,
+            hobbies: {
+                one: 'eat',
+                two: 'sleep'
+            },
+            lessons: ['javascript', 'css']
+        }
+
+        function copy(object) {
+            let res = object instanceof Array ? [] : {}
+            for (const [k,v] of Object.entries(object)) {
+                res[k] = typeof v === 'object' ? copy(v) : v
+            }
+            return res
+        }
+        let obj2 = copy(obj1)
+        obj2.hobbies.two = 'play'
+        obj2.name = 'obj2name'
+        obj2.lessons.push('html')
+        console.log('obj1', JSON.stringify(obj1, null, 2));
+        console.log('obj2', JSON.stringify(obj2, null, 2));
+~~~
+
+#### 17.使用工厂函数创建对象
+
+~~~javascript
+       function user(name,age){
+            return {
+                name,
+                age,
+                show(){
+                    console.log(this.name+'-PlumLi');
+                },
+                info(){
+                    console.log(this.name+'-'+this.age);
+                }
+            }
+        }
+        let lyh=user('了以后',18)
+        console.log(lyh); // {name: '了以后', age: 18, show: ƒ, info: ƒ}
+        lyh.show() // 了以后-PlumLi
+        lyh.info() // 了以后-18
+~~~
+
+#### 18.构造函数创建对象的方式
+
+~~~javascript
+        function User(name){
+            this.name=name;
+            this.show=function(){
+                console.log(this);
+            }
+        }
+        let lyh =new User('了以后')
+        console.log(lyh); // User {name: '了以后', show: ƒ}
+        lyh.show()
+        let fn=lyh.show
+        fn() // undefind
+~~~
+
+#### 19.使用构造函数创建数据
+
+绝大多数的数据都是由构造函数来创造的，我们可以使用这些构造函数中的提供的一些方法
+
+~~~javascript
+   let o = new Object()
+        o.name = 'lyh'
+        let n = new Number(1)
+        console.log(n);
+        console.log(n + 3);
+        let s = new String('str')
+        console.log(s);
+        console.log(s.valueOf());
+        console.log(s.toUpperCase());
+        let b=new Boolean(true)
+        console.log(b.toString());
+        console.log(b.valueOf());
+        let d=new Date()
+        console.log(d);
+        let r = new RegExp('\\d+')
+        console.log(r.valueOf());
+        console.log(r.test('abc'));
+        function fn(){}
+        console.log(fn.constructor);
+        let User=new Function('name',`
+            this.name=name;
+            this.show=function(){
+                console.log(this.name)
+            }
+        `)
+        let lyh=new User('了以后')
+        console.log(lyh);
+        lyh.show()
+~~~
+
+#### 20.面向对象的封装与抽象
+
+~~~javascript
+        // 封装
+	    // 将封装的函数抽象后在函数外部无法直接改变函数内部的值
+        function User(name, age) {
+            // 抽象解构
+            let data = {
+                name,
+                age
+            };
+            let info = function () {
+                return data.age > 50 ? '老年' : '青年'
+            };
+            this.show = function () {
+                console.log(data.name + info());
+            };
+
+        }
+        let lyh = new User('了以后', 18)
+        lyh.name = 'xxx'
+        lyh.info=function(){
+            return ''
+        }
+        lyh.show() // 了以后青年
+        console.log(lyh);
+~~~
+
+#### 21.什么是对象的属性特征
+
+对象的属性是有特征的
+
+~~~javascript
+    const user = {
+            name: '了以后',
+            age: 18
+        }
+        console.log(JSON.stringify(Object.getOwnPropertyDescriptor(user,'name'),null,2));
+	    // {
+        //     "value": "了以后",
+        //     "writable": true,
+        //     "enumerable": true,
+        //     "configurable": true
+        // }
+        console.log(JSON.stringify(Object.getOwnPropertyDescriptors(user),null,2));
+		// {
+        //     "name": {
+        //         "value": "了以后",
+        //         "writable": true,
+        //         "enumerable": true,
+        //         "configurable": true
+        //     },
+        //     "age": {
+        //         "value": 18,
+        //         "writable": true,
+        //         "enumerable": true,
+        //         "configurable": true
+        //     }
+        // }
+
+~~~
+
+#### 22.灵活的控制属性特征
+
+通过设置属性特征可以定制属性
+
+- **`Object.getOwnPropertyDescriptor()`** 方法返回指定对象上一个自有属性对应的属性描述符 `Object.getOwnPropertyDescriptor(obj, prop)`
+- `Object.defineProperty()` 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此对象。`Object.defineProperty(obj, prop, descriptor)`
+- **`Object.defineProperties()`** 方法直接在一个对象上定义新的属性或修改现有属性，并返回该对象。 `Object.defineProperties(obj, props)`
+
+~~~javascript
+     const user = {
+            name: '了以后',
+            age: 18
+        }
+        console.log(JSON.stringify(Object.getOwnPropertyDescriptor(user, 'name'), null, 2));
+	   Object.defineProperty(user, 'name', {
+            value: '李子味李子',
+            writable: true, // 限制属性是否可被修改
+            enumerable: true, // 限制属性是否被遍历
+            configurable: true // 是否允许被删除
+        })
+        Object.defineProperties(user, {
+            name: {
+                value: '李子味李子',
+                writable: true, // 限制属性是否可被修改
+                enumerable: false,
+                configurable: false // 是否允许被遍历
+            },
+            age: {
+                value: 18,
+                writable: true, // 限制属性是否可被修改
+                enumerable: false,
+                configurable: false // 是否允许被遍历
+            },
+        })
+~~~
+
+通过控制writable,enumerable,configurable来定制对象属性特征三者都是布尔类型
+
+- writable 属性是否可被修改
+- enumerable 属性是否被遍历
+- configurable 是否允许被删除
+
+#### 23.不允许向对象中添加属性API
+
+`**Object.preventExtensions()**`方法让一个对象变的不可扩展，也就是永远不能再添加新的属性。
+
+~~~JavaScript
+let arr = ['lyh', 'plumli']
+        const user = {
+            name: '了以后',
+            age: 18
+        }
+        // Object.preventExtensions(user) // 保护对象不能再添加新的属性
+        console.log(Object.isExtensible(user));
+        if (Object.isExtensible(user)) {
+            user.site = 'Plumli.xyz'
+            console.log(user); // {name: '了以后', age: 18, site: 'Plumli.xyz'}
+        }
+~~~
+
+#### 24.封闭对象的API操作
+
+`**Object.seal()**`方法封闭一个对象，阻止添加新属性并将所有现有属性标记为不可配置。当前属性的值只要原来是可写的就可以改变。
+
+~~~javascript
+       let arr = ['lyh', 'plumli']
+        const user = {
+            name: '了以后',
+            age: 18
+        }
+        Object.seal(user)
+        console.log(Object.isSealed(user));
+        if (!Object.isSealed(user)) {
+            user.site = 'Plumli.xyz'
+        }
+~~~
+
+#### 25.冻结属性API操作
+
+**`Object.freeze()`** 方法可以**冻结**一个对象。一个被冻结的对象再也不能被修改；冻结了一个对象则不能向这个对象添加新的属性，不能删除已有属性，不能修改该对象已有属性的可枚举性、可配置性、可写性，以及不能修改已有属性的值。此外，冻结一个对象后该对象的原型也不能被修改。`freeze()` 返回和传入的参数相同的对象。
+
+**`Object.isFrozen()`** determines if an object is  [frozen](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze).
+
+当对象被冻结后不允许进行增删改操作,但是可以查询
+
+封闭对象和冻结对象的区别是封闭对象里的属性如果是可改的那么仍让可以更改,但是冻结属性是整个对象都无法增改删
+
+#### 26.使用访问器保护数据
+
+~~~javascript
+        const user = {
+            data: {
+                name: 'lyh',
+                age: 18
+            },
+            set age(value) {
+                if (typeof value !== 'number' || value < 10 || value > 100) {
+                    throw new Error('年龄错误')
+                }
+                this.data.age = value
+            },
+            get age() {
+                return this.data.age
+            }
+        }
+        user.age = 19
+        console.log(user.age); // 19
+~~~
+
+#### 27.访问器伪造属性操作
+
+~~~javascript
+        let Lesson = {
+            lists: [{
+                    name: 'js',
+                    price: 100
+                },
+                {
+                    name: 'mysql',
+                    price: 212
+                },
+                {
+                    name: 'vue.js',
+                    price: 98
+                }
+            ],
+            get total() {
+                // 获取总价
+                return this.lists.reduce((t, l) => t + l.price, 0)
+            }
+        }
+        console.log(Lesson.total);
+        // Lesson.total = 9999
+        console.log(Lesson.total); // 410
+~~~
+
+#### 28.使用访问器批量设置属性
+
+~~~javascript
+        const web={
+            name:'LYH',
+            url:'plumli.xyz',
+            set site(value){
+                [this.name,this.url]=value.split(',')
+                // console.log(value.split(','));
+            },
+            get site(){
+                return `${this.name}的网址是${this.url}`
+            }
+        }
+        web.site='笔记记录,www.plumli.xyz';
+        console.log(web.name); // 笔记记录
+        console.log(web.url); // www.plumli.xyz
+~~~
+
+#### 29.token的读写处理
+
+~~~javascript
+   let Request={
+            set token(content){
+                localStorage.setItem('token',content)
+            },
+            get token(){
+                let token = localStorage.getItem('token')
+                if(!token){
+                    alert('请登录')
+                }
+                return token;
+            }
+        }
+        Request.token='8972189ya89wyd89as2uyy'
+        console.log(Request.token);
+~~~
+
+#### 30.访问器的优先级
+
+访问器的优先级高于普通属性,自定义的访问器覆盖了默认的访问器
+
+
 
