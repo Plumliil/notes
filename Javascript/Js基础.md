@@ -2974,5 +2974,431 @@ let arr = ['lyh', 'plumli']
 
 访问器的优先级高于普通属性,自定义的访问器覆盖了默认的访问器
 
+~~~javascript
+  const user={
+            data:{name},
+            age:10,
+            set name(value){
+                this.data.name=value
+                console.log(value); // plumli
+            },
+            get name(){
+                return this.data.name
+            }
+        }
+        user.name='plumli'
+        console.log(user); // {data: {…}, age: 10}
+        console.log(user.data); // {name: 'plumli'}
+        user.data.name='lyh'
+        console.log(user.data);
+~~~
 
+#### 31.构造函数与class语法糖中使用访问器
+
+##### 构造函数
+
+~~~javascript
+// 构造函数特征的形式来定义访问器
+        function User(name,age){
+            // this.name=name;
+            // this.age=age;
+            let data={name,age}
+            Object.defineProperties(this,{
+                name:{
+                    get(){
+                        return data.name
+                    },
+                    set(value){
+                        if(value.trim()===''|| value.length>20){
+                            throw new Error('用户名不合法')
+                        }
+                        data.name=value
+                        console.log(value+'----set...');
+                    }
+                },
+                age:{
+                    get(){
+                        return data.age
+                    },
+                    set(value){
+                        data.age=value
+                        console.log(value+'----set...');
+                    }
+                },
+            })
+        }
+        let lyh=new User('了以后',19)
+        lyh.name='plumli'
+        lyh.age=20
+        console.log(lyh);
+~~~
+
+##### class类语法糖使用访问器
+
+~~~javascript
+// 如果想让data变为私有可以使用symbol
+        class User {
+            constructor(name, age) {
+                this.data = {
+                    name,
+                    age
+                }
+            }
+            get name() {
+                return this.data.name
+            }
+            set name(value) {
+                if (value.trim() === '' || value.length > 20) {
+                    throw new Error('用户名不合法')
+                }
+                this.data.name = value
+                console.log(value + '----set...');
+            }
+            get age() {
+                return data.age
+            }
+            set age(value) {
+                this.data.age = value
+                console.log(value + '----set...');
+            }
+
+        }
+        let lyh = new User('了以后', 19)
+        lyh.name = 'plumli'
+        lyh.age = 20
+        console.log(lyh);
+~~~
+
+#### 32.什么是proxy拦截
+
+**Proxy** 对象用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
+
+##### 语法
+
+```
+const p = new Proxy(target, handler)
+```
+
+##### 参数
+
+- `target`
+
+  要使用 `Proxy` 包装的目标对象（可以是任何类型的对象，包括原生数组，函数，甚至另一个代理）。
+
+- `handler`
+
+  一个通常以函数作为属性的对象，各属性中的函数分别定义了在执行各种操作时代理 `p` 的行为。
+
+~~~javascript
+        // 对象的代理 通过代理访问数据
+        const lyh={name:'了以后'};
+        const proxy=new Proxy(lyh,{
+            get(obj,property){
+                // property 是对象的属性
+                return obj[property]
+            },
+            set(obj,property,value){
+                // property 是对象的属性
+                // value 是新设置的值
+                return obj[property]=value
+            }
+        })
+        console.log(proxy.name); // 了以后
+        proxy.name='plumli'
+        console.log(proxy.name); // plumli
+        console.log(proxy); // Proxy {name: 'plumli'}
+~~~
+
+#### 33.使用代理proxy控制函数
+
+~~~javascript
+        function factorial(num) {
+            return num === 1 ? 1 : num * factorial(num - 1)
+        }
+        // console.log(factorial(5));
+        let proxy=new Proxy(factorial,{
+            apply(func,obj,args){
+                console.time('run');
+                func.apply(this,args)
+                console.timeEnd('run');
+                // console.log(func);
+                // console.log(obj);
+                // console.log(args);
+            }
+        })
+        proxy.apply({},[10])
+~~~
+
+#### 34.数组使用代理拦截操作
+
+当数组内元素超过长时进行截断并把截断的元素换成...
+
+~~~javascript
+let lessons = [{
+                title: '媒体查询响应式布局',
+                category: 'css'
+            },
+            {
+                title: 'FlEX模型',
+                category: 'css'
+            },
+            {
+                title: 'MYSQL多表查询随意操作',
+                category: 'MYSQL'
+            },
+        ]
+        let proxy = new Proxy(lessons, {
+            get(array, key) {
+                const title = array[key].title;
+                console.log(title);
+                const len = 10;
+                array[key].title=title.length > len ?
+                    title.substr(0, len) + '.'.repeat(3) :
+                    title
+                console.log(array);
+                return array[key]
+            }
+        })
+        console.log(JSON.stringify(proxy[2],null,2));
+~~~
+
+#### 35.代理拦截的例子：vuejs数据绑定的容器更新
+
+~~~html
+   <input type="text" v-model="title" />
+    <input type="text" v-model="title" />
+    <div v-bind="title">这里也会发生更新</div>
+~~~
+
+
+
+~~~javascript
+        function View() {
+            let proxy = new Proxy({}, {
+                get(obj, property) {},
+                set(obj, property, value) {
+                    console.log(value);
+                }
+            })
+            this.init=function(){
+                const els=document.querySelectorAll('[v-model]');
+                els.forEach(item=>{
+                    item.addEventListener('keyup',function(){
+                        // console.log(111);
+                        proxy[this.getAttribute('v-model')]=this.value
+                    })
+                })
+            }
+        }
+        new View().init()
+~~~
+
+#### 36.双向页面绑定的数据渲染
+
+![image-20211126130641295](C:\Users\22584\AppData\Roaming\Typora\typora-user-images\image-20211126130641295.png)
+
+~~~html
+    <input type="text" v-model="content" />
+    <h4 v-bind="content"></h4>
+    <hr>
+    <input type="text" v-model="title" />
+    <input type="text" v-model="title" />
+    <p style="background-color: skyblue;" v-bind="title">title</p>
+    <p style="background-color: pink;" v-bind="content">content</p>
+~~~
+
+
+
+~~~javascript
+    function View() {
+            let proxy = new Proxy({}, {
+                get(obj, property) {},
+                set(obj, property, value) {
+                    console.log(property);
+                    document.querySelectorAll(`[v-model="${property}"`)
+                        .forEach(item => {
+                            item.value = value;
+                        });
+                    document.querySelectorAll(`[v-bind="${property}"]`)
+                        .forEach(item=>{
+                            item.innerHTML=value;
+                        })
+                }
+            })
+            this.init = function () {
+                const els = document.querySelectorAll('[v-model]');
+                els.forEach(item => {
+                    item.addEventListener('keyup', function () {
+                        // console.log(111);
+                        proxy[this.getAttribute('v-model')] = this.value
+                    })
+                })
+            }
+        }
+        new View().init()
+~~~
+
+#### 37.表单验证组建的代理工厂
+
+##### 基本功能，触发表单的时候，让代理开始工作
+
+~~~javascript
+        class Validata {
+            max(value, len) {
+                return value.length < len;
+            }
+            min(value, len) {
+                return value.length > len;
+            }
+            isNumber(value) {
+                return /^\d+$/.test(value)
+            }
+        }
+
+        function ProxyFactory(target) {
+            return new Proxy(target, {
+                get(target, key) {
+                    return target[key]
+                },
+                set(target, key, value) {
+                    console.log(key);
+                }
+            })
+        }
+        let proxy = ProxyFactory(document.querySelectorAll('[validata]'));
+        proxy.forEach((item, i) => {
+            item.addEventListener('keyup', function () {
+                proxy[i] = this
+            })
+        })
+~~~
+
+#### 39.使用代理完成自定义验证组件
+
+~~~html
+    <input type="text" validata rule="max:12,min:3">
+    <input type="text" validata rule="max:3,isNumber">
+~~~
+
+
+
+~~~javascript
+        // 功能类
+        class Validata {
+            max(value, len) {
+                return value.length <= len;
+            }
+            min(value, len) {
+                return value.length >= len;
+            }
+            isNumber(value) {
+                return /^\d+$/.test(value)
+            }
+        }
+        // 代理工厂的创建
+        function ProxyFactory(target) {
+            return new Proxy(target, {
+                get(target, key) {
+                    return target[key]
+                },
+                set(target, key, el) {
+                    // 获取验证规则
+                    const rule=el.getAttribute('rule')
+                    // 声明验证类
+                    const validata=new Validata()
+                    // every 函数，返回值都为真才为真，有一个为假就为假
+                    let state=rule.split(',').every(rule=>{
+                        // 拆分验证规则 使用验证函数
+                        const info=rule.split(':');
+                        console.log(info); // ['max', '12'] ['min', '3']
+                        return validata[info[0]](el.value,info[1])
+                    })
+                    el.classList[state?'remove':'add']('error')
+                    return true
+                }
+            })
+        }
+        let proxy = ProxyFactory(document.querySelectorAll('[validata]'));
+        proxy.forEach((item, i) => {
+            item.addEventListener('keyup', function () {
+                console.log(proxy[i]);
+                proxy[i] = this
+                console.log(proxy[i]);
+            })
+        })
+~~~
+
+#### 40.*JSON数据解决什么问题*
+
+~~~javascript
+        let data = {
+            name: '了以后',
+            data: {
+                title: 'node'
+            }
+        }
+        console.log(data);
+        let json = JSON.stringify(data, null, 2)
+        console.log(json);
+        let jsjson = `{
+  "name": "plumli",
+  "data": {
+    "title": "node"
+  }
+}`  
+    let obj=JSON.parse(jsjson)
+    console.log(obj.data);
+    // 数组也可以转化成json
+~~~
+
+#### 41.JSON序列化与自定义toJSON
+
+~~~javascript
+        let data = {
+            name: '了以后',
+            url: 'plumli.xyz',
+            data: {
+                title: 'node'
+            },
+            toJSON: function () {
+                return {
+                    name: this.name,
+                    url: this.url,
+                    title:this.data.title
+                }
+            }
+        }
+        // console.log(data);
+        // JSON.stringify(对象,)
+        let json = JSON.stringify(data, null, 2)
+        console.log(json);
+~~~
+
+#### 42.JSON转化为js可操作类型
+
+~~~javascript
+        let data = {
+            name: '了以后',
+            url: 'plumli.xyz',
+            data: {
+                title: 'node'
+            }
+        }
+        let json = JSON.stringify(data, null, 2)
+        console.log(json);
+	   //{
+        //     "name": "了以后",
+        //     "url": "plumli.xyz",
+        //     "data": {
+        //         "title": "node"
+        //     }
+        // }
+        let obj = JSON.parse(json, (key, value) => {
+            if (key === 'title') {
+                value = '[LYH]-' + value
+            }
+            return value
+        })
+        console.log(obj); // {name: '了以后', url: 'plumli.xyz', data: {…}}
+~~~
 
