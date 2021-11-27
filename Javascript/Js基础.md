@@ -182,7 +182,6 @@ console.log(typeof 10); //'number'
 | variable = boolean_expression?true_value:false_value |      |
 | =                                                    |      |
 | ，                                                   |      |
-
 ## 前端访问流程
 
 ​	代码在后台，访问时从后台获取，后期使用压缩技术使用户快速执行
@@ -3402,3 +3401,90 @@ let lessons = [{
         console.log(obj); // {name: '了以后', url: 'plumli.xyz', data: {…}}
 ~~~
 
+## 原型和继承
+
+#### 1.原型的初步认识
+~~~javascript
+        let arr = ['了以后'];
+        console.log(arr.concat('plumli'))
+        let lyh = {};
+        console.log(lyh);
+        let yh = {};
+        console.log(yh);
+        console.log('------------------');
+        console.log(Object.getPrototypeOf(lyh)===Object.getPrototypeOf(yh)); // true
+        console.log(Object.getPrototypeOf(lyh)===Object.getPrototypeOf(arr)); // false
+        console.log(Object.getPrototypeOf(lyh)===Object.getPrototypeOf(Object.getPrototypeOf(arr))); // true
+
+~~~
+`Object.getPrototypeOf(xxx)获取某个对象的原型`
+其中数组的原型是Number而对象的原型是Object，Number的原型是Object
+#### 2.没有原型的对象也是存在的
+~~~javascript
+        let lyh={name:'lyh'}
+        console.log(lyh); // {name: 'lyh'}
+        console.log(lyh.hasOwnProperty('name')); // true
+        let plum=Object.create(null,{
+            name:{
+                value:'plumli'
+            }
+        })
+        console.log(plum.hasOwnProperty('name')); // Uncaught TypeError: plum.hasOwnProperty is not a function    
+~~~
+#### 3.原型方法与对象方法优先级
+优先使用自己的方法
+当自己对象中没有方法是才会使用上级父类的方法
+
+给父类自定义方法
+~~~javascript
+        // xxx为自己
+        xxx.__proto__.render = function () {
+            console.log('上级rander方法');
+        }
+~~~
+示例：
+~~~javascript
+     let lyh = {
+            show() {
+                console.log('了以后');
+            },
+            render() {
+                console.log('自己的render方法');
+            }
+        }
+        lyh.show(); // 了以后
+        lyh.render(); // 自己的render方法
+        lyh.__proto__.render = function () {
+            console.log('上级rander方法');
+        }
+        lyh.render() // 自己的render方法
+        console.dir(lyh); // Object
+~~~
+#### 4.函数拥有多个长辈
+prototype服务于函数实例化出的对象
+
+__proto__可以理解为构造函数的原型对象
+
+~~~javascript
+        function User() {}
+        console.dir(User); // ƒ User()
+        User.prototype.show=function(){
+            console.log('User show()');
+        }
+        User.__proto__.view=function(){
+            console.log('User function view method');
+        }
+        User.view(); // User function view method
+        let lyh = new User();
+        console.log(lyh); // User {}
+        lyh.show(); // User show()
+        console.log('---------');
+        console.log(User.prototype===lyh.__proto__); // true
+~~~
+#### 5.原型对象的关系
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211127165919.png)
+a,b,c分别为使用对象方法创造的字符串，数字和对象
+
+a,b,c有`__proto__`属性即`[[prototype]]`属性指向原型对象
+
+构造a,b,c的对象有`prototype`属性指向原型对象
