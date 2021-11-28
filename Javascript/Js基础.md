@@ -3488,3 +3488,72 @@ a,b,c分别为使用对象方法创造的字符串，数字和对象
 a,b,c有`__proto__`属性即`[[prototype]]`属性指向原型对象
 
 构造a,b,c的对象有`prototype`属性指向原型对象
+
+~~~javascript
+        let a=new String('aaa')
+        console.log(a.__proto__===String.prototype); // true
+        console.log(a.__proto__.constructor===String); // true
+~~~
+
+#### 6.自定义对象的原型设置
+~~~javascript
+      let lyh={name:'lyh'};
+        let parent={name:'parent',show(){
+            console.log('parent method',this.name);
+        }};
+        console.log(lyh.__proto__===Object.prototype); // true
+        // 设置原型
+        Object.setPrototypeOf(lyh,parent) 
+        // 获取原型
+        console.log(Object.getPrototypeOf(lyh)); // {name: 'parent', show: ƒ}
+        console.log(lyh);
+        lyh.show(); // parent method lyh
+        parent.show(); // parent method parent
+~~~     
+#### 7.通过原型找到构造函数 原型中constructor的运用
+有constructor存在时可以使用sconstructor来创建另一个对象
+
+~~~javascript
+        function User(name){
+            this.name=name
+        }
+        // 这种方法直接改变prototype，如果不加constructor就会报错
+        User.prototype={
+            constructor:User,
+            show(){
+                console.log(this.name);
+            },
+            sing(){
+                console.log('sing');
+            }
+        }
+        // User.prototype.show=function(){
+        //     console.log(this.name);
+        // }
+        console.dir(User); // ƒ User(name)
+        console.log(User.prototype.__proto__===Object.prototype); // true
+        let lisi=new User.prototype.constructor('李四');
+        console.log(lisi); // User {name: '李四'}
+        lisi.show(); // 李四
+        lisi.sing(); // sing
+~~~
+#### 8.当constructor存在时，使用对象创造新的对象
+~~~javascript
+ function User(name) {
+            this.name = name;
+            this.show=function(){
+                console.log(this.name);
+            }
+        }
+        let lyh = new User('了以后');
+        console.log(lyh);
+
+        function createByObject(obj, ...args) {
+            const constructor = Object.getPrototypeOf(obj).constructor
+            console.log(constructor);
+            return new constructor(...args)
+        }
+        let plum = createByObject(lyh, 'plumLi')
+        plum.show()
+        console.log(plum);
+~~~
