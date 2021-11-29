@@ -3538,6 +3538,7 @@ a,b,c有`__proto__`属性即`[[prototype]]`属性指向原型对象
         lisi.sing(); // sing
 ~~~
 #### 8.当constructor存在时，使用对象创造新的对象
+Object.getPrototypeOf() 方法返回指定对象的原型（内部[[Prototype]]属性的值）。
 ~~~javascript
  function User(name) {
             this.name = name;
@@ -3557,3 +3558,33 @@ a,b,c有`__proto__`属性即`[[prototype]]`属性指向原型对象
         plum.show()
         console.log(plum);
 ~~~
+#### 9.总结一下原型链
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211128140818.png)
+~~~javascript
+        let arr=[]; // new Array
+        console.log(arr.__proto__.__proto__===Object.prototype); // true
+        // 原型链 原型的继承
+        let a = {
+            name: 'a'
+        };
+        let c = {
+            name: 'c'
+        };
+        let b = {
+            name: 'b',
+            show() {
+                console.log(this.name);
+            },
+            view(){
+                console.log('view method');
+            }
+        };
+        // 手动改变a和c的父亲，让a和c都能够继承b的方法
+        Object.setPrototypeOf(a, b);
+        Object.setPrototypeOf(c, b);
+        console.log(a);
+        a.show(); // a
+        c.show(); // c
+        c.view(); // view method
+~~~
+#### 10.原型链检测之instanceof
