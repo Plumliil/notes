@@ -3854,3 +3854,130 @@ function User(){}
         let m=new Member()
         m.role(); // Member role
 ~~~
+#### 24.继承对新增对象的影响
+两种方法
+- `Admin.prototype=Object.create(User.prototype)`新建了一个原型对象，当该行代码放在实例化对象前时，原来原型上的额方法就会失效
+
+`Object.create()`方法创建一个新对象，使用现有的对象来提供新创建的对象的__proto__。 （请打开浏览器控制台以查看运行结果。）
+~~~javascript
+        function User(){}
+        User.prototype.name=function(){
+                console.log('user name methods');
+        }
+        function Admin(){}
+        let a=new Admin()
+        // a.role(); // Uncaught TypeError: a.role is not a function
+        Admin.prototype=Object.create(User.prototype)
+        Admin.prototype.role=function(){
+            console.log('Admin role');
+        }
+        a.role(); // Uncaught TypeError: a.role is not a function
+~~~
+- `Admin.prototype.__proto__=User.prototype`这种方法只是改变了xxx对象父亲的原型对象，仍然可以使用它父亲的方法
+~~~javascript
+        function User(){}
+        User.prototype.name=function(){
+                console.log('user name methods');
+        }
+        function Admin(){}
+        let a=new Admin()
+        // a.role(); // Admin role
+        Admin.prototype.__proto__=User.prototype;
+        Admin.prototype.role=function(){
+            console.log('Admin role');
+        }
+        a.role(); // Admin role
+~~~
+#### 25.继承对constructor属性的影响
+当用`Object.create()`方法完整的把一个对象设置成原型对象之后记得添加给被设置的对象添加商constructor属性,保证软来的构造函数存在
+~~~javascript
+        function User(){}
+        User.prototype.name=function(){
+                console.log('user name methods');
+        }
+        function Admin(){}
+        Admin.prototype=Object.create(User.prototype)
+        // Admin.prototype.constructor=User
+        Admin.prototype.role=function(){
+            console.log('Admin role');
+        }
+        let a=new Admin()
+        // console.dir('a',a)
+        let b=new a.__proto__.constructor()
+        console.dir(b)
+~~~
+#### 26.禁止constructor被遍历
+其中通过`Object.definProperty(对象，属性，设置内容)`来实现禁止constructor的遍历
+
+`Object.defineProperty()` 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此对象。
+~~~javascript
+function User(){}
+        User.prototype.name=function(){
+                console.log('user name methods');
+        }
+        function Admin(){}
+        Admin.prototype=Object.create(User.prototype);
+        Object.defineProperty(Admin.prototype,'constructor',{
+            value:Admin,
+            enumerable:false
+        })
+        Admin.prototype.role=function(){
+            console.log('Admin role');
+        }
+        let a=new Admin()
+        for(const key in a){
+            console.log(key); // role name
+        }
+~~~
+#### 27.方法重写与父级属性访问
+如果父类方法不够使用，可以对这个方法进行重写，对字类来定义这样的方法，同时子类也可以对父类的方法进行调用
+~~~javascript
+        function User(){}
+        User.prototype.show=function(){
+            console.log('user name');
+        }
+        User.prototype.site=function(){
+            return 'plumli'
+        }
+        function Admin(){}
+        Admin.prototype=Object.create(User.prototype);
+        Admin.prototype.constructor=Admin;
+        Admin.prototype.show=function(){
+            console.log(User.prototype.site()+'--'+'Admin show');
+        }
+        let pl=new Admin();
+        pl.show(); // plumli--Admin show
+~~~
+#### 28.面向对象的多态实现
+调用了爷爷类方法，调用了父类继承给子类的方法
+~~~javascript
+        function User(){}
+        User.prototype.show=function(){
+            console.log(this.description());
+        }
+
+        function Admin(){}
+        Admin.prototype=Object.create(User.prototype)
+        Admin.prototype.description=function(){
+            return '管理员在此'
+        }
+
+        function Member(){}
+        Member.prototype=Object.create(User.prototype)
+        Member.prototype.description=function(){
+            return '我是会员'
+        }
+
+        function Enterprise(){}
+        Enterprise.prototype=Object.create(User.prototype)
+        Enterprise.prototype.description=function(){
+            return '企业账户'
+        }
+        
+        for(const obj of [new Admin,new Member,new Enterprise]){
+            obj.show();
+            // 管理员在此
+            // 我是会员
+            // 企业账户
+        }
+~~~
