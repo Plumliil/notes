@@ -3981,3 +3981,98 @@ function User(){}
             // 企业账户
         }
 ~~~
+#### 29.使用父类构造函数初始属性
+~~~javascript
+        function User(name, age) {
+            this.name = name;
+            this.age = age;
+        }
+        User.prototype.show = function () {
+            console.log(this.name,this.age);
+        }
+
+        function Admin(name,age) {
+            User.call(this,name,age)
+        }
+        Admin.prototype = Object.create(User.prototype)
+        let a=new Admin('了以后',18)
+        a.show()
+        function Member(...args) {
+            User.apply(this,args)
+        }
+        Member.prototype = Object.create(User.prototype)
+        let m=new Member('以后',18)
+        m.show()
+~~~
+#### 30.使用原型工厂封装继承
+~~~javascript
+        function extend(sub, sup) {
+            sub.prototype = Object.create(sup.prototype);
+            Object.defineProperty(sub.prototype, 'constructor', {
+                value: sub,
+                enumerable: false
+            })
+        }
+
+        function User(name, age) {
+            this.name = name;
+            this.age = age;
+        }
+        User.prototype.show = function () {
+            console.log(this.name, this.age);
+        }
+
+        function Admin(...args) {
+            User.apply(this,args)
+        }
+        extend(Admin, User);
+        let a = new Admin('了以后',18)
+        a.show(); // 了以后 18  
+~~~
+### 31.对象工厂派生对象并实现继承
+通过一个工厂来产生对象并添加方法
+部分代码
+~~~javascript
+       function admin(name,age) {
+            const instance=Object.create(User.prototype)
+            User.call(instance,name,age);
+            instance.role=function(){
+                console.log('admin role');
+            }
+            return instance
+        }
+~~~
+完整代码
+~~~javascript
+        function User(name, age) {
+            this.name = name;
+            this.age = age;
+        }
+        User.prototype.show = function () {
+            console.log(this.name, this.age);
+        }
+
+        function admin(name,age) {
+            const instance=Object.create(User.prototype)
+            User.call(instance,name,age);
+            instance.role=function(){
+                console.log('admin role');
+            }
+            return instance
+        }
+        let a = admin('了以后',18)
+        a.show(); // 了以后 18  
+        a.role(); // admin role
+        function member(name,age){
+            const instance=Object.create(User.prototype)
+            User.call(instance,name,age);
+            return instance
+        }
+        let m=member('以后',20)
+        m.show(); // 以后 20
+~~~
+#### 32.多继承带来的困扰
+多继承出现的原因：一个实例如果要需要多个方法，必须一级一级的继承，但这样会给没有关系的方法绑定上关系
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211201212332.png)
+这样会导致混乱
+#### 35.使用mixin实现多继承
