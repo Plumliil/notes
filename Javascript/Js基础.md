@@ -4076,3 +4076,102 @@ function User(){}
 ![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211201212332.png)
 这样会导致混乱
 #### 35.使用mixin实现多继承
+原型是一个对象，只要是对象就可以往里边压属性，可以通过`Object.assign()`方法向原型对象里压属性，来实现调用功能
+~~~javascript
+        // 原型构建工厂
+        function extend(sub, sup) {
+            sub.prototype = Object.create(sup.prototype);
+            Object.defineProperty(sub.prototype, 'constructor', {
+                value: sub,
+                enumerable: false
+            })
+        }
+
+        const Adress = {
+            getAdress() {
+                console.log('获取收获地址');
+            }
+        }
+        const Credit = {
+            total(){
+                console.log('积分统计');
+            }
+        }
+        const Request={
+            ajax(){
+                console.log('请求后台');
+            }
+        }
+        function User(name,age){
+            this.name=name;
+            this.age=age;
+        }
+        User.prototype.show=function(){
+            console.log(this.name,this.age);
+        }
+        function Admin(name,age){
+            User.call(this,name,age)
+        }
+        extend(Admin,User)
+        Admin.prototype=Object.assign(Admin.prototype,Request,Credit)
+        let admin=new Admin('adm',19)
+        admin.show()
+        admin.ajax()
+        admin.total()
+        function Member(name,age){
+            User.call(this,name,age)
+        }
+        extend(Member,User)
+        Member.prototype=Object.assign(Member.prototype,Request,Credit)
+        let member=new Member('mem',19)
+        member.show()
+        member.ajax()
+        member.total()
+~~~
+#### 36.mixin内部继承与super关键字功能类之间的相互继承
+~~~javascript
+        function extend(sub, sup) {
+            sub.prototype = Object.create(sup.prototype);
+            Object.defineProperty(sub.prototype, 'constructor', {
+                value: sub,
+                enumerable: false
+            })
+        }
+
+        const Adress = {
+            getAdress() {
+                console.log('获取收获地址');
+            }
+        };
+        const Request = {
+            ajax() {
+                return '请求后台';
+            }
+        };
+        const Credit = {
+            __proto__: Request,
+            total() {
+                // super = __proto__
+                // super是当前类的原型
+                // console.log(this.__proto__.ajax()+'--积分统计');
+                console.log(super.ajax() + '--积分统计');
+            }
+        };
+
+        function User(name, age) {
+            this.name = name;
+            this.age = age;
+        }
+        User.prototype.show = function () {
+            console.log(this.name, this.age);
+        }
+
+        function Admin(name, age) {
+            User.call(this, name, age)
+        }
+        extend(Admin, User)
+        Admin.prototype = Object.assign(Admin.prototype, Request, Credit)
+        let admin = new Admin('adm', 19)
+        admin.show();
+        admin.total(); // 请求后台--积分统计
+~~~
