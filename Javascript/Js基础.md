@@ -4175,3 +4175,130 @@ function User(){}
         admin.show();
         admin.total(); // 请求后台--积分统计
 ~~~
+
+#### tab切换实例
+
+~~~javascript
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .box1 {
+            margin-top: 100px;
+            background-color: wheat;
+            width: 300px;
+            position: relative;
+            /* height: 400px; */
+        }
+
+        a {
+            display: block;
+            text-decoration: none;
+            color: white;
+            background-color: cadetblue;
+            padding: 5px;
+            width: 50px;
+            border: 1px solid black;
+
+        }
+
+        section {
+            /* margin-top: 20px; */
+            position: absolute;
+            width: 300px;
+            height: 200px;
+            background-color: tomato;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box1" id="tab1">
+        <nav>
+            <a href="javascript:;">了以后</a>
+            <a href="javascript:;">plumli</a>
+        </nav>
+        <section>1</section>
+        <section>2</section>
+    </div>
+    <div class="box1" id="tab2">
+        <nav>
+            <a href="javascript:;">了以后</a>
+            <a href="javascript:;">plumli</a>
+        </nav>
+        <section>1</section>
+        <section>2</section>
+    </div>
+    <button class="btn">xxx</button>
+    <script>
+        function extend(sub, sup) {
+            sub.prototype = Object.create(sup.prototype);
+            sub.prototype.constructor = sub;
+        }
+
+        function Animation() {}
+        Animation.prototype.show = function () {
+            this.style.display = 'block'
+        }
+        Animation.prototype.hide = function () {
+            this.style.display = 'none'
+        }
+        Animation.prototype.background = function (color) {
+            this.style.backgroundColor = color
+        }
+
+        function Tab(el) {
+            this.tab = document.querySelector(`${el}`);
+            this.links = this.tab.querySelectorAll('a');
+            this.sections = this.tab.querySelectorAll('section');
+
+        }
+        extend(Tab, Animation)
+        Tab.prototype.run = function () {
+            console.log(3);
+            this.bindEvent();
+            this.reset();
+            this.action(0);
+        }
+        Tab.prototype.bindEvent = function () {
+            this.links.forEach((el, i) => {
+                el.addEventListener('click', () => {
+                    this.reset();
+                    this.action(i);
+                })
+            })
+        }
+        Tab.prototype.action = function (i) {
+            this.background.call(this.links[i], '#e67e21')
+            this.show.call(this.sections[i])
+        }
+        Tab.prototype.reset = function () {
+            this.links.forEach((el, i) => {
+                this.background.call(this.links[i], 'cadetblue')
+                this.hide.call(this.sections[i])
+            })
+        }
+        // new Tab('tab1');
+        new Tab('#tab1').run()
+        new Tab('#tab2').run()
+        // console.log(new Tab());
+    </script>
+</body>
+
+</html>
+~~~
