@@ -3511,7 +3511,7 @@ a,b,c有`__proto__`属性即`[[prototype]]`属性指向原型对象
         parent.show(); // parent method parent
 ~~~     
 #### 7.通过原型找到构造函数 原型中constructor的运用
-有constructor存在时可以使用sconstructor来创建另一个对象
+有constructor存在时可以使用constructor来创建另一个对象
 
 ~~~javascript
         function User(name){
@@ -4316,4 +4316,91 @@ function User(){}
 </body>
 
 </html>
+~~~
+
+## 类
+
+#### 1.类的特点是什么
+通过类可以更好地操作对象
+#### 2.class声明类语法 class内部操作就是原型的操作
+~~~javascript
+        // 类创建方法不用直接放到原型中，而是会自动放到原型中
+        class User {
+            constructor(name){
+                this.name=name;
+            }
+            show(){
+                console.log(this.name);
+            }
+        }
+        console.dir(User)
+        let user=new User('user')
+        console.log(user);
+        console.log(Object.getOwnPropertyNames(user)); // ['name']
+        console.log(Object.getOwnPropertyNames(User.prototype)); // ['constructor','show']
+        function Fn(name){
+            this.name=name;
+        }
+        let fn=new Fn('fn');
+        console.log(fn);
+        console.log(Object.getOwnPropertyNames(fn)); // ['name']
+        console.log(Object.getOwnPropertyNames(Fn.prototype)); // ['constructor']
+~~~
+把原来函数定义的方法进行简化，类只是包了个壳，内部还是原型机制
+#### 3.属性的声明
+~~~javascript
+        class User {
+            site = '了以后';
+            constructor(name) {
+                this.name = name;
+            }
+            show() {
+                console.log(this.name);
+            }
+            changeSite(value) {
+                this.site = value;
+            }
+            show(){
+                return `${this.site}:${this.name}`
+            }
+        }
+        console.dir(User);
+        let pl = new User('plumli');
+        let lyh = new User('了以后');
+        pl.changeSite('pl')
+        console.log(pl.show());
+        console.log('pl', pl); // pl:plumli
+        lyh.changeSite('lyh'); 
+        console.log(lyh.show()); // pl User {site: 'pl', name: 'plumli'}
+        lyh.changeSite('lyh'); // lyh:了以后
+        console.log('lyh', lyh); // lyh User {site: 'lyh', name: '了以后'}
+~~~
+#### 4.class声明的方法为什么不能遍历
+class中的方法默认不被遍历
+~~~javascript
+        class User {
+            constructor(name){
+                this.name=name;
+            }
+            show(){
+                console.log(0);
+            }
+        }
+        let u=new User('plumli');
+        for(const key in u){
+            console.log(key); // name
+        }
+        // 函数中方法可以遍历
+        function Fn(name){
+            this.name=name;
+        }
+        Fn.prototype.show=function(){}
+        let f=new Fn('fn')
+        for(const key in f){
+            console.log(key); // name show
+        }
+~~~
+#### 5.严格模式下运行
+~~~javascript
+
 ~~~
