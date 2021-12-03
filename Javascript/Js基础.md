@@ -4176,9 +4176,9 @@ function User(){}
         admin.total(); // 请求后台--积分统计
 ~~~
 
-#### tab切换实例
+#### tab切换实例并且开放更多api实现灵活定制
 
-~~~javascript
+~~~html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -4206,7 +4206,7 @@ function User(){}
             /* height: 400px; */
         }
 
-        a {
+        a,span {
             display: block;
             text-decoration: none;
             color: white;
@@ -4214,6 +4214,7 @@ function User(){}
             padding: 5px;
             width: 50px;
             border: 1px solid black;
+            cursor: pointer;
 
         }
 
@@ -4230,8 +4231,8 @@ function User(){}
 <body>
     <div class="box1" id="tab1">
         <nav>
-            <a href="javascript:;">了以后</a>
-            <a href="javascript:;">plumli</a>
+            <span href="javascript:;">了以后</span>
+            <span href="javascript:;">plumli</span>
         </nav>
         <section>1</section>
         <section>2</section>
@@ -4262,15 +4263,22 @@ function User(){}
             this.style.backgroundColor = color
         }
 
-        function Tab(el) {
-            this.tab = document.querySelector(`${el}`);
-            this.links = this.tab.querySelectorAll('a');
-            this.sections = this.tab.querySelectorAll('section');
+        function Tab(args) {
+            // console.log(args);
+            args=Object.assign({el:null,link:'a',section:'section',callback:null},args);
+            console.log(args);
+            // this.callback = args['callback'] || null;
+            console.log(this.callback);
+            this.tab = document.querySelector(args['el']);
+            console.log(this.tab);
+            this.links = this.tab.querySelectorAll(args['link']);
+            console.log(this.links);
+            this.sections = this.tab.querySelectorAll(args['section']);
+            this.callback=args['callback'];
 
         }
         extend(Tab, Animation)
         Tab.prototype.run = function () {
-            console.log(3);
             this.bindEvent();
             this.reset();
             this.action(0);
@@ -4280,6 +4288,7 @@ function User(){}
                 el.addEventListener('click', () => {
                     this.reset();
                     this.action(i);
+                    if(this.callback) this.callback()
                 })
             })
         }
@@ -4294,9 +4303,15 @@ function User(){}
             })
         }
         // new Tab('tab1');
-        new Tab('#tab1').run()
-        new Tab('#tab2').run()
-        // console.log(new Tab());
+        new Tab({el:'#tab1',link:'span',section:'section',callback:function(){
+            console.log(111);
+        }}).run()
+        new Tab({
+            el:'#tab2',
+            callback(){
+                console.log('tab2');
+            }
+        }).run()
     </script>
 </body>
 
