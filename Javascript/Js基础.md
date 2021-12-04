@@ -4401,6 +4401,148 @@ class中的方法默认不被遍历
         }
 ~~~
 #### 5.严格模式下运行
+class内语法默认在严格模式下运行
 ~~~javascript
+        function User() {}
+        User.prototype.show = function () {
+            function test() {
+                console.log(this);
+            }
+            test()
+        }
+        let u = new User();
+        u.show(); // window
+        class Fn {
+            show() {
+                function test() {
+                    console.log(this);
+                }
+                test()
+            }
+        }
+        let fn = new Fn();
+        fn.show(); // undefined
+~~~
+#### 6.静态属性的使用
+静态属性可以用static的方式写在类中，供所有类生成的对象使用，而不需要每次生成类时再生成一遍该属性
+~~~javascript
+        class Request{
+           static host='www.plumli.xyz'
+           api(url){
+               return Request.host+'/'+url
+           }
+        }
+        let obj=new Request();
+        console.log(obj.api('article'));
+~~~
+#### 7.静态方法的实现原理
+如果不是对单个对象进行管理，使用静态方法就比较适合
 
+函数中静态方法
+~~~javascript
+        function User(){}
+        User.prototype.show=function(){
+                console.log('prototype.show');
+            }
+        // 静态方法
+        // 直接用到函数上就是静态方法
+        User.show=function(){
+            console.log(this+'static.show');
+            console.log('User.show',this);
+            console.log(this===User);
+        }
+        // User.show()
+        console.dir(User)
+        let u=new User();
+        u.show(); // prototype.show
+        User.show(); // function User(){}static.show
+        User.prototype.show(); // prototype.show
+~~~
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211204202722.png)
+类中静态方法
+~~~javascript
+        class User {
+            show() {
+                console.log('prototype.show');
+            }
+            static show(){
+                console.log('static.show');
+            }
+        }
+        console.log(typeof User);
+        let u = new User(); // function
+        console.log(u); // User {}[[Prototype]]: Object
+        User.show(); // static.show
+~~~
+类静态方法使示例
+~~~javascript
+      class User{
+            constructor(name,age,sex){
+                this.name=name;
+                this.age=age;
+                this.sex=sex;
+            }
+            static create(...args){
+                return new User(...args)
+            }
+        }
+        let lyh=User.create('了以后',19,'男')
+        console.log(lyh);
+~~~
+#### 8.静态属性练习之课程管理的类
+使用静态方法循环创建数组中新对象，并对新对象进行操作
+~~~javascript
+class Lesson {
+            constructor(data) {
+                this.model = data;
+            }
+            get price() {
+                return this.model.price;
+            }
+            get name(){
+                return this.model.name;
+            }
+            static createBatch(data) {
+                return data.map(item => new Lesson(item))
+            }
+            static maxPrice(data) {
+                return data.sort((a, b) => {
+                    return b.price-a.price
+                })[0]
+            }
+            static totalPrice(data){
+                return data.reduce((t,c)=>{
+                    console.log('t',t); // 累加后的值
+                    console.log('c',c); // data中的一个元素
+                    return t+c.price
+                },0)
+            }
+        }
+        let lessons = Lesson.createBatch(data);
+        console.log(lessons); // (4) [Lesson, Lesson, Lesson, Lesson]
+        console.log(Lesson.maxPrice(lessons).price); // 317
+        console.log(Lesson.maxPrice(lessons).name); // js
+        console.log(Lesson.totalPrice(lessons)); // 855
+~~~
+#### 9.在类中使用访问器
+
+~~~javascript
+        class Request{
+            constructor(host){
+                this.data={};
+                this.host=host;
+            }
+            set host(url){
+                if(!/^https?:\/\//i.test(url)){
+                    throw new Error('地址错误')
+                }
+                this.data.host=url
+            }
+            get(){
+                this.data['host']
+            }
+        }
+        let pl=new Request('https://www.pl.xyz');
+        pl.host='https://plumli.xyz'
+        console.log(pl);
 ~~~
