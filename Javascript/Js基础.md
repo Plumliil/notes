@@ -4546,3 +4546,282 @@ class Lesson {
         pl.host='https://plumli.xyz'
         console.log(pl);
 ~~~
+
+#### 10.使用命名规则保护属性
+
+~~~javascript
+        class User {
+            _url = "https://pl.com";
+            constructor(name) {
+                this.name = name;
+            }
+            set url(url) {
+                if (!/^https?:/i.test(url)) {
+                    throw Error('非法网址');
+                }
+                this._url = url;
+            }
+        }
+        let pl = new User('plumli');
+        pl.name
+        pl.url='https://www.plumli.xyz'
+        console.log(pl); // User {_url: 'https://www.plumli.xyz', name: 'plumli'}
+~~~
+
+#### 11.使用Symble设置protected属性
+将属性保护起来，在类及其子类中可以使用
+~~~javascript
+       const protecteds = Symbol();
+        class Common {
+            constructor() {
+                // 将Symble声明为对象来装被保护的属性
+                this[protecteds] = {}
+                console.log(33);
+                this[protecteds].host = 'https://pl.com';
+            }
+            set url(url) {
+                if (!/^https?:/i.test(url)) {
+                    throw Error('非法网址');
+                }
+                this[protecteds].host = url;
+            }
+            get host() {
+                return this[protecteds].host
+            }
+        }
+        class User extends Common {
+            // public
+            constructor(name) {
+                super()
+                this.name = name;
+            }
+
+        }
+        let pl = new User('plumli');
+        pl.url = 'https://www.plumli.xyz'
+        console.log(pl);
+        // User {
+        //     name: 'plumli',
+        //     Symbol(): {
+        //         …}
+        // }
+        // name: "plumli"
+        // Symbol():
+        //     host: "https://www.plumli.xyz" [
+        //         [Prototype]
+        //     ]: Object
+        // host: (...)[[Prototype]]: Common
+        // console.log(pl); // User {_url: 'https://www.plumli.xyz', name: 'plumli'}
+~~~
+
+#### 12.使用WeakMap保护属性
+通过WeakMap保护单个属性
+~~~javascript
+ const host = new WeakMap()
+        class Comment {
+            constructor() {
+                host.set(this, "https://pl.com")
+            }
+            set host(url) {
+                if (!/^https?:/i.test(url)) {
+                    throw Error('非法网址');
+                }
+                host.set(this, url)
+            }
+            get host() {
+                return host.get(this)
+            }
+        }
+        class User extends Comment{
+            // public
+            constructor(name) {
+                super()
+                this.name = name;
+            }
+
+        }
+        let pl = new User('plumli');
+        console.log(pl);
+~~~
+保护多个属性
+~~~javascript
+        const protecteds = new WeakMap()
+        class Comment {
+            constructor() {
+                protecteds.set(this, {
+                    host: "https://pl.com"
+                })
+            }
+            set host(url) {
+                if (!/^https?:/i.test(url)) {
+                    throw Error('非法网址');
+                }
+                protecteds.set(this,{...protecteds.get(this,url)})
+            }
+            get host() {
+                return protecteds.get(this)['host']
+            }
+        }
+        class User extends Comment {
+            // public
+            constructor(name) {
+                super()
+                this.name = name;
+            }
+
+        }
+        let pl = new User('plumli');
+        console.log(pl);
+~~~
+#### 13.pricate私有属性
+属性前边加 # ，私有属性只能在当前类里面使用
+~~~javascript
+class User {
+            #host = 'https://pl.com';
+            constructor(name) {
+                this.name = name;
+                this.#check(name);
+            }
+            set host(url) {
+                if (!/^https?:/i.test(url)) {
+                    throw Error('非法网址');
+                }
+                this.#host = url
+            }
+            get host() {
+                return this.#host
+            }
+            #check = () => {
+                if (this.name.length < 5) {
+                    throw new Error('名字长度不能小于5位')
+                }
+                return true
+            }
+        }
+        let pl = new User('plumli');
+        pl.host = 'https://www.plumli.xyz';
+        // console.log(pl.#check); // 外部调用报错 Uncaught SyntaxError: Private field '#check' must be declared in an enclosing class
+~~~
+#### 14.class属性继承原理
+
+函数属性继承的原理实现
+~~~javascript
+        function User(name) {
+            this.name = name;
+        }
+
+        function Admin(name) {
+            User.call(this,name)
+        }
+        Admin.prototype = Object.create(User.prototype);
+        Admin.prototype.show = function () {}
+        let pl =new Admin('plumli')
+        console.log(pl); // Admin {name: 'plumli'}
+~~~
+class类实现继承 语法塘结构，内部原理还是原型或者原型链
+~~~javascript
+            class User{
+                constructor(name){
+                    this.name=name;
+                }
+            }
+            class Admin extends User{
+                constructor(name){
+                    super(name)
+                }
+            }
+            let pl=new Admin('plumli');
+            console.log(pl); // Admin {name: 'plumli'}
+~~~
+
+#### 15.类方法的继承原理
+
+函数方法继承
+~~~javascript
+       function User(name) {
+            this.name = name;
+        }
+        User.prototype.show = function () {
+            console.log('User Show');
+        }
+
+        function Admin(name) {}
+        Admin.prototype = Object.create(User.prototype);
+        // Admin.prototype.show = function () {}
+        let pl = new Admin('plumli')
+        console.log(pl);
+        pl.show('User Show');
+~~~
+类方法的继承
+~~~javascript
+        // 方法为所有属性共享，始终在原型对象上
+        class User {
+            show() {
+                console.log('User.show');
+            }
+        }
+        class Admin extends User {
+            constructor(name) {
+                super()
+                this.name = name;
+            }
+        }
+        let pl = new Admin('plumli');
+        console.log(pl); // Admin {name: 'plumli'}
+        pl.show(); // User.show
+~~~
+#### 16.super原理分析
+super就是访问父级类
+~~~javascript
+  class Admin extends User {
+            show(){
+                super.show()
+                console.log('Admin.show');
+            }
+        }
+~~~
+普通对象的函数继承，super原理
+~~~javascript
+        let pl={
+            name:'pl.name',
+            show(){
+                console.log('this.name',this.name);
+            }
+        }
+        let lyh={
+            __proto__:pl,
+            name:'lyh.name',
+            show(){
+                this.__proto__.show.call(this)
+                console.log('lyh.show');
+            }
+        }
+        console.log(lyh); // {name: 'lyh.name', show: ƒ}
+        lyh.show(); // this.name lyh.name // lyh.show
+~~~
+
+#### 17.多继承中super的魅力
+super也可以脱离class调用，但是得在对象中的fn(){}中使用
+~~~javascript
+        let common = {
+            show() {
+                console.log('common.show',this.name);
+            }
+        }
+        let pl = {
+            __proto__:common,
+            name: 'pl.name',
+            show() {
+                super.show()
+            }
+        }
+        pl.show(); // common.show pl.name
+        let lyh = {
+            __proto__: pl,
+            name: 'lyh.name',
+            show() {
+                super.show()
+            }
+        }
+        lyh.show(); // common.show lyh.name
+~~~
