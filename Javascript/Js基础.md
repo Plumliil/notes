@@ -4825,3 +4825,233 @@ super也可以脱离class调用，但是得在对象中的fn(){}中使用
         }
         lyh.show(); // common.show lyh.name
 ~~~
+#### 18.为什么子类constructor中执行super
+为了让父类的构造函数成功执行，如果子类里有constructor则super必须放在子类的构造函数上边，如果写在下边父类的属性就会覆盖子类的属性
+
+字类定义的属性高于父级
+
+~~~javascript
+        class User {
+            constructor(name) {
+                this.name = name;
+            }
+        }
+        class Admin extends User {
+            constructor(...args) {
+                super(...args);
+                this.site = 'plumli.xyz';
+            }
+        }
+        let a = new Admin('admin')
+        console.log(a);
+~~~
+#### 19.使用super访问父类方法
+实现多层继承
+~~~javascript
+        class Common{
+            sum(){
+                return this.data.reduce((t,c)=>t+c.price,0)
+            }
+        }
+        class Consroller extends Common {
+            constructor(){
+                super()
+            }
+        }
+
+        class Lesson extends Consroller {
+            constructor(data) {
+                super()
+                this.data = data;
+            }
+            info(){
+                return {
+                    totalPrice:super.sum(),
+                    data:this.data
+                }
+            }
+        }
+        let data = [
+            {name: 'javascript',price: 150},
+            {name: 'node.js',price: 173},
+            {name: 'vue',price: 132},
+        ]
+        let pl = new Lesson(data);
+        console.log(pl.info()); // {totalPrice: 455, data: Array(3)}data: (3) [{…}, {…}, {…}]totalPrice: 455[[Prototype]]: Object
+~~~
+#### 20.父类方法的重写
+在子类里写方法来覆盖父类方法
+~~~javascript
+        class Common{
+            sum(){
+                return this.data.reduce((t,c)=>t+c.price,0)
+            }
+            getByKey(key){
+                return this.data.filter(item=>item.name.includes(key))
+            }
+
+        }
+        class Consroller extends Common {
+            constructor(){
+                super()
+            }
+        }
+
+        class Lesson extends Consroller {
+            constructor(data) {
+                super()
+                this.data = data;
+            }
+            info(){
+                return {
+                    totalPrice:super.sum(),
+                    data:this.data
+                }
+            }
+            getByKey(key){
+                return super.getByKey(key).map(item=>item.name)
+            }
+        }
+        let data = [
+            {name: 'javascript',price: 150},
+            {name: 'node.js',price: 173},
+            {name: 'vue.js',price: 132},
+        ]
+        let pl = new Lesson(data);
+        console.log(pl.getByKey('js')); // (2) ['node.js', 'vue.js']
+~~~
+#### 21.静态的属性调用
+实现原理
+~~~javascript
+        function User() {}
+        User.site = 'plumli.xyz'
+        User.show = function () {
+            console.log('User static methods');
+        }
+        console.dir(User)
+        function Admin() {}
+        Admin.__proto__ = User;
+        // console.dir(Admin)
+        Admin.show()
+        console.log(Admin.site);
+~~~
+类中静态方法的调用
+~~~javascript
+        class User{
+            static site='plumli.xyz'
+            static show(){
+                console.log('User.static methods');
+            }
+        }
+        class Admin extends User{}
+        console.dir(Admin.site); // plumli.xyz
+        Admin.show(); // User.static methods
+~~~
+类本质上就是对象，类中继承中方法和属性的调用本质上就是prototype和__proto__以及原型链的运用
+#### 22.使用instanceof检测对象实现
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211207140221.png)
+~~~javascript
+        class User {}
+        class Admin extends User {}
+        let a =new Admin()
+        console.log(a instanceof Admin); // true
+        console.log(a instanceof User); // true 
+        console.log(Admin.prototype instanceof User); // true
+~~~
+#### 23.isPrototypeOf检测继承关系
+~~~javascript
+        class Common{}
+        class User extends Comment {}
+        class Admin extends User {}
+        let pl = new Admin();
+        console.log(Admin.prototype.isPrototypeOf(pl));
+        console.log(Comment.prototype.isPrototypeOf(pl));
+~~~
+#### 24.继承内置类的原型实现
+继承内置数组方法并使用
+~~~javascript
+        function Arr(...args) {
+            args.forEach(item => this.push(item))
+            console.log(this);
+            this.first = function () {
+                return this[0]
+            };
+            this.max = function () {
+                return this.sort((a, b) => b - a)[0]
+            }
+        }
+        Arr.prototype = Object.create(Array.prototype)
+        // console.dir(Arr)
+        let arr = new Arr(1, 2, 3, 4, 56, 7, 8)
+
+        // console.log(arr);
+        console.log(arr.first());
+        console.log(arr.max());
+~~~
+
+#### 25.使用继承增强内置类
+在内置类的基础上增加新方法来增强内置类
+~~~javascript
+        class Arr extends Array {
+            constructor(...args) {
+                super(...args)
+            }
+            first() {
+                return this[0]
+            }
+            max() {
+                return this.sort((a, b) => {
+                    return b - a
+                })[0]
+            }
+            add(item) {
+                this.push(item)
+            }
+            remove(value) {
+                let pos = this.findIndex(item => item === value)
+                console.log(pos);
+                this.splice(pos,1)
+            }
+        }
+        let arr = new Arr(1, 2, 3, 4, 56, 7, 8)
+        // console.log(arr.first());
+        // console.log(arr.max());
+        arr.remove(56)
+        arr.remove(1)
+        arr.remove(2)
+        arr.add('了以后')
+        console.log(arr);
+~~~
+#### 26.使用mixin混合方法
+该方法中用到Object.assign()来向类原型中压入对象方法，使该类能使用压入的方法
+~~~javascript
+        let Tools={
+            max(key){
+                return this.data.sort((a,b)=>b[key]-a[key])[0]
+            }
+        }
+        let Arr={
+            count(key){
+                return this.data.reduce((t,c)=>t+c[key],0)
+            }
+        }
+        class Lesson {
+            constructor(lessons) {
+                this.lessons = lessons;
+            }
+            get data(){
+                return this.lessons
+            }
+        }
+        let data = [
+            {name: 'javascript',price: 150,click:189},
+            {name: 'node.js',price: 173,click:173},
+            {name: 'vue.js',price: 132,click:210},
+        ]
+        Object.assign(Lesson.prototype,Tools,Arr)
+        let pl=new Lesson(data);
+        console.log(pl.max('price')); // {name: 'node.js', price: 173, click: 173}
+        console.log(pl.max('click')); // {name: 'vue.js', price: 132, click: 210}
+        console.log(pl.count('price')); // 455
+~~~
+#### 27.灵活的动画处理类
