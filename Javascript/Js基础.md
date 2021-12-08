@@ -5054,4 +5054,307 @@ super也可以脱离class调用，但是得在对象中的fn(){}中使用
         console.log(pl.max('click')); // {name: 'vue.js', price: 132, click: 210}
         console.log(pl.count('price')); // 455
 ~~~
-#### 27.灵活的动画处理类
+#### 27.动画实例
+
+##### 灵活的动画处理类
+~~~javascript
+ class Animation {
+            constructor(el) {
+                this.el = el;
+                this.timeout = 5;
+                this.isShow = true;
+                this.defaultHeight = this.height;
+                // console.log(this.defaultHeight);
+            }
+            hide(callback) {
+                this.isShow = false;
+                let id = setInterval(() => {
+                    if (this.height === 0) {
+                        clearInterval(id)
+                        callback && callback()
+                        return
+                    }
+                    this.height = this.height - 1;
+                }, this.timeout)
+            }
+            show(callback) {
+                this.isShow = true;
+                console.log('------------------------------', this.defaultHeight);
+                let id = setInterval(() => {
+                    if (this.height === this.defaultHeight || this.height > this.defaultHeight) {
+                        clearInterval(id)
+                        callback && callback()
+                        return
+                    }
+                    this.height = this.height + 1;
+                }, this.timeout)
+            }
+            get height() {
+                return window.getComputedStyle(this.el).height.slice(0, -2) * 1;
+            }
+            set height(height) {
+                this.el.style.height = height + 'px';
+            }
+        }
+~~~
+##### 容器管理类slide
+~~~javascript
+        class Slide {
+            constructor(el) {
+                this.el = document.querySelector(`${el}`);
+                this.links = this.el.querySelectorAll('dt');
+                this.panels = [...this.el.querySelectorAll('dd')].map(item => new Panel(item))
+                this.bind()
+            }
+            bind() {
+                this.links.forEach((item, i) => {
+                    console.log(i);
+                    item.addEventListener('click', () => {
+                        console.log(i);
+                        this.action(i)
+                    })
+                })
+            }
+            action(i) {
+                Panel.hideAll(Panel.filter(this.panels, i), () => {
+                    this.panels[i].show()
+                })
+                console.log(Panel.filter(this.panels, i));
+            }
+        }
+
+~~~
+##### 批量执行动画
+~~~javascript
+        class Panel extends Animation {
+            static num = 0;
+            static hideAll(items, callback) {
+                if (Panel.num > 0) return;
+                items.forEach(item => {
+                    Panel.num++;
+                    item.hide(() => {
+                        Panel.num--;
+                    })
+                })
+                callback && callback()
+            }
+            static filter(items, i) {
+                return items.filter((item, index) => index !== i)
+            }
+        }
+~~~
+##### 动画队列的控制
+定义num
+~~~javascript
+      static num = 0;
+            static hideAll(items, callback) {
+                if (Panel.num > 0) return;
+                items.forEach(item => {
+                    Panel.num++;
+                    item.hide(() => {
+                        Panel.num--;
+                    })
+                })
+                callback && callback()
+            }
+~~~
+
+# 模块化
+#### 1.什么是模块化
+将独立的功能拆分成不同的文件
+用到哪个文件调用哪个文件
+
+#### 2.开发一个模块管理工具
+用moduleList对象，通过闭包把导入的对象保存起来，需要在拿对应的key获取
+~~~javascript
+        let module = (function () {
+            const moduleList = {};
+
+            function define(name, modules, action) {
+                // 使用map取出方法
+                modules.map((m,i)=>{
+                    // 取出引用模块的方法
+                    modules[i]=moduleList[m]
+                })
+                // 让当前模块调用，被调用模块的方法
+                // 储存方法
+                moduleList[name] = action.apply(null, modules);
+            }
+            return {
+                // 暴露方法
+                define
+            }
+        })();
+        module.define('lyh', [], function () {
+            return {
+                first(arr) {
+                    return arr[0]
+                },
+                max(arr,key) {
+                    return arr.sort((a,b)=>b[key]-a[key])[0]
+                }
+            }
+        })
+        module.define('a',[],function(){
+            return {
+                site:'了以后',
+                url:'plumli.xyz'
+            }
+        })
+        module.define('b',['a'],function(a){
+            a.site='plumli'
+            console.log(a);
+        })
+        module.define('lesson',['lyh'],function(lyh){
+            console.log(lyh);
+            let data=[
+                {name:'js',price:125,click:200},
+                {name:'css',price:105,click:174},
+                {name:'html',price:80,click:310},
+                {name:'node',price:200,click:110},
+
+            ]
+            console.log(lyh.first(data));
+            console.log(lyh.max(data,'price'));
+        })
+~~~
+#### 3.模块的基本使用
+需要导入的js
+~~~javascript
+// pl.js
+let title = '了以后';
+let url = 'plumli.xyz';
+function show(){
+    console.log('plumli');
+}
+// 只有导出的文件才可以使用
+export {title,url,show}
+~~~
+~~~html
+<script type="module">
+        // 路径中需要加入目录
+        import {title,url,show} from './js/pl.js'
+        // console.log(title,url);
+        show()
+</script>
+~~~
+
+#### 4.模块延迟解析与严格模式
+js代码按顺序执行
+但是如果script标签有module属性则会延迟加载，即为模块延迟解析，后解析
+~~~html
+    <script type="module">
+        console.log(document.querySelector('button'));
+    </script>
+~~~
+使用模块的时候默认为严格模式，必须要按严格模式来
+~~~html
+    <script type="module">
+        site='plumli.xyz'
+        console.log(document.querySelector('button'));
+        // Uncaught ReferenceError: site is not defined
+        console.log(ths); // undefined
+    </script>
+~~~
+
+#### 5.作用域在模块中实现
+模块有其独立的作用域，在其他作用域无法访问模块内值
+~~~html
+    <script type="module">
+        let site = 'plumli.xyz'
+    </script>
+    <script>
+        console.log(site);
+        // Uncaught ReferenceError: site is not defined
+    </script>
+~~~
+模块间相互调用也需要import调用
+
+#### 6.预解析的必要性
+调用的时候解析一次，节省资源
+
+#### 7.模块的具名导入与导出
+具名导入
+~~~javascript
+import {site} from './js/pl.js'
+~~~
+具名导出
+~~~javascript
+export {site}
+~~~
+#### 8.批量导入与建议
+批量导入
+~~~javascript
+        import * as pl from './js/pl.js'
+        console.log(pl.site);
+~~~
+具名导入在一定程度上可以节省资源，打包工具在打包时只会打包用到的导入的函数或方法
+
+#### 9.别名的使用
+当命名冲突时，可以使用别名来减少冲突
+~~~javascript
+let title = '了以后';
+let site = 'pl.xyz';
+export {title as t,site}
+~~~
+~~~html
+    <script type="module">
+        let site='xx'
+        import {site as s,t} from './js/pl.js'
+        console.log(site); // xx
+        console.log(s); // pl.xyz
+        console.log(t); // 了以后
+    </script>
+~~~
+
+#### 10.default默认导出
+默认导出只有一个，所以可以用任何名字来接受
+~~~javascript
+export default class User{
+    show(){
+        console.log('默认导出 User.show');
+    }
+}
+// 原理 export { User as default }
+~~~
+~~~html
+    <script type="module">
+        import User from './js/plum.js'
+        console.log(User);
+    </script>
+~~~
+
+#### 11.混合导入与导出的使用
+~~~javascript
+let site = 'plumli.xyz'
+export default class User {
+    show() {
+        console.log('默认导出 User.show');
+    }
+}
+export {site}
+~~~
+~~~html
+    <script type="module">
+        import User,{site} from './js/plum.js'
+        console.log(User);
+        console.log(site);
+    </script>
+~~~
+批量导出
+~~~javascript
+let site = 'plumli.xyz'
+class User {
+    static show() {
+        console.log('默认导出 User.show');
+    }
+}
+export {User as default,site}
+~~~
+~~~html
+    <script type="module">
+        import * as plum from './js/plum.js'
+        console.log(plum.default.show());
+        console.log(plum.site);
+    </script>
+~~~
