@@ -5358,3 +5358,211 @@ export {User as default,site}
         console.log(plum.site);
     </script>
 ~~~
+#### 12.默认导出模块的使用规范
+默认导出的名字一般和文件名有关联
+#### 13.模块合并导出
+通过一个文件将所有用到的模块集合在一起一块导出
+~~~html
+    <script type="module" src="./js/pl.js"></script>
+~~~
+~~~javascript
+// pl.js
+import * as pl3 from './pl3.js'
+console.log(pl3);
+pl3.pl2.User.show()
+~~~
+~~~javascript
+// pl1.js
+let title = '了以后';
+let site = 'pl.xyz';
+export {title,site}
+~~~
+~~~javascript
+// pl2.js
+let site = 'plumli.xyz'
+class User {
+    static show() {
+        console.log('默认导出 User.show');
+    }
+}
+export {User,site}
+~~~
+~~~javascript
+// pl3.js
+import * as pl1 from './pl1.js'
+import * as pl2 from './pl2.js'
+export {pl1,pl2}
+~~~
+将每个模块整合到一起统一导出
+#### 14.按需动态加载模块
+~~~html
+    <script type="module">
+        // import() 返回一个promise对象，可以实现动态加载模块
+        document.querySelector('button').addEventListener('click',()=>{
+            import('./js/pl.js').then(({User,site})=>{
+                User.show()
+            })
+        })
+    </script>
+~~~
+~~~javascript
+let site = 'plumli.xyz'
+class User {
+    static show() {
+        console.log('默认导出 User.show');
+    }
+}
+export {User,site}
+~~~
+#### 15.webpack打包工具体验
+首先需要初始化文件夹
+~~~shell
+npm init -y
+~~~
+然后安装webpack工具
+~~~shell
+npm i webpack webpack-cli --save-dev
+~~~
+然后在package.json中进行配置
+~~~json
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev":"webpack --mode development --watch"
+  },
+  // --watch 监听改变
+~~~
+接下来创建文件目录
+~~~shell
+├─index.html
+├─package-lock.json
+├─package.json
+├─src
+|  ├─index.js
+|  └Style.js
+├─dist
+|  └main.js
+~~~
+其中index.js为webpack编译时入口文件,Style.文件为模块文件
+dist为编译打包后的js文件夹main.js为编译好的文件
+~~~javascript
+// index.js
+import Style from './Style'
+new Style().init()
+~~~
+~~~javascript
+// Style.js
+export default class Style {
+    constructor() {}
+    init() {
+        document.body.style.backgroundColor = 'red'
+    }
+}
+~~~
+
+# 正则
+
+#### 1.体验正则
+~~~javascript
+        let pl='plumli2001pl11';
+        // console.log(parseInt('a'));
+        let nums=[...pl].filter(item=>!Number.isNaN(parseInt(item)));
+        console.log(nums.join(''));
+        console.log(pl.match(/\d/g).join(''));
+~~~
+#### 2.字面量创建正则
+
+~~~javascript
+        let pl='plumli.xyz';
+        // 字面量形式无法操作变量
+        let a='u'
+        console.log(/a/.test(pl));
+        console.log(eval(`/${a}/`).test(pl));
+~~~
+#### 3.使用对象创建正则表达式
+~~~javascript
+        let pl='plumli.xyz';
+        let reg=new RegExp('u','g');
+        console.log(reg); // /u/g
+        console.log(reg.test(pl)); // true
+~~~
+字符替换
+~~~javascript
+        let con=prompt('请输入要检测的内容,支持正则');
+        let reg=new RegExp(con,'g')
+        let div=document.querySelector('.content');
+        div.innerHTML=div.innerHTML.replace(reg,search=>{
+            return `<span style="color:red">${search}</span>`
+        })
+~~~
+#### 4.选择符
+| 代表选择,选择 | 两边
+() 原子组
+~~~javascript
+        // | 表示选择两边全部
+        let pl = 'plumli';
+        console.log(/u|@/.test(pl)); // true
+        console.log(/aau|@/.test(pl)); // false
+        
+        let tel= '010-9999999';
+        // 普通
+        console.log(/010\-\d{7,8}|020\-\d{7,8}/.test(tel)); // true
+        // 原子组
+        console.log(/(010|020)\-\d{7,8}/.test(tel)); // true
+~~~
+#### 5.原子表与原子组中的选择符
+match() 找到一个或多个正则表达式的匹配
+
+[] 任选 []中任意一个 只会匹配一个
+
+() | 两边的一个
+~~~javascript
+        let reg =/[123456]/;
+        let pl='131231';
+        console.log(pl.match(reg)); // ['1', index: 0, input: '131231', groups: undefined]
+        let reg1=/(12|34)/;
+        let pl1='1555534222212';
+        console.log(pl1.match(reg1)); // (2) ['34', '34', index: 5, input: '1555534222212', groups: undefined]
+~~~
+#### 6.转义
+- /d 代表数字 0-9
+- + 一个或多个
+- . 除换行外任何字符（优先级最高） . 普通字符点
+- ? 问号代表0个或1个
+- // 双斜杠代表边界符，需要转义
+- 转义 \
+使用双反斜杠对斜杠进行转义
+普通的正则表达式输出时会转义
+ `console.log('\d+\.\d+')==> d+d `
+ 因此需要再加\来确保转为字符串再转为正则后能正常使用即
+ `console.log('\\d+\\.\\d+')==>\d+\.\d+`
+~~~javascript
+        let price = 23.23;
+        console.log('/\d+\.\d+/'); // /d+.d+/
+        console.log(/\d+\.\d+/.test(price)); // true
+        let reg=new RegExp('\\d+\\.\\d+'); 
+        console.log(reg); // /\d+\.\d+/
+        console.log(reg.test(price)); // true
+        // 网址判断
+        let url='https://www.plumli.xyz';
+        console.log(/https?:\/\/\w+\.+\w+/.test(url));
+~~~
+#### 7.字符边界约束
+~~~javascript
+
+~~~
+#### 
+~~~javascript
+
+~~~
+#### 
+~~~javascript
+
+~~~
+#### 
+~~~javascript
+
+~~~
+#### 
+~~~javascript
+
+~~~
