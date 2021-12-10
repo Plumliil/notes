@@ -5547,22 +5547,407 @@ match() 找到一个或多个正则表达式的匹配
         console.log(/https?:\/\/\w+\.+\w+/.test(url));
 ~~~
 #### 7.字符边界约束
+- ^ 限定起始边界
+- $ 限定结束边界
+~~~html
+    <input type="text" name="user">
+    <span></span>
+~~~
 ~~~javascript
+        // 验证字段长度
+        document.querySelector("[name='user']")
+            .addEventListener('keyup', function () {
+                // console.log(this.value);
+                let flag = this.value.match(/^[a-z]{3,6}$/);
+                document.querySelector('span').innerHTML = flag ? '正确' : '失败'
+            })
+~~~
+#### 8.数值与空白元字符
+- \d 匹配数字 \D 除了数字
+- \s 空白 \S 除了空白
+- ^ 还有非的意思 /[-,:\d]+/g 选择plStr中除文字外的字符 /[^-,:\d]+/g 选择文字
+~~~javascript
+        // 元字符
+        let pl='plumli 2022';
+        console.log(pl.match(/\d+/g)); // \d匹配数值
+        let plStr=`
+        张三:010-9999999,李四:020-8888888
+        `
+        // {3}匹配3个 {7，8}匹配7或8个
+        // \d 匹配数字 \D 除了数字
+        console.log(plStr.match(/\d{3}-\d{7,8}/g));
+        console.log(pl.match(/\D+/));
+        // ^ 还有非的意思 /[-,:\d]+/g 选择plStr中除文字外的字符 /[^-,:\d]+/g 选择文字
+        console.log(plStr.match(/[^-,:\d]+/g));
+        // \s 空白
+        console.log(/\s/.test('\npl'));
+        // \S 除了空白
+        console.log(/\s/.test('\npl'));
 
 ~~~
-#### 
+#### 9.w与W元字符
+- \w 匹配数字，字母和下划线
+- \W 和 \w 相反 
 ~~~javascript
-
+        let pl = 'plumli_2022';
+        console.log(pl.match(/\w+/)); // ['plumli_2022', index: 0, input: 'plumli_2022', groups: undefined]
+        let email = '476453574@qq.com';
+        console.log(email.match(/^\w+@\w+\.\w+$/));
+        // \W
+        console.log('plumli@'.match(/\W/));
+        // 字母开始，包括字母数字下划线
+        // /^[a-z]\w{4,9}/
+        let username=prompt('请输入用户名:');
+        console.log(/^[a-z]\w{4,9}/.test(username));
 ~~~
-#### 
+#### 10.点字符的使用
+- . 包括任何字符包括元字符
+- s 模式，视为单行匹配
 ~~~javascript
-
+        let url ='https://www.plumli.xyz'
+        console.log(url.match(/https?:\/\/\w+\.+\w+\.\w+/));
+        let pl=`
+        plumli.xyz
+        plum.xyz
+        `
+        console.log(pl.match(/.+/)[0]); //  plumli.xyz
+        console.log(pl.match(/.+/s)[0]); // plumli.xyz plumli.xyz
+        let tel='010 - 99999999'
+        console.log(tel.match(/\w+\s-\s\d{8}/)); // ['010 - 99999999', index: 0, input: '010 - 99999999', groups: undefined]
 ~~~
-#### 
+#### 11.如何精巧的匹配所有字符
+- [\s\S]
+- [\d\D]
 ~~~javascript
-
+        let pl=`
+        <span>
+            plumli
+            plumli.xyz    
+        </span>
+        `
+        console.log(pl.match(/<span>[\s\S]+<\/span>/));
 ~~~
-#### 
+#### 12.i与g模式修正符
+- i 匹配时不区分大小写
+- g 匹配全部
+~~~javascript
+        let pl = 'plUmLI';
+        console.log(pl.match(/l/gi)); // (2) ['l', 'L']
+        // 替换
+        let pl = 'plUmLI';
+        console.log(pl.replace(/l/gi, '$')); // p$Um$I
+        let str='张三李四王五赵六';
+        console.log(str.replace(/[李四赵六]/g,'')); // 张三王五
+~~~
+#### 13.m 多行匹配修正符实例
+- m 模式修正符多行匹配
+~~~javascript
+        let pl=`
+        #1 js,200元 #
+        #2 php,300元 #
+        #9 plumli.xyz # 了以后
+        #3 node.js,180元 #
+        `;
+        // [{name:'js',price:'200元'}]
+        console.log(pl.match(/\s#\d+\s+.+\s+#$/gm));
+        let lessons= pl.match(/\s#\d+\s+.+\s+#$/gm).map(v=>{
+            v.replace(/\s+#\d+\s*/,'').replace(/\s+#/,'')
+            v=v.replace(/\s+#\d+\s*/,'').replace(/\s+#/,'');
+            console.log(v);
+            [name,price]=v.split(','); // 分割
+            return {name,price}
+        })
+        console.log(lessons);
+~~~
+#### 14.汉字与字符属性
+- \p 检测每个字符的属性
+- \p{L} 所有字母 \P{L}相反
+- \p{P} 匹配标点符号
+- \p{N} 所有数字类似于\d \P{N}相反
+- [\p{L}\p{N}] 所有字母和数字，类似与\w
+- u 表示按unicode(utf-8)匹配 (主要针对多种字节比如汉字) 有宽字节加u
+- \p{sc=Han} 匹配语言 Han代表汉语
+~~~javascript
+        let pl = 'plumli2022.了以后!';
+        console.log(pl.match(/\p{P}/gu)); // (2) ['.', '!']
+        // Script
+        console.log(pl.match(/\p{sc=Han}/gu)); // (3) ['了', '以', '后']
+~~~
+#### 15.lastIndex属性
+`str.match(RegExp)`match() 方法可在字符串内检索指定的值，或找到一个或多个正则表达式的匹配。
+`RegExpObject.exec(string)` exec() 方法用于检索字符串中的正则表达式的匹配。 可以记录上一次搜索的点
+~~~javascript
+       let pl = 'plumli';
+        let reg=/\w/g;
+        console.log(pl.match(reg));
+        console.log(reg.lastIndex);
+        // match()
+        // exec()
+        console.log(reg.exec(pl)); // 循环 /g时还能获取主信息
+        while((res=reg.exec(pl))){
+            console.log(res);
+        }
+        // ['p', index: 0, input: 'plumli', groups: undefined]
+        // ['l', index: 1, input: 'plumli', groups: undefined]
+        // ['u', index: 2, input: 'plumli', groups: undefined]
+        // ['m', index: 3, input: 'plumli', groups: undefined]
+        // ['l', index: 4, input: 'plumli', groups: undefined]
+        // ['i', index: 5, input: 'plumli', groups: undefined]
+~~~
+#### 16.有效率的y模式(不是很懂)
+- /y 比喻一直连续的满足匹配条件
+- /g 没够关系 /g 是跳过继续找
+~~~javascript
+        let pl = `这是一些qq号码,111111111,2222222222,55555555QQ号码显示完了`
+        let reg = /(\d+),?/g;
+        pl.match(reg)
+        // console.log(reg.exec(pl));
+        // console.log(pl.match(reg));
+        reg.lastIndex = 9; // 得到下标 匹配到下标截至，后边不再匹配 /y
+        let qq=[]
+        while((res=reg.exec(pl))) qq.push(res[1]);
+        console.log(qq);
+~~~
+#### 17.原子表的基本使用
+- [] 匹配原子表中每个字符 
+- `/^\d{4}([-\/])\d{2}\1\d{2}$/` 可以利用原子组实现前后相等 \1 前后匹配
+~~~javascript
+        let pl = 'plumli';
+        console.log(pl.match(/[ue]/)); // ['u', index: 2, input: 'plumli', groups: undefined]
+        let tel = '2021/12/10';
+        let reg=/^\d{4}([-\/])\d{2}\1\d{2}$/
+        console.log(tel.match(reg)); // (2) ['2021/12/10', '/', index: 0, input: '2021/12/10', groups: undefined]
+~~~
+#### 18.区间匹配
+~~~javascript
+        let pl = '2022';
+        console.log(pl.match(/[0-9]+/)); // []中只能升序不能降序
+        let lyh = 'plumli';
+        // 贪婪匹配
+        console.log(lyh.match(/[a-z]+/g)); // []中只能升序不能降序
+        let input=document.querySelector(`[name="user"]`);
+        input.addEventListener('keyup',function(){
+        // 只匹配字母开头 4-7位 不限制大小写
+          console.log(this.value.match(/^[a-z]\w{3,6}/i));  
+        })
+~~~
+#### 19.排除匹配
+- - 放在首为和末位不用转义，其他都需转义
+~~~javascript
+        let pl = 'plumli.xyz';
+        console.log(pl.match(/[^.]/g)); // (9) ['p', 'l', 'u', 'm', 'l', 'i', 'x', 'y', 'z']
+        let plStr = `张三:010-9999999,李四:020-8888888`
+        // - 放在首为和末位不用转义，其他都需转义
+        console.log(plStr.match(/[^\s:\d-,]+/g)); // (2) ['张三', '李四']
+        console.log(plStr.match(/\p{sc=Han}+/gu)); // (2) ['张三', '李四']
+~~~
+#### 20.原子表字符不解析
+- [] 在原子表中的字符按本义
+强龙不压地头蛇
+~~~javascript
+        let pl='(plumli).+';
+        console.log(pl.match(/[().+]/gi)); // (4) ['(', ')', '.', '+']
+~~~
+#### 21.使用原子表匹配所有内容
+- . 无法匹配换行符
+- [\s\S]
+- [\d\D]
+~~~javascript
+        let pl=`
+            plumli
+            plum
+        `
+        console.log(pl.match(/[\s\S]+/)[0]);
+        console.log(pl.match(/[\d\D]+/)[0]);
+~~~
+#### 23.正则删除DOM元素
+~~~javascript
+        let body=document.body;
+        let reg= /<(h[1-6])>[\s\S]*<\/\1>/gi;
+        body.innerHTML=body.innerHTML.replace(reg,'正则已替换')
+~~~
+#### 24.认识原子组
+- () 原子组
+组是一个整体
+
+用括号包起来 编号
+~~~javascript
+        let pl = `
+        <h1>PLUMLI</h1>
+        <h2>plumli.xyz</h2>
+        `
+        let reg = /<(h[1-6])>[\s\S]*<\/\1>/i;
+        console.log(pl.match(reg));
+        // 0: "<h1>PLUMLI</h1>" // 匹配到的元素
+        // 1: "h1" // 原子组
+        // groups: undefined // 组别名
+        // index: 9 // 从哪开始匹配 包括空格
+        // input: "\n        <h1>PLUMLI</h1>\n        <h2>plumli.xyz</h2>\n        " // 原子的数组，原始字符串
+        // length: 2[[Prototype]]: Array(0)
+~~~
+#### 25.邮箱验证中原子组的使用
+~~~html
+    <input type="text" name="mail" value="4453000@qq.com.cn">
+    <span></span>
+~~~
+~~~javascript
+        let mail = document.querySelector("[name='mail']").value;
+        let reg = /^[\w-]+@([\w-]+\.)+(com|org|cc|cn|net)$/i;
+        console.log(mail.match(reg));
+        document.querySelector("[name='mail']").addEventListener('keyup',function(){
+            console.log(reg.test(this.value));
+            document.querySelector('span').innerHTML=reg.test(this.value)?'正确':'错误'
+        })
+~~~
+#### 26.原子组引用完成的替换操作
+语法 `stringObject.replace(regexp/substr,replacement)`
+参数
+- p0 满足正则式的结果
+- p1 正则式内第一个空格内的结果
+- p2 正则式内第二个空格内的结果
+
+https://www.w3school.com.cn/jsref/jsref_replace.asp
+
+~~~javascript
+        let pl=`
+        <h1>plumli</h1>
+        <h2>plumli.xyz</h2>
+        <span>了以后</span>
+        `;
+        let reg=/<(h[1-6])>([\s\S]+)<\/\1>/ig;
+        console.log(pl.replace(reg,(p0,p1,p2)=>{
+          console.log(p0); // <h1>plumli</h1> <h2>plumli.xyz</h2>
+            console.log(p1); // h1 h2
+            console.log(p2); // plumli plumli.xyz
+            return `<p>${p2}</p>`
+            // <p>plumli</p>
+            // <p>plumli.xyz</p>
+            // <span>了以后</span>
+        }));
+~~~
+#### 27.嵌套分组与不记录分组
+- ?: 不记录到组编号中，无法使用$n
+
+~~~javascript
+        let pl=`
+            https://www.plumli.xyz
+            http://plumli.com
+            https://www.lyh.xyz
+        `;
+        let reg=/https?:\/\/((?:\w+\.)?\w+\.(?:com|cn|org|xyz))/ig;
+        // console.log(pl.match(reg));
+        let urls=[]
+        // console.log(pl.match(reg))
+        while((res=reg.exec(pl))){
+            urls.push(res[1])
+        }
+        console.log(urls);
+~~~
+#### 28.多钟重复匹配的基本使用
+- + 一个或多个 贪婪匹配
+- {1，3} 限定一个到三个
+- {1，-} 一个到无数个 贪婪匹配
+- * 零个或多个 贪婪匹配
+- ? 零个或一个
+~~~javascript
+        let pl = 'plllllllll';
+        console.log(pl.match(/pl+/));
+~~~
+#### 29.重复匹配对原子组的影响与电话号正则
+- ()? 问号影响原子组
+~~~javascript
+        let pl = 'plllllllll';
+        console.log(pl.match(/(pl)+/));
+
+        let tel='010-999999999';
+        console.log(tel.match(/^0\d{2,3}-\d{7,8}/));
+~~~
+#### 30.网站用户名验证
+~~~javascript
+        document.querySelector("[name='user']").addEventListener('keyup',e=>{
+            const value=e.target.value;
+            console.log(value);
+            let reg=/^[a-z][\w-]{2,7}$/i;
+            console.log(reg.test(value));
+        })
+~~~
+#### 31.批量使用正则完成密码验证
+~~~javascript
+        document.querySelector("[name='password']").addEventListener('keyup',e=>{
+            const value=e.target.value;
+            const regs=[
+                /^[a-z0-9]{5,10}$/i,
+                /[A-Z]/
+            ]
+            // 结果全为真才为真
+            let state=regs.every(e=>{
+                // e.test(value)
+                console.log(e);
+            })
+            console.log(state);
+            console.log(state?'正确':'错误');
+        })
+~~~
+#### 32.禁止贪婪
+- ? 默认倾向一个 尽可能少
+- *? 倾向零个
+- {2,}? 2-无限个，默认两个
+##### 标签替换的禁止贪婪的使用
+将span钟内容加粗 描红 加前缀lyh- 
+~~~html
+    <main>
+        <span>plumli</span>
+        <span>plumli.xyz</span>
+        <span>plumli.com</span>
+    </main>
+~~~
+~~~javascript
+        const main = document.querySelector('main');
+        const reg = /<span>([\s\S]+?)<\/span>/ig;
+        console.log();
+        main.innerHTML = main.innerHTML.replace(reg, (v, p1) => {
+            console.log(v);
+            return `<h4 style="color:red">lyh-${p1}</h4>`
+        })
+~~~
+#### 33.使用matchAll完成全局匹配
+`matchAll()` 方法返回一个包含所有匹配正则表达式的结果及分组捕获组的迭代器。
+~~~javascript
+        let reg = /<(h[1-6])>([\s\S]+?)<\/\1>/gi;
+        const body = document.body;
+        // console.log()
+        const pl = body.innerHTML.matchAll(reg);
+        let contents=[];
+        for(const iterator of pl){
+            // 放入需要放的 () 里的内容 iterator[2]代表第二个
+            contents.push(iterator[2])
+        }
+        console.log(contents);
+~~~
+#### 34.为低端浏览器定义原型方法matchAll
+`repeat()` 构造并返回一个新字符串，该字符串包含被连接在一起的指定数量的字符串的副本。
+~~~html
+    <h1>plumli</h1>
+    <h2>plumli.xyz</h2>
+    <h3>plumli.com</h3>
+~~~
+~~~javascript
+        String.prototype.matchAll = function (reg) {
+            console.log(reg);
+            let res = this.match(reg);
+            if (res) {
+                // 查询后进行替换
+                let str = this.replace(res[0], '^'.repeat(res[0].length))
+                let match = str.matchAll(reg) || [];
+                return [res, ...match]
+            }
+        }
+        // let pl='plumli';
+        // console.log(pl.matchAll(/(i)/i));
+        let body = document.querySelector('body').innerHTML;
+        let search=body.matchAll(/<(h[1-6])>([\s\S]+?)<\/\1>/);
+        console.log(search);
+~~~
 ~~~javascript
 
 ~~~
