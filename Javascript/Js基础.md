@@ -5948,6 +5948,183 @@ https://www.w3school.com.cn/jsref/jsref_replace.asp
         let search=body.matchAll(/<(h[1-6])>([\s\S]+?)<\/\1>/);
         console.log(search);
 ~~~
+#### 35.使用exec完成全局匹配
 ~~~javascript
+        function search(string, reg) {
+            let result = [];
+            while ((res = reg.exec(string))) {
+                result.push(res)
+            }
+            return result
+        }
+        let res1 = search(document.body.innerHTML, /<(h[1-6])>[\s\S]+?<\/\1>/gi)
+        console.log(res1);
+~~~
+#### 36.字符串正则方法search与match
+match()方法匹配全局返回数组 匹配单个返回细节
+~~~javascript
+        let pl = `
+            https://www.plumli.xyz
+            http://plumli.xyz
+            https://www.plumli.com
+            ahdskjgdakj
+        `;
+        let reg = /https?:\/\/(\w+\.)?(\w+\.)+(com|cn|org|cc|xyz)/gi;
+        console.log(pl.match(reg)); // ['https://www.plumli.xyz', 'http://plumli.xyz', 'https://www.plumli.com']
+~~~
+#### 37.字符串方法matchAll与split
+~~~javascript
+        let pl = `
+            https://www.plumli.xyz
+            http://plumli.xyz
+            https://www.plumli.com
+            ahdskjgdakj
+        `;
+        let reg = /https?:\/\/(?:\w+\.)?(?:\w+\.)+(?:com|cn|org|cc|xyz)/gi;
+        // pl.matchAll(reg) 为返回的迭代器 可以获得细节 可以用?:来避免取到
+        console.log(pl.matchAll(reg));
+        for(const inerator of pl.matchAll(reg)){
+            console.log(inerator);
+        }
+~~~
+split()方法里也可以使用正则
+~~~javascript
+        let pl='2020.12.16';
+        console.log(pl.split(/[-\/\.]/)); // ['2020', '12', '16']
+~~~
+#### 38.$符在正则替换中的使用
+- $n n表示数字 正则表达式内括号内容
+- $` 表示匹配内容的左边
+- $' 表示匹配内容的右边
+- $& 表示匹配内容
+<!-- - % 表示匹配内容 -->
+~~~javascript
+        let tel='(010)9999999 (020)7777777';
+        let req= /\((\d{3,4})\)(\d{7,8})/g;
+        console.log(tel.replace(req,'$1-$2')); 
+        console.log('=lyh='.replace(/lyh/,"$'$'$&$`$`"));
 
+~~~
+#### 39:$&的使用
+~~~javascript
+        const h1=document.querySelector('h1');
+        h1.innerHTML=h1.innerHTML.replace(/plumli/g,`<a href="https://www.plumli.xyz">$&</a>`)
+~~~
+#### 40.原子组在替换中的使用技巧
+网址修改
+~~~html
+    <main>
+        <a style="color:red" href="http://plumli.xyz">plumli</a>
+        <a href="http://www.plum.xyz" id="a1">了以后</a>
+        <a href="https://www.baidu.com">百度</a>
+    </main>
+~~~
+~~~javascript
+        let main = document.querySelector('main');
+        let reg = /(<a.*href=['"])(http)(:\/\/)(www\.)?(plumli|plum)/i;
+        main.innerHTML = main.innerHTML.replace(reg, (v, ...args) => {
+            args[1] += 's';
+            args[3] = args[3] || 'www.';
+            return args.splice(0, 5).join('')
+        })
+~~~
+#### 41.原子组别名
+~~~javascript
+       let pl = `
+            <h1>plumli</h1>
+            <span>了以后</span>
+            <h2>了以后</h2>
+        `;
+        const reg = /<(h[1-6])>(?<con>.*?)<\/\1>/gi;
+        console.log(pl.replace(reg, "<h4>$<con></h4>"));
+        // <h4>plumli</h4>
+        // <span>了以后</span>
+        // <h4>了以后</h4>
+        // console.log(pl.replace(reg,"<h4>$2</h4>"));
+        // <h4>plumli</h4>
+        // <span>了以后</span>
+        // <h4>了以后</h4>
+~~~
+使用别名可以优化代码
+- 在 () 原子组中可以通过 (?<别名>) 的形式来给原子组起别名 优化代码 方便调用
+~~~html
+    <main>
+        <a href="https://www.plumli.xyz">plumli</a>
+        <a href="https://www.plumli.xyz">了以后</a>
+        <a href="https://www.plumli.xyz">plum</a>
+    </main>
+    <script>
+        const main=document.querySelector('main');
+        const reg=/<a.*?href=(['"])(?<link>.*)\1>(?<title>.*)<\/a>/gi;
+        // console.log(main.innerHTML.match(reg));
+        const links=[]
+        for(const iterator of main.innerHTML.matchAll(reg)){
+            console.log(iterator['groups']);
+            links.push(iterator['groups']['link'])
+        }
+        console.log(links); // ['https://www.plumli.xyz', 'https://www.plumli.xyz', 'https://www.plumli.xyz']
+    </script>
+~~~
+#### 42.正则方法test
+`reg.test(value)` 用于做验证，返回真或假
+~~~html
+    <input type="text" name="email">
+    <script>
+        const mail=document.querySelector("[name='email']");
+        mail.addEventListener('keyup',e=>{
+            let value=e.target.value;
+            let flag=/^[\w-]+@(\w+\.)+(com|cn|org|cc)$/i.test(value);
+            console.log(flag);
+        })
+    </script>
+~~~
+#### 43.正则方法exec
+
+~~~html
+    <main>目前正在学习正则表达式,学习使我快乐</main>
+    <script>
+        let reg = /学习/g;
+        const main = document.querySelector("main");
+        main.innerHTML.match(reg)
+        console.log(main.innerHTML.match(reg)); // ['学习', '学习'] 无细节
+        // console.log(reg.exec(main.innerHTML)); // ['学习', index: 4, input: '目前正在学习正则表达式,学习使我快乐', groups: undefined]
+        // console.log(reg.exec(main.innerHTML)); // ['学习', index: 12, input: '目前正在学习正则表达式,学习使我快乐', groups: undefined]
+        // 统计 学习 一共出现几次
+        let count=0;
+        while((res=reg.exec(main.innerHTML))){
+            count++
+        }
+        console.log(count); // 2
+    </script>
+~~~
+#### 44.断言匹配
+- ?= 后边是什么的 如 `/学习(?=正则)/g` (?=xx)不是组
+~~~html
+    <main>目前正在学习正则表达式,学习使我快乐</main>
+    <script>
+        let reg = /学习(?=正则)/g;
+        const main = document.querySelector("main");
+        main.innerHTML=main.innerHTML.replace(reg,`
+            <a href="https://www.plumli.com">$&</a>
+        `)
+    </script>
+~~~
+使用断言规范价格
+~~~javascript
+        let lessons = `
+            js,200元,300次
+            node,300.00元,200次
+            css,220元,410次
+        `;
+        let reg = /(\d+)(.00)?(?=元)/gi;
+        lessons = lessons.replace(reg, (v, ...args) => {
+            // console.log(args);
+            args[1] = args[1] ? args[1] : '.00';
+            console.log(args[1]);
+            return args.splice(0, 2).join('')
+        })
+        console.log(lessons);
+        // js, 200.00 元, 300 次
+        // node, 300.00 元, 200 次
+        // css, 220.00 元, 410 次
 ~~~
