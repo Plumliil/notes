@@ -6098,6 +6098,7 @@ split()方法里也可以使用正则
     </script>
 ~~~
 #### 44.断言匹配
+##### ?=
 - ?= 后边是什么的 如 `/学习(?=正则)/g` (?=xx)不是组
 ~~~html
     <main>目前正在学习正则表达式,学习使我快乐</main>
@@ -6128,3 +6129,524 @@ split()方法里也可以使用正则
         // node, 300.00 元, 200 次
         // css, 220.00 元, 410 次
 ~~~
+##### ?<=
+- ?<= /(?<=plumliil)\d+/ 前边是plumliil的数字
+- ?= (?=\1)后边是和前边组一样的内容
+前后断言，为取中间的链接
+~~~html
+    <main>
+        <a href="https://baidu.com">百度</a>
+        <a href="https://yahu.com">雅虎</a>
+    </main>
+    <script>
+        let main=document.querySelector('main');
+        let reg = /(?<=href=(['"])).+(?=\1)/gi;
+        console.log(main.innerHTML.match(reg));
+        main.innerHTML=main.innerHTML.replace(reg,'http://www.plumli.xyz')
+    </script>
+~~~
+使用断言模糊处理电话号
+~~~javascript
+        let tel=`
+        lyh电话:12840238017
+        了以后电话:18203528924
+        `
+        let reg=/(?<=\d{7})\d{4}/g;
+        console.log(tel.match(reg)); // ['8017', '8924']
+        tel=tel.replace(reg,'****')
+        console.log(tel); // lyh电话:1284023**** 了以后电话:1820352****
+~~~
+##### ?! 断言匹配 
+- ?! 后面不是什么 `/[a-z]+(?!\d+)$/g` 以字母结尾，后边不是数字
+- .* 0个或多个任意字符
+断言限制用户名关键词
+~~~html
+    <main>
+        <input type="text" name="username" />
+    </main>
+    <script>
+        let input =document.querySelector('input');
+        input.addEventListener('keyup',function(){
+            let reg=/^(?!.*lyh.*).*/i;
+            console.log(this.value.match(reg));
+        })
+    </script>
+~~~
+##### ?<! 断言匹配
+- ?<! 前边不是什么 `/(?<!\d)[a-z]/gi`前边不是数字 后边是字母
+
+
+## Promise
+
+#### 1.介绍
+执行完当前任务，然后再任务队列里进行轮询遍历
+#### 2.异步加载图片
+~~~javascript
+        function loadImg(src,resolve,reject) {
+            let image = new Image();
+            image.src = src;
+            image.onload=()=>{
+                resolve(image)
+            };
+            image.onerror=reject;
+        }
+        loadImg('Li1.gif',
+        (image)=>{
+            console.log(image);
+            document.body.appendChild(image)
+            console.log('图片加载完成');
+        },
+        ()=>{
+            console.log('加载失败');
+        })
+~~~
+#### 3.定时器的任务轮询
+js单线程，需要等主线程任务完成后才会执行队伍队列里的任务
+~~~javascript
+        function interval(callback,delay=100){
+            let id=setInterval(()=>callback(id),delay)
+        }
+        interval((timeId)=>{
+            const div=document.querySelector('div')
+            let left=parseInt(window.getComputedStyle(div).left);
+            console.log(left);
+            div.style.left=left+10+'px';
+            if(left>=200){
+                clearInterval(timeId)
+                interval(timeId=>{
+                    let width=parseInt(window.getComputedStyle(div).width)
+                    div.style.width=width-10+'px';
+                    if(width<=20){
+                        clearInterval(timeId)
+                    }
+                })
+            }
+        })
+~~~
+#### 4.通过文件依赖了解任务排列
+先进先出
+Uncaught ReferenceError: pl is not defined
+    at plumli (plumli.js:2)
+    at HTMLScriptElement.<anonymous> (index.html:30)
+~~~javascript
+        function load(src, resolve, reject) {
+            let script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.body.appendChild(script);
+        }
+        load('plumli.js', () => {
+            plumli()
+        })
+        load('index.js', () => {
+            pl()
+        })
+        console.log(1111);
+~~~
+#### 5.ajax请求任务管理
+ajax请求也是异步操作
+
+每个浏览器处理异步请求操作不一样
+http获得请求后放到任务队列里
+过度回调会产生回调地狱
+使用Promise可以解决这个问题
+
+#### 6.Promise微任务处理机制
+以微任务队列为主，宏任务队列靠后执行
+promise会生成微任务队列
+~~~javascript
+        new Promise((resolve, reject) => {
+                resolve('成功状态');
+                console.log('成功状态');
+                // reject('拒绝状态');
+            })
+            .then(value => {
+                console.log('success');
+            }),
+            reason => {
+                console.log('error');
+            }
+~~~
+#### 7.宏任务和微任务的执行顺序
+同步 微任务 宏任务
+~~~javascript
+        // 同步 微任务 宏任务
+        setTimeout(() => {
+            console.log('settimeout');
+        }, 1000);
+        // 装备阶段
+        new Promise((resolve, reject) => {
+                resolve();
+                console.log('promise')
+            })
+            .then(value => {
+                console.log('success');
+            }),
+            reason => {
+                console.log('error');
+            }
+        console.log('主线程');
+~~~
+#### 8.宏任务的提升是误解
+如果微任务是在宏任务中创建，则宏任务执行完才会执行宏任务中的微任务
+
+重点是看微任务是在哪里创建的
+如果是在主线创建则微任务比宏任务执行的优先级要更高
+~~~javascript
+        let promise = new Promise(resolve => {
+            setTimeout(() => {
+                console.log('settimeout');
+                resolve()
+            }, 0);
+            console.log('promise');
+        }).then(value => console.log('success'))
+        console.log('plumli.com');
+~~~
+#### 9.promise单一状态与状态中转
+状态产生不可逆，产生状态就会执行微任务
+promise中resolve的值如果是promise就会影响后边的任务
+~~~javascript
+        let p1=new Promise((resolve,reject)=>{
+            // resolve('成功')
+            reject('拒绝')
+        })
+        new Promise((resolve, reject) => {
+            // 微任务创建
+            resolve(p1) // 执行error
+        }).then(
+            msg => {
+                console.log(msg);
+            },
+            error => {
+                console.log('error',error); // 打印 'error',error
+            })
+            console.log('plumli.xyz');
+~~~
+如果resolve中需要执行的promise等待时间较长，需要等此promise执行完获取状态后才继续执行
+~~~javascript
+let p1=new Promise((resolve,reject)=>{
+            // resolve('成功')
+            setTimeout(() => {
+                reject('拒绝')
+            }, 2000);
+        })
+        new Promise((resolve, reject) => {
+            // 微任务创建
+            resolve(p1) // 等待两秒后才创建微任务
+        }).then(
+            msg => {
+                console.log(msg);
+            },
+            error => {
+                console.log('error',error);
+            })
+            console.log('plumli.xyz');
+~~~
+#### 10.Promise.then的基本用法
+then 有两个参数
+第一个参数为成功后执行的函数 resolve()
+第二个为失败后执行的函数 reject()
+~~~javascript
+        new Promise((resolve, reject) => {
+                // 微任务创建
+                reject('任务失败')
+            })
+            .then(null,a => {
+                console.log('处理失败状态');
+                reject('第一个then')
+            })
+            .then(null, reason => {
+                console.log('第二个then');
+            })
+~~~
+#### 11.Promise.then也是一个Promise
+promise.then这个promise默认是成功的
+~~~javascript
+        let p1 = new Promise((resolve, reject) => {
+            resolve('fulfilled')
+        })
+        let p2=p1.then(
+            value=>console.log(value),
+            reason=>console.log(reason)
+        )
+        .then(
+            a=>console.log('success'), // 被打印
+            b=>console.log('error')
+        )
+~~~
+#### 12.then返回值的处理技巧
+如果then返回的是Promise对象，则必须先获取到Promise对象的状态才能指向下边的then函数
+~~~javascript
+        let p1=new Promise((resolve,reject)=>{
+            resolve('abc')
+        }).then(
+            value=>{
+                console.log('value',value)
+                return new Promise((resolve,reject)=>{
+                    resolve('解决了')
+                })
+            },
+            reason=>console.log('reason',reason)
+        )
+        .then(value=>{
+            console.log('第二个 then',value);
+        })
+~~~
+返回错误时
+~~~javascript
+        let p1=new Promise((resolve,reject)=>{
+            resolve('abc')
+        }).then(
+            value=>{
+                console.log('value',value)
+                return new Promise((resolve,reject)=>{
+                    reject('成功了')
+                })
+                .then(null,r=>{
+                    return new Promise((resolve,reject)=>{
+                        reject('第一个then内部then 返回的第二个promise')
+                    })
+                })
+            },
+            reason=>console.log('error',reason)
+        )
+        .then(value=>{
+            console.log('最外层第二个 then',value);
+        },
+        reason=>{
+            console.log('最外层第二个 then 错误处理',reason);
+        })
+~~~
+如果then没有返回promise对象，则后续then还是对原来的promise对象的后续处理
+
+后边返回的then是对前边返回promise的处理
+#### 13.其它类型的Promise的封装
+- 只要有then就会返回promise对象，就可以把then当做promise来用
+~~~javascript
+        let p1 = new Promise((resolve, reject) => {
+                resolve('fulfilled')
+            }).then(
+                value => {
+                    return {
+                        then(resolve,reject){
+                            setTimeout(() => {
+                                resolve('这是对象')
+                            }, 2000);
+                        }
+                    }
+                },
+                reason => {}
+            )
+            .then(value => {
+                console.log(value);
+            })
+~~~
+#### 14.使用Promise来封装异步请求
+
+~~~javascript
+        function ajax(url) {
+            return new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', url);
+                xhr.send();
+                xhr.onload = function () {
+                    if (this.status === 200) {
+                        callback(JSON.parse(this.response))
+                    } else {
+                        reject('加载失败')
+                    }
+                }
+                xhr.onerror=function(){
+                    reject(this)
+                }
+            })
+        }
+~~~
+#### 15.promise多种错误检测和catch使用
+
+~~~javascript
+        new Promise((resolve, reject) => {
+                // resolve('fulfilled')
+                // resolve(new Error('fail'))
+                // throw new Error('fail')
+                reject('p1')
+            })
+            .then(
+                value => {
+                    return new Promise((resolve, reject) => {
+                        reject('p2')
+                    })
+                    .then(
+                        value=>console.log(value),
+
+                    )
+                },
+            )
+            .catch(err=>{
+                console.log(err);
+            })
+~~~
+一般时候把catch放到最后，统一处理错误，如果catch前有catch的回调则会执行catch前的回调
+
+#### 16.自定义错误处理
+~~~javascript
+        // 封装内
+        class ParamError extends Error {
+            constructor(msg) {
+                super(msg)
+                // 传参错误
+                this.name = 'ParamError'
+            }
+        }
+        class HttpError extends Error {
+            constructor(msg) {
+                super(msg)
+                // 传参错误
+                this.name = 'HttpError'
+            }
+        }
+        function ajax(url) {
+            return new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', url);
+                xhr.send();
+                xhr.onload = function () {
+                    if (this.status === 200) {
+                        callback(JSON.parse(this.response))
+                    }else if(this.status===404){
+                        reject(new HttpError('用户不存在'))
+                    } 
+                    else {
+                        reject('加载失败')
+                    }
+                }
+                xhr.onerror = function () {
+                    reject(this)
+                }
+            })
+        }
+
+        // 调用时
+        ajax('http://localhost:8080/test?user=lisi')
+            .then(value=>{
+                console.log(value);
+            })
+            .catch(error=>{
+                if(error instanceof ParamError){
+                    console.log(error.message);
+                }
+                if(error instanceof HttpError){
+                    alert(error.message)
+                }
+            })
+~~~
+#### 17.使用finally加载异步动画
+finally是始终会执行的动作
+可以及加载一些动画
+#### 18.封装settimeout定时器(sleep函数)
+实现sleep函数
+~~~javascript
+        function timeout(delay = 1000) {
+            return new Promise(resolve => setTimeout(resolve, delay))
+        }
+                timeout(2000)
+            .then(() => {
+                console.log('plumli.xyz');
+                return timeout(2000)
+            })
+            .then(value => {
+                console.log('plumli');
+            })
+~~~
+#### 19.构造扁平化的setinterval
+~~~javascript
+        function interval(delay = 1000, callback) {
+            return new Promise(resolve => {
+                let id = setInterval(() => {
+                    callback(id, resolve);
+                }, delay)
+            })
+        }
+        interval(100, (id, resolve) => {
+                const div = document.querySelector('div');
+                let left = parseInt(window.getComputedStyle(div).left);
+                div.style.left = left + 10 + 'px';
+                if (left >= 200) {
+                    clearInterval(id);
+                    resolve(div)
+                }
+            })
+            .then(div => {
+               interval(100,(id,resolve)=>{
+                let width = parseInt(window.getComputedStyle(div).width);
+                div.style.width = width - 5 + 'px';
+                if(width<=10){
+                    clearInterval(id)
+                }
+               })
+            })
+~~~
+#### 20.script脚本的promise加载
+~~~javascript
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => resolve(script)
+                script.onerror = () => reject;
+                document.body.appendChild(script);
+            })
+        }
+        loadScript('index.js')
+            .then(script => {
+                console.log(script);
+                return loadScript('plumli.js')
+            })
+            .then(script => {
+                plumli()
+            })
+~~~
+#### 21.promise.resolve缓存后台数据
+promise.resolve默认成功
+~~~javascript
+        function query(name) {
+            // 检查缓存中是否含有该数据
+            const cache=query.cache || (query.cache=new Map())
+            if(cache.has(name)){
+                console.log('走缓存了');
+                // 将缓存中才存在的数据直接返回
+                return Promise.resolve(cache.get(name));
+            }
+            return ajax('xxxxxxx')
+                .then(user => {
+                    return user
+                })
+        }
+        query('了以后').then(user => {
+            console.log(user);
+        })
+~~~
+#### 22.promise.reject的使用
+~~~javascript
+        let pl={
+            then(resolve,reject){
+                resolve('plumli')
+            }
+        }
+        Promise.resolve(pl).then(value=>{
+            // console.log(value);
+        })
+        new Promise((resolve,reject)=>{
+            resolve('succes')
+        }).then(value=>{
+            if(value!=='success'){
+                // throw new Error('参数错误')
+                return Promise.reject('参数错误')
+            }
+        }).catch(error=>{
+            console.log(error+'fail');
+        })
+~~~
+#### 23.Promise.all批量获取数据
+
