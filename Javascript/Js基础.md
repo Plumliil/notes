@@ -6650,3 +6650,362 @@ promise.resolve默认成功
 ~~~
 #### 23.Promise.all批量获取数据
 
+~~~javascript
+        function getNums(nums) {
+            let promise = nums.map(value => {
+                return ajax(`http://localhost:3000/random/${value}`)
+            })
+            return Promise.all(promise)
+        }
+        getNums([15,4]).then(number => {
+            console.log(number);
+        })
+~~~
+
+#### 24.Promise.allSettled使用
+和all差不多，只不过返回更宽泛，始终返回正确，没有错误产生
+具体使用如示例所示
+~~~javascript
+      let promise = [15, 3].map(value => {
+            return ajax(`http://localhost:3000/random/${value}`)
+        })
+        Promise.allSettled(promise)
+            .then(values => {
+                let nums = values.filter(num => {
+                    return num.value.length !== 0
+                })
+                console.log(nums); // [{…}]
+            })
+~~~
+#### 24.Promise.race后台请求超时处理
+~~~javascript
+        function query(url, delay) {
+            let promises = [
+                ajax(url),
+                new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        reject('请求超时')
+                    }, delay);
+                })
+            ]
+            return Promise.race(promises)
+        }
+        query('http://localhost:3000/random/15',5000)
+            .then(value=>{
+                console.log(value);
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+~~~
+#### 25.Promise队列原理
+当第一个promise完成时返回完成状态才会走下一个promise
+下一个成员依赖上一个成员的改变
+~~~JavaScript
+        let promise = Promise.resolve('plum')
+        promise.then(v=>{
+            return new Promise(resolve=>{
+                setTimeout(() => {
+                    console.log(1);
+                    resolve('success')
+                }, 1000);
+            })
+        }).then(v=>{
+            return new Promise(resolve=>{
+                setTimeout(() => {
+                    console.log(2);
+                    resolve('success')
+                }, 1000);
+            })
+        })
+~~~
+#### 26.使用Map实现Promise队列
+- _ 做参数意思是该参数是空参数，以后用不到
+使用map实现类似于多个异步任务，他们之间没有进行嵌套，而是分开执行，类似于 then();then() 意思是如果有赋值，则执行起来就像then().then().then()
+~~~javascript
+        function query(num){
+            let promise=Promise.resolve();
+            num.map(v=>{
+                promise=promise.then(_=>{
+                    return new Promise(resolve=>{
+                        setTimeout(() => {
+                            console.log(v);
+                            resolve()
+                        }, 1000);
+                    })
+                })
+            })
+        }
+        query([1,2,3,4,5,6])
+~~~
+收到fulfilled信号遍历下一个否则停止遍历
+#### 27.reduce封装Promise队列
+如果要连续操作或任务依次执行可以使用map或reduce封装队列
+~~~javascript
+        function query(num) {
+            let promise = Promise.resolve();
+            num.reduce((promise, n) => {
+                return promise.then(_ => {
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            console.log(n);
+                            resolve()
+                        }, 1000);
+                    })
+                })
+            }, Promise.resolve())
+        }
+        query([1, 2, 3, 4, 5, 6])
+~~~
+#### 28.使用队列渲染数据
+
+~~~javascript
+        class Num {
+            ajax(num) {
+                let url = 'http://localhost:3000/random/'
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('Get', url + num);
+                    xhr.send();
+                    xhr.onload = function () {
+                        if (this.status === 200) {
+                            resolve(JSON.parse(this.response))
+                        } else if (this.status === 404) {
+                            reject(new ParamError)
+                        } else {
+                            reject('加载失败')
+                        }
+                    }
+                    xhr.onerror = function () {
+                        reject.apply(this);
+                    }
+                })
+            }
+            render(nums) {
+                nums.reduce((promise, num) => {
+                    return promise
+                        .then(_ => {
+                            return this.ajax(num)
+                        })
+                        .then(num => {
+                            return this.view(num)
+                        })
+                }, Promise.resolve())
+            }
+            view(num) {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        console.log(num[0].number);
+                        var h2 = document.createElement(h2);
+                        h2.innerHTML = num.number;
+                        document.body.appendChild(h2)
+                        resolve()
+                    }, 2000);
+                })
+            }
+        }
+        new Num().render([13, 15, 47])
+~~~
+#### 29.async与await语法糖
+- async相当于把一个函数对象当作一个有完成状态的Promise对象 
+- await相当于then
+~~~javascript
+        async function pl(){
+            let name=await new Promise(resolve=>{
+                setTimeout(() => {
+                    resolve('plumli.xyz')
+                }, 2000);
+            });
+            let site=await new Promise(resolve=>{
+                setTimeout(() => {
+                    resolve('了以后')
+                }, 2000);
+            })
+            console.log(site);
+        }
+        pl()
+~~~
+#### 30.async 和 await 执行异步请示
+实现使用多个接口来获取目的数据
+~~~javascript
+        async function get(n) {
+            let url = 'http://localhost:3000/random/'
+            let num = await ajax(url + n);
+            let lessons = await ajax('') // 接着获取，比如获取课程
+        }
+        get(15)
+~~~
+#### 31.async延时函数
+~~~javascript
+        async function sleep(delay=2000) {
+            return new Promise(resolve => {
+                setTimeout(() => resolve(), delay);
+            })
+        }
+        async function show() {
+            for (const iterator of ['plumli', '了以后']) {
+                await sleep()
+                console.log(iterator);
+            }
+        }
+        show()
+~~~
+#### 31.await制作加载进度条
+如果不需要重复调用则可以使用立即执行函数
+~~~javascript
+        let loading = document.querySelector('#loading')
+
+        function query(num) {
+            return ajax('http://localhost:3000/random/' + num)
+        }
+        async function sleep(delay=1000){
+            return new Promise(resolve=>{
+                setTimeout(() => {
+                    resolve()
+                }, delay);
+            })
+        }
+        async function loadNum(nums) {
+            for (let i = 0; i < nums.length; i++) {
+                await sleep(100)
+                let num = await query(nums[i])
+                let progress = ((i + 1) / nums.length) * 100;
+                loading.style.width = progress + '%';
+                loading.innerHTML = Math.round(progress) + '%';
+                console.log(i);
+                console.log(progress);
+            }
+        }
+        loadNum([15, 13, 47, 79, 54, 35, 80, 14])
+~~~
+#### 32.class与await的结合
+
+~~~javascript
+        class Num{
+            constructor(num){
+                this.num=num;
+            }
+            then(resolve,reject){
+                // resolve()
+                let date=ajax('http://localhost:3000/random/'+this.num)
+                resolve(date)
+            }
+        }
+        async function get(){
+            let num=await new Num(15);
+            console.log(num);
+        }
+        get()
+~~~
+#### 33.异步封装在类的内部
+~~~javascript
+        class Num {
+            async get(num) {
+                let date = await ajax('http://localhost:3000/random/' + num)
+                // console.log(date);
+                // resolve(date)
+                date[0].number += 10
+                return date
+            }
+        }
+        new Num().get(15)
+            .then(v => {
+                console.log(v);
+            })
+            .catch(e => {
+                console.log(e);
+            })
+~~~
+#### 34.async和await的多种声明方式
+- 函数
+- 对象
+- 类
+~~~javascript
+        async function get(num){
+            return await ajax('http://localhost:3000/random/'+num)
+        }
+        let pl={
+            async get(num){
+            return await ajax('http://localhost:3000/random/'+num)
+            }
+        }
+        class Num {
+            async get(num) {
+                return await ajax('http://localhost:3000/random/' + num)
+            }
+        }
+        pl.get(15).then(v => {
+            console.log(v);
+        })
+        new Num().get(15).then(v => {
+            console.log(v);
+        })
+        get(15).then(v=>{
+            console.log(v);
+        })
+~~~
+#### 35.async基本错误处理
+
+~~~javascript
+        async function pl(num) {
+            return ajax(`http://localhost:3000/random/${num}`)
+        }
+        pl(15).then(v=>{
+            console.log(v);
+        }).catch(error=>{
+            console.log(error);
+        })  
+~~~
+#### 36.await标准的错误处理流程
+
+~~~javascript
+        async function pl(num) {
+            try {
+                let n = await ajax(`http://localhost:3000/random/${num}`)
+                let u = await ajax(`http://localhost:3000/random/xx`)
+                return u
+            } catch(err) {
+                console.log(err);
+            }
+            console.log(1111);
+        }
+        pl(15).then(v => {
+            console.log(v);
+        }).catch(error => {
+            console.log(error);
+        })
+~~~
+#### 37.await 并行执行技巧
+两种方式
+- Promise.all()
+- 定时器
+~~~javascript
+        function p1(){
+            return new Promise(resolve=>{
+                setTimeout(() => {
+                    resolve('plumli')
+                }, 2000);
+            })
+        }
+        function p2(){
+            return new Promise(resolve=>{
+                setTimeout(() => {
+                    resolve('了以后')
+                }, 2000);
+            })
+        }
+        async function pl(){
+           let res=await Promise.all([p1(),p2()])
+           console.log(res); 
+           let h1= p1();
+            // console.log(h1);
+            let h2= p2();
+            // console.log(h2);
+            let h1v=await h1;
+            let h2v=await h2;
+            setTimeout(() => {
+                console.log(h1v,h2v);
+            }, 1000);
+        }
+        pl()
+~~~
