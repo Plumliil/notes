@@ -5512,7 +5512,7 @@ export default class Style {
 #### 5.原子表与原子组中的选择符
 match() 找到一个或多个正则表达式的匹配
 
-[] 任选 []中任意一个 只会匹配一个
+[] 任选 []中任意一个 
 
 () | 两边的一个
 ~~~javascript
@@ -5843,7 +5843,7 @@ https://www.w3school.com.cn/jsref/jsref_replace.asp
         }
         console.log(urls);
 ~~~
-#### 28.多钟重复匹配的基本使用
+#### 28.多种重复匹配的基本使用
 - + 一个或多个 贪婪匹配
 - {1，3} 限定一个到三个
 - {1，-} 一个到无数个 贪婪匹配
@@ -7009,3 +7009,6 @@ promise.resolve默认成功
         }
         pl()
 ~~~
+#### await陷阱
+循环中执行异步操作，用foreach会立刻返回
+要么map的promise函数，要么for await
