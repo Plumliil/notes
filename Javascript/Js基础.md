@@ -7012,3 +7012,4 @@ promise.resolve默认成功
 #### await陷阱
 循环中执行异步操作，用foreach会立刻返回
 要么map的promise函数，要么for await
+## 任务轮询
