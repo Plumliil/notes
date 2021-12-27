@@ -5974,7 +5974,7 @@ match()方法匹配全局返回数组 匹配单个返回细节
 ~~~
 #### 37.字符串方法matchAll与split
 ~~~javascript
-        let pl = `
+        let pl =  `
             https://www.plumli.xyz
             http://plumli.xyz
             https://www.plumli.com
@@ -7012,4 +7012,158 @@ promise.resolve默认成功
 #### await陷阱
 循环中执行异步操作，用foreach会立刻返回
 要么map的promise函数，要么for await
+
 ## 任务轮询
+#### 1.宏任务和微任务
+主任务》微任务》宏任务
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211227114330.png)
+~~~javascript
+        setTimeout(() => {
+            console.log('定时器'); // 3
+        }, 0);
+        Promise.resolve()
+            .then(v=>{
+                console.log('promise'); // 2
+            })
+        console.log('lyh'); // 1
+~~~
+#### 2.定时器的任务编排
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211227115031.png)
+定时器有自己单独的模块，在定时器模块内完成计时，当主线程的代码执行时间大于定时器所规定的时间，那么主线程任务执行完，定时器的任务就会立即执行
+~~~javascript
+        setTimeout(() => {
+            console.log('定时器1'); // 4
+        }, 4);
+                setTimeout(() => {
+            console.log('定时器2'); // 3
+        }, 2);
+        for(let i=0;i<1000;i++){
+            console.log(' '); // 1
+        }
+        console.log('lyh'); // 2
+~~~
+当定时器模块内有多个任务时，哪个定时器花费的时间少，哪个就先被放到宏任务模块执行
+#### 3.Promise微任务处理逻辑
+
+~~~javascript
+        setTimeout(() => {
+            console.log('定时器'); // 4
+        }, 0);
+        new Promise(resolve=>{
+            console.log('Promise'); // 1
+            resolve()
+        })
+        .then(v=>{
+            console.log('then'); // 3
+        })
+        console.log('lyh'); // 2
+~~~
+~~~javascript
+        setTimeout(() => {
+            console.log('定时器'); // 2
+            new Promise(resolve => {
+                    console.log('Promise'); // 3
+                    resolve()
+                })
+                .then(v => {
+                    console.log('then'); // 4
+                })
+        }, 0);
+        console.log('lyh'); // 1
+~~~
+#### 4.Dom渲染任务
+如果Dom渲染任务在js后边，就会先加载js
+
+所以最后将js放在Dom渲染后边会提高用户体验
+
+#### 5.任务共享内存
+~~~javascript
+        let i=0;
+        setTimeout(() => {
+            console.log(++i); // 1
+        }, 1000);
+        setTimeout(() => {
+            console.log(++i); // 2
+        }, 1000);
+~~~
+在宏任务队列里的任务能访问到主任务里的内存
+#### 6.进度条实例体验任务轮询
+
+~~~javascript
+        function handle() {
+            let i = 0;
+            (function run() {
+                document.querySelector('div').style.width=i+'%';
+                document.querySelector('div').innerHTML=i;
+                
+                if(++i<=100){
+                    console.log(i);
+                    setTimeout(run, 20);
+                }
+            })()
+        }
+        handle()
+~~~
+
+#### 7.任务拆分成多个子任务
+
+~~~javascript
+        function pl() {
+            for (let i = 0; i < 100000; i++) {
+                if (num < 0) break;
+                count += num--;
+            }
+            if (num > 0) {
+                setTimeout(pl);
+                console.log(num);
+
+            }else{
+                console.log(count);
+            }
+        }
+        let num = 987654321;
+        let count = 0;
+        pl()
+        console.log('plumli');
+~~~
+
+#### 8.Promise微任务处理复杂业务
+
+~~~javascript
+        function sum() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    let count = 0;
+                    for (let i = 0; i < num; i++) {
+                        count += num--;
+                    }
+                    console.log(count);
+                    resolve(count)
+                });
+            })
+        }
+        let num = 987654321;
+        async function pl(num) {
+            let res = await sum(num)
+            console.log(res);
+        }
+        pl(num)
+        console.log('plumli');
+~~~
+
+~~~javascript
+        async function pl(num){
+            let res=await Promise.resolve().then(_=>{
+                let count =0;
+                for(let i=0;i<num;i++){
+                    count+=num--
+                }
+                return count
+            })
+            console.log(res);
+        }
+        pl(num)
+        console.log('plumli');
+~~~
+
+## 手写Promise
