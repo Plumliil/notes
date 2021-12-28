@@ -710,3 +710,10 @@ add(n,e){
             }
 ~~~
 
+## 组件化开发
+
+#### 1.注册组件的基本步骤
+- 创建组件构造器
+- 注册组件
+- 使用组件
+![](https://gitee.com/Plumliil/images/raw/master/MdPicture/20211227171830.png)
