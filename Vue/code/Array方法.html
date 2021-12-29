@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Array方法</title>
+</head>
+<body>
+    <script>
+        const arr=[
+            {id:1,name:'西瓜',state:true,price:10,count:1},
+            {id:2,name:'榴莲',state:false,price:80,count:2},
+            {id:3,name:'苹果',state:true,price:6,count:3},
+            {id:4,name:'草莓',state:true,price: 20,count:4}
+        ]
+        // 需求：把购物车中勾选的结果，总价累加起来
+        const result=arr.filter(item=>item.state).reduce((amt,item)=>{
+            return amt+=item.price*item.count
+        },0)
+        console.log(result)
+    </script>
+</body>
+</html>
