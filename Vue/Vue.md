@@ -963,7 +963,7 @@ vue3不支持过滤器
 
 ~~~javascript
 watch:{
-            // 监听器本质上是一个函数，要监视哪个数据的变化，九八数据名做方法名即可
+            // 监听器本质上是一个函数，要监视哪个数据的变化，就把数据名做方法名即可
             // newVal 变化后的新值 oldVal 变化后的旧值
             // 新值在前 旧值在后
             msg(newVal,oldVal) {
@@ -1027,7 +1027,7 @@ watch:{
 指是通过一系列运算之后，最终得到的一个属性值
 这个动态计算出来的属性值可以被模板结构或methods方法使用，示例代码如下：
 
-~~~javascript
+~~~html
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html"
 xmlns="http://www.w3.org/1999/html">

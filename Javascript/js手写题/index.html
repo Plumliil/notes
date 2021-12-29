@@ -15,7 +15,50 @@
             res=res.slice(0,-1).toLowerCase()
             return res
         }
-console.log(        typeOf([]));
+        console.log(typeOf([])==='array');
+        function Animal(){
+            this.color=['black','white']
+        }
+        Animal.prototype.getColor=function(){
+            console.log(this.color);
+        }
+        function Dog(){}
+        Dog.prototype=new Animal();
+        let bigY=new Dog()
+        bigY.getColor()
+        function Plant(name){
+            this.name=name;
+            this.getName=function(){
+                console.log(this.name);
+            }
+        }
+        function Tree(name){
+            Plant.call(this,name)
+        }
+        Tree.prototype=new Plant();
+        // console.log(new Tree());
+        let willow=new Tree('willow')
+        console.log(willow);
+        willow.getName()
+        // 组合继承
+        function Ball(name){
+            this.name=name;
+            this.color=['black','red']
+        }
+        Ball.prototype.getName=function(){
+            console.log(this.name);
+        }
+        function Football(name,size){
+            Ball.call(this,name);
+            this.size=size;
+        }
+        Football.prototype=new Ball()
+        Football.prototype.constructor=Football;
+        let fb1=new Football('fb1',20)
+        console.log(fb1); // Football {name: 'fb1', color: Array(2), size: 20}
+        let fb2=new Football('fb2',22)
+        fb2.color.push('pink')
+        console.log(fb2); // Football {name: 'fb2', color: Array(3), size: 22}
     </script>
 </body>
 
