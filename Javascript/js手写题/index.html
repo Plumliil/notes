@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <script>
+    <!-- <script>
         function typeOf(obj){
             let res=Object.prototype.toString.call(obj).split(' ')[1];
             res=res.slice(0,-1).toLowerCase()
@@ -59,6 +59,25 @@
         let fb2=new Football('fb2',22)
         fb2.color.push('pink')
         console.log(fb2); // Football {name: 'fb2', color: Array(3), size: 22}
+    </script> -->
+    <script>
+        class Animal{
+            constructor(name){
+                this.name=name;
+            }
+            getName(){
+                console.log(this.name);;
+            }
+        }
+        class Dog extends Animal{
+            constructor(name,color){
+                super(name)
+                this.color=color;
+            }
+        }
+        let d=new Dog('Dh','white');
+        console.log(d); // Dog {name: 'Dh', color: 'white'}
+        d.getName(); // Dh 
     </script>
 </body>
 

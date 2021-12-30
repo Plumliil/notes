@@ -65,3 +65,47 @@ willow.getName()
         fb2.color.push('pink')
         console.log(fb2); // Football {name: 'fb2', color: Array(3), size: 22}
 ~~~
+### 5.寄生组合继承
+使用原型工厂封装继承
+~~~javascript
+function extend(child, parent) {
+  child.prototype = Object.create(parent.prototype)
+  child.prototype.constructor = child;
+}
+function Animal(name, age) {
+  this.name = name;
+  this.age = age;
+  this.color = ['black', 'gray']
+}
+Animal.prototype.getColor = function () {
+  console.log(this.color);
+}
+function Dog(name, age) {
+  Animal.apply(this, [name, age])
+}
+extend(Dog, Animal)
+let d = new Dog('Dh', 5);
+console.log(d); // Dog {name: 'Dh', age: 5, color: Array(2)}
+d.getColor(); // ['black', 'gray']
+~~~
+### 6.class实现继承使用super关键字实现继承
+
+~~~javascript
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+  getName() {
+    console.log(this.name);;
+  }
+}
+class Dog extends Animal {
+  constructor(name, color) {
+    super(name)
+    this.color = color;
+  }
+}
+let d = new Dog('Dh', 'white');
+console.log(d); // Dog {name: 'Dh', color: 'white'}
+d.getName(); // Dh 
+~~~
