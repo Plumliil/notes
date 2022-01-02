@@ -109,3 +109,58 @@ let d = new Dog('Dh', 'white');
 console.log(d); // Dog {name: 'Dh', color: 'white'}
 d.getName(); // Dh 
 ~~~
+### 7.数组去重
+es5
+~~~javascript
+let arr = [1, 1, 2, 1, 3, 4, 5];
+function unique(arr) {
+  let res = arr.filter((item, index, array) => {
+    return array.indexOf(item) === index
+  })
+  return res
+}
+console.log(unique(arr)); // [1,2,3,4,5]
+~~~
+for循环
+~~~javascript
+let arr = [1, 1, 2, 1, 3, 4, 5];
+let newArr = [];
+for (let i = 0; i < arr.length; i++) {
+  if (arr.indexOf(arr[i]) === i) {
+    newArr.push(arr[i])
+  }
+}
+console.log(newArr); // [1,2,3,4,5]
+~~~
+es6
+~~~javascript
+let es6Arr = arr => [...new Set(arr)]
+~~~
+### 8.数组扁平化
+for循环
+~~~javascript
+let arr = [1, 2, [3, 4, [5, 6, [7]]]];
+function flatten(arr) {
+  let newArr = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (Array.isArray(arr[i])) {
+      newArr = newArr.concat(flatten(arr[i]))
+    } else {
+      newArr.push(arr[i])
+    }
+  }
+  return newArr
+}
+console.log(flatten(arr)); // [1,2,3,4,5,6,7]
+~~~
+es6实现
+~~~javascript
+let arr = [1, 2, [3, 4, [5, 6, [7]]]];
+function flatten(arr) {
+  while (arr.some(item => Array.isArray(item))) {
+    arr = [].concat(...arr)
+  }
+  return arr
+}
+console.log(flatten(arr)); // [1,2,3,4,5,6,7]
+~~~
