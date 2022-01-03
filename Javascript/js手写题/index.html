@@ -61,23 +61,70 @@
         console.log(fb2); // Football {name: 'fb2', color: Array(3), size: 22}
     </script> -->
     <script>
-        class Animal{
-            constructor(name){
-                this.name=name;
+        // call函数封装
+        // 改变函数this的指向来执行函数
+        function call(fn, obj, ...args) {
+            // 功能实现
+            if (obj === undefined || obj === null) {
+                obj = globalThis; // 全局对象
             }
-            getName(){
-                console.log(this.name);;
-            }
+            obj.temp = fn;
+            // 调用temp方法 临时方法暂存函数
+            let result = obj.temp(...args);
+            // 删除temp方法
+            delete obj.temp
+            // 返回
+            return result;
         }
-        class Dog extends Animal{
-            constructor(name,color){
-                super(name)
-                this.color=color;
+        // apply函数封装
+        // 改变函数this的指向来执行函数
+        function apply(fn, obj, args) {
+            console.log(args);
+            // 功能实现
+            if (obj === undefined || obj === null) {
+                obj = globalThis; // 全局对象
             }
+            obj.temp = fn;
+            // 调用temp方法 临时方法暂存函数
+            let result = obj.temp(...args);
+            // 删除temp方法
+            delete obj.temp
+            // 返回
+            return result;
         }
-        let d=new Dog('Dh','white');
-        console.log(d); // Dog {name: 'Dh', color: 'white'}
-        d.getName(); // Dh 
+        // bind函数封装
+        // 改变函数this的指向来执行函数
+        function bind(fn, obj, ...args) {
+            // 返回一个可执行函数
+            return function (...args2) {
+                // 执行call函数
+               return call(fn, obj, ...args, ...args2)
+            };
+        }
+
+        function fn1(name, age) {
+            console.log(this)
+            console.log(name + this.c + age);
+        }
+        let obj = {
+            c: 222
+        }
+
+        function fn2() {
+            console.log('call函数封装成功');
+        }
+        window.c = 111;
+
+        function add(a, b) {
+            console.log(this);
+            console.log(a + b + this.c);
+        }
+        // call(fn1, obj, 'zs', 21)
+        // call(fn1, null, 'zs', 21)
+        // call(fn2, null,)
+        // apply(fn1, obj,['fn1',21])
+        let newBind = bind(add, obj, 111)
+        newBind(444)
     </script>
 </body>
 

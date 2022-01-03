@@ -87,3 +87,53 @@ function flatting(arr){
     }
     return arr
 }
+
+// 9.深拷贝
+function deepCopy(obj) {
+    let newObj = Array.isArray(obj) ? [] : {}
+    if (obj && typeof (obj) === 'object') {
+      for (let key in obj) {
+        if (typeof (obj[key]) === "object") {
+          newObj[key] = deepCopy(obj[key])
+        } else {
+          newObj[key] = obj[key]
+        }
+      }
+    }
+    return newObj
+  }
+
+// 10.手写函数
+// 改变函数this的指向来执行函数
+// call函数封装
+function pliCall(fn, obj, ...args) {
+    if (obj === undefined || obj === null) {
+        obj = globalThis
+    }
+    obj.temp = fn
+    let result = obj.temp(...args)
+    delete obj.temp
+    return result
+}
+// apply函数
+function pliApply(fn,obj,args){
+    if(obj===undefined||obj===null){
+        obj=globalThis
+    }
+    obj.temp=fn;
+    let result=obj.temp(...args)
+    delete obj.temp
+    return result
+}
+// bind函数
+function pliBind(fn,obj,...args){
+    return function(...args2){
+        if(obj===undefined||obj===null){
+            obj=globalThis
+        }
+        obj.temp=fn;
+        let result=obj.temp(...args,...args2)
+        delete obj.temp;
+        return result
+    }
+}

@@ -164,3 +164,87 @@ function flatten(arr) {
 }
 console.log(flatten(arr)); // [1,2,3,4,5,6,7]
 ~~~
+### 9.深拷贝
+递归拷贝所有层级属性
+~~~javascript
+function deepCopy(obj) {
+  let newObj = Array.isArray(obj) ? [] : {}
+  if (obj && typeof (obj) === 'object') {
+    for (let key in obj) {
+      if (typeof (obj[key]) === "object") {
+        newObj[key] = deepCopy(obj[key])
+      } else {
+        newObj[key] = obj[key]
+      }
+    }
+  }
+  return newObj
+}
+~~~
+JSON转换
+~~~javascript
+let obj1 = {
+  name: 'obj1',
+  age: 20,
+  hobbies: ['eat', 'sleep'],
+  lesson: {
+    name: 'js',
+    click: '220'
+  }
+}
+function deepCopy(obj) {
+  let newObj = JSON.stringify(obj)
+  newObj = JSON.parse(newObj)
+  return newObj
+}
+let obj2 = deepCopy(obj1);
+obj2.name = 'obj2';
+obj2.hobbies.push('code');
+obj2.lesson['price'] = 132;
+console.log('obj1', obj1); // obj1 {"name":"obj1","age":20,"hobbies":["eat","sleep"],"lesson":{"name":"js","click":"220"}}
+console.log('obj2', obj2); // obj2 {"name":"obj2","age":20,"hobbies":["eat","sleep","code"],"lesson":{"name":"js","click":"220","price":132}}
+~~~
+### 10.call()&apply()&bind()实现
+三种函数的实现思想基本一致，都是给传入的对象创建一个临时的函数方法，使该函数方法等于要调用函数
+，此时调用函数的this就指向了传入的对象，函数调用后删除创建的临时方法，最终返回函数调用的结果。
+
+其中bind()函数返回的是一个可执行函数，bind()不是立即执行，需要进行调用
+- call函数封装
+~~~javascript
+function pliCall(fn, obj, ...args) {
+    if (obj === undefined || obj === null) {
+        obj = globalThis
+    }
+    obj.temp = fn
+    let result = obj.temp(...args)
+    delete obj.temp
+    return result
+}
+~~~
+- apply函数
+~~~javascript
+function pliApply(fn,obj,args){
+    if(obj===undefined||obj===null){
+        obj=globalThis
+    }
+    obj.temp=fn;
+    let result=obj.temp(...args)
+    delete obj.temp
+    return result
+}
+~~~
+- bind函数
+~~~javascript
+function pliBind(fn,obj,...args){
+    return function(...args2){
+        if(obj===undefined||obj===null){
+            obj=globalThis
+        }
+        obj.temp=fn;
+        let result=obj.temp(...args,...args2)
+        delete obj.temp;
+        return result
+    }
+}
+
+~~~
