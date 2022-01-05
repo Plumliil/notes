@@ -81,9 +81,9 @@ function flatten(arr) {
 }
 // console.log(flatten(farr));
 // es6实现
-function flatting(arr){
-    while(arr.some(item=>Array.isArray(item))){
-        arr=[].concat(...arr)
+function flatting(arr) {
+    while (arr.some(item => Array.isArray(item))) {
+        arr = [].concat(...arr)
     }
     return arr
 }
@@ -92,16 +92,16 @@ function flatting(arr){
 function deepCopy(obj) {
     let newObj = Array.isArray(obj) ? [] : {}
     if (obj && typeof (obj) === 'object') {
-      for (let key in obj) {
-        if (typeof (obj[key]) === "object") {
-          newObj[key] = deepCopy(obj[key])
-        } else {
-          newObj[key] = obj[key]
+        for (let key in obj) {
+            if (typeof (obj[key]) === "object") {
+                newObj[key] = deepCopy(obj[key])
+            } else {
+                newObj[key] = obj[key]
+            }
         }
-      }
     }
     return newObj
-  }
+}
 
 // 10.手写函数
 // 改变函数this的指向来执行函数
@@ -116,24 +116,61 @@ function pliCall(fn, obj, ...args) {
     return result
 }
 // apply函数
-function pliApply(fn,obj,args){
-    if(obj===undefined||obj===null){
-        obj=globalThis
+function pliApply(fn, obj, args) {
+    if (obj === undefined || obj === null) {
+        obj = globalThis
     }
-    obj.temp=fn;
-    let result=obj.temp(...args)
+    obj.temp = fn;
+    let result = obj.temp(...args)
     delete obj.temp
     return result
 }
 // bind函数
-function pliBind(fn,obj,...args){
-    return function(...args2){
-        if(obj===undefined||obj===null){
-            obj=globalThis
+function pliBind(fn, obj, ...args) {
+    return function (...args2) {
+        if (obj === undefined || obj === null) {
+            obj = globalThis
         }
-        obj.temp=fn;
-        let result=obj.temp(...args,...args2)
+        obj.temp = fn;
+        let result = obj.temp(...args, ...args2)
         delete obj.temp;
         return result
     }
 }
+
+// 防抖节流
+// 防抖
+// 从上次被调用后，延迟wait毫秒后调用
+function debounce(callback, time) {
+    // 定时器变量
+    let timeId = null;
+    // 返回立即执行函数
+    return function (e) {
+        // 判断
+        if (timeId !== null) clearTimeout(timeId);
+        // 启动定时器
+        timeId = setTimeout(() => {
+            callback.call(this, e);
+            timeId = null;
+        }, time);
+    }
+}
+
+// 节流
+// 立即触发一次，在wait秒最多执行一次
+function throttle(callback, wait) {
+    // 定义开始时间
+    let start = 0;
+    return function (e) {
+        // 获取当前时间戳
+        let now = Date.now();
+        // 判断
+        if (now - start >= wait) {
+            // 若满足条件则执行回调
+            callback.call(this, e);
+            start = now;
+        }
+    }
+}
+
+// map封装

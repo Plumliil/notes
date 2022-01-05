@@ -246,5 +246,31 @@ function pliBind(fn,obj,...args){
         return result
     }
 }
-
+~~~
+### 11.节流防抖函数的封装
+- 节流
+~~~javascript
+function throttle(callback,wait){
+  let start=0;
+  return function(e){
+    let now=Date.now();
+    if(now-start>=wait){
+      callback.call(this,e);
+      start=now
+    }
+  }
+}
+~~~
+- 防抖
+~~~javascript
+function debounce(callback,time){
+  let timer=null;
+  return function(e){
+    if(timer) clearTimeout(timer);
+    timer=setTimeout(()=>{
+      callback.call(this,e);
+      timer=null;
+    },time)
+  }
+}
 ~~~
