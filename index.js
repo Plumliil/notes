@@ -30,4 +30,5 @@ function bogoSort(arr) {
     console.log('计算了' + n + '次')
     return arr;
 }
+
 bogoSort(array)
