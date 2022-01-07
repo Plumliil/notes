@@ -2181,8 +2181,6 @@ thenFs.readFile('3.txt','utf8').then(r3=>console.log(r3),err3=>console.log(err3.
 ##### .then()方法的特性
 如果上一个.then()方法的返回值是一个promise实例对象，则可以通过下一个.then()继续进行处理。通过.then()
 方法的链式调用，就解决了回调地狱的问题
-#### async/swait
 
 #### EvenLoop
 
-#### 宏任务和微任务
