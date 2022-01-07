@@ -10,11 +10,56 @@
         body {
             height: 5000px;
             background: linear-gradient(#fba, skyblue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+
+        .outter {
+            width: 300px;
+            height: 300px;
+            background-color: cornflowerblue;
+        }
+
+        .inner {
+            width: 50%;
+            height: 50%;
+            background-color: darkorange;
+        }
+
+        ul {
+            margin-top: 500px;
+            list-style-type: none;
+        }
+
+        li {
+            padding: 20px;
+            margin: 3px;
+            background-color: paleturquoise;
         }
     </style>
 </head>
 
 <body>
+    <div class="outter">
+        <div class="inner">
+        </div>
+    </div>
+    <ul id="items">
+        <li>AAAA</li>
+        <li>BBBB</li>
+        <li>CCCC</li>
+        <li>DDDD</li>
+        <div>eeeee</div>
+    </ul>
     <script>
         // map() 创建一个新的数组，数组中每个元素是调用一次提供函数后返回的结果
         function myMap(arr, callback) {
@@ -35,7 +80,6 @@
             return result
         }
         // filter() 过滤数组中的元素，返回一个新数组
-
         function myFilter(arr, callback) {
             let result = [];
             for (let i = 0; i < arr.length; i++) {
@@ -43,7 +87,6 @@
             }
             return result;
         }
-
         // find() 找到第一个满足测试函数的元素并返回那个元素的值,如果没有找到返回undefined
         function myFind(arr, callback) {
             for (let i = 0; i < arr.length; i++) {
@@ -290,36 +333,328 @@
 
         function mergeObject(...args) {
             let result = {};
-            // 遍历参数对象
-            args.forEach(arg=>{
-                Object.keys(arg).forEach(key=>{
-                    console.log(key);
-                    if(result.hasOwnProperty(key)){
-                        result[key]=[].concat(result[key],arg[key])
-                    }else{
-                        result[key]=arg[key]
+            args.forEach(arg => {
+                Object.keys(arg).forEach(key => {
+                    if (result.hasOwnProperty(key)) {
+                        result[key] = [].concat(result[key], arg[key])
+                    } else {
+                        result[key] = arg[key]
                     }
                 })
             })
             return result
 
         }
-        const obj1 = {
-            a: [{
-                x: 2
-            }, {
-                y: 4
-            }],
-            b: 1
+
+        // 浅拷贝
+        function clone2(target) {
+            if (typeof target === 'object' && target !== null) {
+                const result = Array.isArray(target) ? [] : {};
+                for (let key in target) {
+                    // 判断当前对象身上是否有该属性
+                    if (target.hasOwnProperty(key)) {
+                        result[key] = target[key]
+                    }
+                    console.log(key);
+                }
+                return result;
+            } else {
+                return target;
+            }
         }
-        const obj2 = {
-            a: {
-                z: 3
-            },
-            b: [2, 3],
-            c: 'foo'
+        // 深拷贝
+        // JSON 不拷贝方法
+        function deepClone1(target) {
+            let result = JSON.stringify(target);
+            console.log(result);
+            result = JSON.parse(result);
+            return result
         }
-        console.log(mergeObject(obj1,obj2));
+        // 递归实现
+        function deepClone2(target) {
+            if (typeof target === 'object' && target !== null) {
+                const result = Array.isArray(target) ? [] : {};
+                for (let key in target) {
+                    if (target.hasOwnProperty(key)) {
+                        result[key] = deepClone2(target[key])
+                    }
+                }
+                return result;
+            } else {
+                return target;
+            }
+        }
+
+        function deepClone3(target, map = new Map()) {
+            if (typeof target === 'object' && target !== null) {
+                // 克隆数据前进行判断 判断数据之前是否已经克隆
+                let cache = map.get(target);
+                if (cache) {
+                    return cache;
+                }
+                const result = Array.isArray(target) ? [] : {};
+                // 将新的结果存到容器中
+                map.set(target, result);
+                for (let key in target) {
+                    if (target.hasOwnProperty(key)) {
+                        result[key] = deepClone3(target[key], map)
+                    }
+                }
+                return result;
+            } else {
+                return target;
+            }
+        }
+
+        function deepClone4(target, map = new Map()) {
+            if (typeof target === 'object' && target !== null) {
+                // 克隆数据前进行判断 判断数据之前是否已经克隆
+                let cache = map.get(target);
+                if (cache) {
+                    return cache;
+                }
+                let isArray = Array.isArray(target);
+                const result = isArray ? [] : {};
+                // 将新的结果存到容器中
+                map.set(target, result);
+                // 如果目标数据是数组
+                if (isArray) {
+                    target.forEach((item, index) => {
+                        result[index] = deepClone4(item, map);
+                    })
+                } else {
+                    // 如果是对象
+                    Object.keys(target).forEach(key => {
+                        result[key] = deepClone4(target[key], map)
+                    })
+                }
+                return result;
+            } else {
+                return target;
+            }
+        }
+
+
+        // 字符串函数封装
+        // 字符串倒序 reverseString(str) 生成一个倒序字符串
+        function reverseString(str) {
+            // 将字符串转为数组
+            let arr = str.split('');
+            let newArr = [];
+            for (let i = 0; i < arr.length; i++) {
+                newArr[i] = arr[arr.length - i - 1]
+            }
+            let s = newArr.join('')
+            return s;
+        }
+        // 回文字符串 palindrome(str) 如果给定的字符串时回文，返回true，否则返回false
+        function palindrome(str) {
+            let arr = str.split('');
+            let newArr = [];
+            for (let i = 0; i < arr.length; i++) {
+                newArr[i] = arr[arr.length - i - 1]
+            }
+            let s = newArr.join('');
+            return s === str;
+        }
+        // 截取字符串 truncate(str,num) 如果字符串的唱大鼓超过了num，截取前面num长度部分，并以...结束
+        function truncate(str, num) {
+            let arr = [];
+            for (let i = 0; i < [...str].length; i++) {
+                if (i < num) {
+                    arr.push([...str][i])
+                }
+            }
+            return arr.join('') + '...';
+
+        }
+
+        let str = '字符串倒序';
+        let str1 = '字符串符字';
+        let str2 = '如果字符串的唱大鼓超过了num，截取前面num长度部分，并以...结束';
+    </script>
+    <script>
+        // 事件监听(委托)
+        // 事件冒泡流程，基于Dom树形结构，事件在目标元素上处理后，会有内向外(上逐层传递) 应用场景:事件代理/委托/委派
+        // 减少内存占用 动态添加内部元素
+
+        // 函数绑定事件
+
+        function addEventListener(el, type, callback, selector) {
+            // 判断el类型
+            if (typeof el === 'string') {
+                el = document.querySelector(el)
+            }
+            console.log(el);
+            // 事件绑定
+            // 如果没有传子元素选择器，则给el元素绑定事件
+            if (!selector) {
+                el.addEventListener(type, fn);
+            } else {
+                el.addEventListener(type, function (e) {
+                    // 获取点击事件源
+                    const target = e.target;
+                    // 判断选择器与目标元素是否相符合
+                    if (target.matches(selector)) {
+                        // 若符合则回调
+                        callback.call(target, e)
+                    }
+                })
+            }
+        }
+
+        // addEventListener('#items', 'click', function (e) {
+        //     console.log(this.innerHTML);
+        // }, 'li')
+
+        // 手写事件总线 eventBus:包含所有宫娥能的事件总线对象 通过复用提高代码效率
+        // eventBus.on(eventName,listener); 绑定事件监听
+        // eventBus.emit(eventName,data); 分发事件
+        // eventBus.off(eventName); 解绑指定事件监听，如果没有指定解绑所有;
+
+        // 用一个容器保存类型和回调，触发的时候再取出来进行执行
+
+        const eventBus = {
+            // 保存类型与回调的容器
+            callbacks: {}
+        };
+
+        // 绑定事件
+        eventBus.on = function (type, callback) {
+            if (this.callbacks[type]) {
+                // 如果有该类型事件
+                this.callbacks[type].push(callback)
+            } else {
+                // 如果callbacks属性中没有该属性
+                this.callbacks[type] = [callback]
+            }
+        }
+        // 触发事件
+        eventBus.emit = function (type, data) {
+            if (this.callbacks[type] && this.callbacks[type].length > 0) {
+                // 遍历数组
+                this.callbacks[type].forEach(callback => {
+                    callback(data)
+                })
+            }
+        }
+
+        // 事件的解绑
+        eventBus.off = function (eventName) {
+            if (eventName) {
+                delete this.callbacks[eventName]
+            } else {
+                this.callbacks = {}
+            }
+        }
+
+        eventBus.on('login', data => {
+            console.log(data, '用户已登陆');
+        })
+        eventBus.on('login', data => {
+            console.log(data, '登陆数据已写入');
+        })
+        eventBus.on('logOut', data => {
+            console.log(data, '退出登录');
+        })
+        eventBus.off();
+        // console.log(eventBus);
+
+        // setTimeout(() => {
+        //     eventBus.emit('login', '张三');
+        // }, 2000);
+
+
+        // 消息订阅与发布 (订阅者模式) 对代码进行分离,实现代码解耦 提高灵活性
+        // PubSub:包含所有功能的订阅/发布消息的管理者
+        // PubSub.subscribe(msg,subscriber):订阅消息，指定消息名和订阅者回调函数
+        // PubSub.publish(msg,data):异步发布消息，指定消息名和数据
+        // PubSub.publishSync(msg,data):同步发布消息,指定消息名和数据
+        // PubSub.unSubscribe(flag):取消订阅,根据标识取消某个或者某些消息的订阅
+
+        const PubSub = {
+            // 订阅者唯一id
+            id: 1,
+            // 频道与回调容器
+            callbacks: {
+                // pay:{
+                //     token_1:fn,
+                //     token_2:fn1,
+                // }
+            }
+        };
+        // 订阅频道
+        PubSub.subscribe = function (channel, callback) {
+            // 创建唯一编号
+            let token = 'token_' + this.id++;
+            // pay tken_1
+            // 判断callbacks属性中是否存在 pay
+            if (this.callbacks[channel]) {
+                this.callbacks[channel][token] = callback;
+            } else {
+                this.callbacks[channel] = {
+                    [token]: callback,
+                }
+            }
+            // 返回频道订阅的id
+            return token;
+        }
+
+        // 发布消息
+        PubSub.publish = function (channel, data) {
+            // 获取当前频道中所有的回调
+            if (this.callbacks[channel]) {
+                Object.values(this.callbacks[channel]).
+                forEach(callback => {
+                    callback(data)
+                })
+            }
+        }
+
+        // 取消订阅
+        // 没有传值,flag为undefind
+        // 传入token字符串
+        // msgName字符串
+        PubSub.unSubscribe = function (flag) {
+            if (flag === undefined) {
+                this.callbacks = {};
+            } else if (typeof flag === 'string') {
+                // 判断是否为token_开头
+                if (flag.indexOf('token_') === 0) {
+                    // 如果是 标明是一个订阅id
+                    let callbackObj = Object.values(this.callbacks).find(obj => obj.hasOwnProperty(flag))
+                    if (callbackObj) {
+                        console.log(callbackObj);
+                        delete callbackObj[flag]
+                        console.log(callbackObj);
+                    }
+                } else {
+                    // 标明是一个频道名称
+                    delete this.callbacks[flag]
+                }
+            }
+        }
+
+
+        // 订阅一个频道
+        let pid1 = PubSub.subscribe('pay', data => {
+            console.log('商家接到订单,准备开始制作');
+        })
+        let pid2 = PubSub.subscribe('pay', data => {
+            console.log('骑手接到订单,准备开始取餐');
+        })
+        PubSub.subscribe('cancel', data => {
+            console.log('商家接到退餐请求');
+        })
+        PubSub.unSubscribe(pid1)
+        // console.log(PubSub);
+        // console.log(pid1, pid2);
+        // PubSub.publish() 发布消息
+        PubSub.publish('pay', {
+            title: '鸡蛋西红柿盖饭',
+            price: 20,
+            pos: '三年二班'
+        })
     </script>
 </body>
 
