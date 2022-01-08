@@ -60,6 +60,7 @@
         <li>DDDD</li>
         <div>eeeee</div>
     </ul>
+    <button class="submit">sub</button>
     <script>
         // map() 创建一个新的数组，数组中每个元素是调用一次提供函数后返回的结果
         function myMap(arr, callback) {
@@ -572,6 +573,9 @@
         // PubSub.publishSync(msg,data):同步发布消息,指定消息名和数据
         // PubSub.unSubscribe(flag):取消订阅,根据标识取消某个或者某些消息的订阅
 
+
+
+
         const PubSub = {
             // 订阅者唯一id
             id: 1,
@@ -655,6 +659,55 @@
             price: 20,
             pos: '三年二班'
         })
+    </script>
+    <!-- <script src="./设计模式/index.js"></script> -->
+    <script>
+        class Sub {
+            constructor() {
+                this.pond = [];
+            }
+            // 向事件池中追加方法(重复处理)
+            add(func) {
+                if (!this.pond.includes(func)) return this.pond.push(func);
+            }
+            // 从事件池中移除方法
+            remove(func) {
+                if (this.pond.includes(func)) {
+                    this.pond = this.pond.filter(fn => {
+                        return fn !== func;
+                    });
+                }
+            }
+            // 通知事件池种方法，按顺序执行
+            fire(...args) {
+                this.pond.forEach(fn => {
+                    fn.call(this, ...args)
+                })
+            }
+        }
+
+        let pond = new Sub();
+        document.querySelector('.submit').onclick = function (e) {
+            pond.fire(e)
+        }
+        let fn1 = function () {
+            console.log('fn1');
+        }
+        let fn2 = function () {
+            console.log('fn2');
+            pond.remove(fn1)
+        }
+
+        let fn3 = function () {
+            console.log('fn3');
+        }
+        let fn4 = function (e) {
+            console.log('fn4');
+        }
+        pond.add(fn1);
+        pond.add(fn2);
+        pond.add(fn3);
+        pond.add(fn4);
     </script>
 </body>
 
