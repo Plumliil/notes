@@ -9,16 +9,22 @@
 </head>
 
 <body>
-    <div id="app"></div>
+    <div id="app">
+        xxx
+    </div>
     <script src="../js/vue.global.js"></script>
+    <script type="x-template" id="plum">
+        <div>
+            <h1>{{msg}}</h1>
+            <h2>{{num}}</h2>
+            <button @click="desc">-1</button>
+            <button @click="add">+1</button>
+        </div>
+    </script>
+
     <script>
         Vue.createApp({
-            template: `
-                <h1>{{msg}}</h1>
-                <h2>{{num}}</h2>
-                <button @click="desc">-1</button>
-                <button @click="add">+1</button>
-            `,
+            template:'#plum',
             data: function () {
                 return {
                     msg: 'Hello Plumli',
@@ -29,8 +35,9 @@
                 add() {
                     this.num++
                 },
-                desc(){
-                    this.num--
+                desc() {
+                    this.num--;
+                    console.log(this);
                 }
             }
         }).mount('#app')
