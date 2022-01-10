@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../js/vue.global.js"></script>
+    <script>
+        Vue.createApp({
+            template: `
+                <h1>{{msg}}</h1>
+                <h2>{{num}}</h2>
+                <button @click="desc">-1</button>
+                <button @click="add">+1</button>
+            `,
+            data: function () {
+                return {
+                    msg: 'Hello Plumli',
+                    num: 0
+                }
+            },
+            methods: {
+                add() {
+                    this.num++
+                },
+                desc(){
+                    this.num--
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+</html>
