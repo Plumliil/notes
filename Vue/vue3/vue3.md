@@ -168,3 +168,131 @@ v-on修饰符
     - .right 只当鼠标点击右键时触发
     - .middle 只当鼠标点击鼠标中键时触发
     - .passive {passive:true} 模式添加侦听器
+
+
+### 列表渲染 diff算法
+
+#### 条件渲染
+基本使用
+
+#### 列表渲染
+
+v-for和template结合使用
+template不会渲染，可以进行数据循环
+
+#### 数据更新检测
+
+Vue将被监听的数组变更方法进行包裹，所以他们也会触发试图更新，这些被包裹的方法包括
+- .push()
+- .pop()
+- .shift()
+- .unshift()
+- .splice()
+- .sort()
+- .reverse()
+
+#### v-for中key的作用
+在使用v-for进行列表渲染时，通常给元素或者组件绑定一个key属性
+
+这个key属性有什么作用
+- key属性用在Cue的虚拟DOM算法，在新旧nodes对比边是VNodes
+- 如果不适用key，Vue会使用一种最大限度减少动态元素并且尽可能的常士就地修改/服用相同类型元素算法
+- 而使用key，他会基于key的变化重新排列元素顺序，别切会移除销毁/key不存在的元素
+
+#### 认识VNode
+目前没有学习完整的组件概念，随意先理解为html元素和VNode将的转换 
+VNode全称时Virtual Node，也就是虚拟节点
+事实上无论是组件还是元素，他们在vue中的表现形式都是VNode
+VNode本质是一个JavaScript对象
+~~~html
+<div class="title" style="font-size: 30px;color:red;">Hello Plumli</div>
+~~~
+~~~javascript
+const vnode={
+    type:"div",
+    props:{
+        class:"title",
+        style:{
+            "font-size":"30px",
+            "color":"red"
+        },
+    },
+    children:"Hello Plumli"
+}
+~~~
+
+template----->VNode----->真实DOM
+
+好处：多平台的适配
+
+#### 虚拟DOM
+如果当前不是一个简单的div，而是一大堆元素，那么他们会形成一个VNode Tree
+         div
+
+       /  \   \
+
+      /    \   \
+
+    p      span strong
+
+   / \
+
+  /   \
+
+  i    i
+
+  #### 插入F案例
+  点击按钮在中间插入一个f
+  生成4个VNode
+  diff算法：将原来的VNodes和现在VNodes内容做对比
+  - 可以确定的是，这次更新对于ul和button时不需要进行更新滚，需要更新的是我们li列表
+    - 在vue中，对于相同父元素的子元素节点不会重新渲染整个，列表
+    - 行为对于列表中abcd他们都是没有变化的
+    - 在操作真实Dom的时候，我们只要在中间插入一个li即可 
+  - 那么Vue中对于列表的更新究竟是如何操作的呢
+    - Vue事实上会对于有key和没key会调用两种不同的方法
+    - 有key，那就使用patchKeyedChildren()方法
+    - 没有key，使用patchUnkeyedChildren()
+diff算法 找不同
+使用key可以让代码效率更高
+
+package>runtime-core>src>randerer.ts>baseCreateRander>patchKeyedChildren 1690
+mount 挂载 将div放在真实dom上
+unmount 销毁 卸载真实dom上div
+
+红黑树手写
+
+patch打补丁
+
+### 04 计算属性
+#### 复杂data的处理方式
+在模板中可以直接通过插值语法显示一些data中的数据
+但是在某些情况下，我们可能需要对数据进行一些转化后在现实，或者将多个数据结合起来进行显示
+- 比如需要对多个data数据进行运算，三元运算符来决定结果，数据进行某种转化后显示
+- 在模板中使用表达式，可以非常方便的实现，但是设计他们的初衷时用于简单的运算
+- 在模板中放入太多的逻辑会让模板过重难以维护
+- 并且如果多个地方使用到，那么会有大量的重复代码
+有没有方法可以将逻辑抽离
+- 可以，其中一种方式就是将逻辑抽取到一个method中，放到methods的options中
+- 但是，这中做法有一个弊端，就是所有的data使用过程就变成了方法的调用 
+- 另外有一种方法就是使用计算属性
+#### 计算属性computed
+什么是计算属性：
+- 对于任何包含响应式的复杂逻辑，都应该使用计算属性
+- 计算属性将会被混入到组件实例中，getter和setter的this上下文自动绑定为组件实例
+计算属性的方法：
+- 选项：computed
+- 类型：`{key:string:[Function]|{get:Function,set:Function}}`
+
+三个案例：
+- 有两个变量：firstName和lastName，希望他们拼接之后在界面上显示；
+- 有一个分数
+    - 当大于60在页面显示及格
+    - 当小于60在页面显示不及格
+- 有一个变量message,记录一段文字
+    - 某些情况下直接显示这段文字
+    - 某些情况下需要对文字进行反转
+三种思路：
+- 在模板语法中直接使用表达式
+- 使用method对逻辑进行抽取
+- 使用计算属性computed

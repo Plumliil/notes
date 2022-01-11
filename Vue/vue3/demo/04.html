@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue-Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <template id="my-app">
+        <h2>{{message.split(' ').reverse().join(' ')}}</h2>
+        <h2>{{name}}</h2>
+        <h2>{{score}}</h2>
+    </template>
+    <script src="../js/vue.global.js"></script>
+
+    <script>
+        const App = {
+            template: '#my-app',
+            data: function () {
+                return {
+                    message: 'Hello Plumli',
+                    // score:'',
+                    firstName: 'Li',
+                    lastName: 'Plum'
+                }
+            },
+            computed: {
+                // 定义了计算属性叫name
+                name() {
+                    return this.firstName + this.lastName
+                },
+                score() {
+                    let score = 70;
+                    return score > 60 ? '及格' : '不及格'
+                }
+            }
+        }
+        Vue.createApp(App).mount('#app')
+    </script>
+</body>
+
+</html>
