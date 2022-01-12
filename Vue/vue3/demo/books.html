@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue-Document</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        tr td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+    <template id="my-app">
+        <template v-if="!isEmpty">
+            <table>
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td>书籍名称</td>
+                        <td>出版日期</td>
+                        <td>价格</td>
+                        <td>购买数量</td>
+                        <td>操作</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(book,index) in books" :key="index">
+                        <td>{{index+1}}</td>
+                        <td>{{book.name}}</td>
+                        <td>{{book.date}}</td>
+                        <td>￥{{book.price}}</td>
+                        <td>
+                            <button @click="sub(index)">-</button>
+                            {{book.num}}
+                            <button @click="add(index)">+</button>
+                        </td>
+                        <td><button @click="remove(index)">删除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <h2>总价：￥{{total}}</h2>
+        </template>
+        <template v-else>
+            <h2>购物车为空</h2>
+        </template>
+    </template>
+    <script src="../js/vue.global.js"></script>
+
+    <script>
+        const App = {
+            template: '#my-app',
+            data: function () {
+                return {
+                    books: [{
+                            name: '《算法导论》',
+                            date: '2006-9',
+                            price: 85,
+                            num: 1
+                        },
+                        {
+                            name: '《UNIX编程艺术》',
+                            date: '2006-2',
+                            price: 59,
+                            num: 1
+                        },
+                        {
+                            name: '《编程珠玑》',
+                            date: '2008-10',
+                            price: 39,
+                            num: 1
+                        },
+                        {
+                            name: '《代码大全》',
+                            date: '2006-3',
+                            price: 128,
+                            num: 1
+                        },
+                    ],
+                    isEmpty: false
+                }
+            },
+            methods: {
+                add(index) {
+                    this.books[index].num++
+                },
+                sub(index) {
+                    if (this.books[index].num > 0) {
+                        this.books[index].num--
+                    }
+                },
+                remove(index) {
+                    this.books.splice(index, 1);
+                }
+            },
+            computed: {
+                total() {
+                    return this.books.reduce((t, l) => {
+                        return t + l.price * l.num;
+                    }, 0)
+                }
+            },
+            watch: {
+                'books.length': {
+                    handler(newv, oldv) {
+                        if (newv === 0) {
+                            this.isEmpty = true;
+                        } else {
+                            this.isEmpty = false;
+                        }
+                    }
+                }
+            }
+        }
+        Vue.createApp(App).mount('#app')
+    </script>
+</body>
+
+</html>

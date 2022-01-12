@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue-Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <template id="my-app">
+        <c-a></c-a>
+        <c-b></c-b>
+    </template>
+
+    <template id="c-a">
+        <h1>App</h1>
+        <h2>我是c-a组件</h2>
+        {{title}}
+        <button @click="btnc">c-a-btn</button>
+    </template>
+    <template id="c-b">
+        <h1>驼峰命名组件</h1>
+    </template>
+    
+    <script src="../js/vue.global.js"></script>
+
+    <script>
+        const App = {
+            template: '#my-app',
+        }
+        const app=Vue.createApp(App);
+        // 使用app注册组件
+        // app.component(组件名称,组件对象)
+        app.component('c-a',{
+            template:'#c-a',
+            data(){
+                return{
+                    title:'我是c-ad的title'
+                }
+            },
+            methods:{
+                btnc(){
+                    console.log('btnc');
+                }
+            }
+        })
+        app.component('c-b',{
+            template:'#c-b'
+        })
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

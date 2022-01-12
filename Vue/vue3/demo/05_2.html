@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue-Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <template id="my-app">
+        <h2>{{message}}</h2>
+        <c_a></c_a>
+    </template>
+    <script src="../js/vue.global.js"></script>
+    <template id="c-a">
+        <h1>C-A</h1>
+        <h2>我是局部组件</h2>
+    </template>
+    <script>
+        const c_a={
+            template:'#c-a',
+        }
+        const App = {
+            template: '#my-app',
+            components:{c_a},
+            data: function () {
+                return {
+                    message: 'Hello Plumli'
+                }
+            }
+        }
+        Vue.createApp(App).mount('#app')
+    </script>
+</body>
+
+</html>
