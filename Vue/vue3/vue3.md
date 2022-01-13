@@ -646,3 +646,35 @@ watch:{
 - 自己使用webpack或者rollup或者vite这类打包工具，对其进行打包处理
 
 项目中更多情况下是使用vue-cli
+
+
+### webpack基础打包
+事实上随着前端的快速发展，前端开发变得越来越复杂
+- 通过模块化方式来开发
+- 使用高级特性来加快开发效率或者安全性，比如es6+，ts，sass，less
+- 通过监听文件变化并反映到浏览器上，提高开发效率
+- 将代码进行压缩合并以及其他相关优化
+- ...
+#### webpack到底是什么
+webpack是一个静态的模块化打包工具，为现代的javascript应用程序
+
+对上边的解释进行拆解：
+- 打包bundler：webpack可以将帮助我们打包，所以他是一个打包工具
+- 静态的static：这样表述的原因是我们最终可以将代码打包成最终的静态资源(部署到静态服务器)
+- 模块化module：webpack默认支持各种模块化开发，ESModule，CommonJS，AMD等
+- 现代的modern：真实因为现代前端开发面临各种各样的问题，才催生了webpack的出现和发展
+
+#### vue项目加载文件有哪些
+javascript打包
+- 将es6转化为es5
+- typescript转化为javascript
+css的处理
+- css文件模块的加载，提取
+- less，sass等处理器处理
+资源文件img，font：
+- 图片img文件的加载
+- 字体font文件的加载
+html资源的处理
+- 打包html资源文件
+处理vue项目的sfc文件.vue文件
+
