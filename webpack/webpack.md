@@ -118,7 +118,7 @@ module.exports={
 - 也包括会自动帮助我们添加autoprefixer(所以相当于内置了autoprefixer)
 
 
-### webpack其他打包资源
+#### webpack其他打包资源
 
 #### 加载图片案例准备
 为了掩饰项目中可以加载图片，我们需要在项目中使用图片，比较常见的使用图片的方式时两种
@@ -352,3 +352,115 @@ module.exports={
     ]
 }
 ~~~
+
+#### babel
+事实上，在开发中我们很少直接去接触babel,但是babel对于前端开发来说，目前是不可缺少的一部分
+- 开发中，我们想要使用ES6+的语法，想要使用typescript，开发react项目，都是离不开babel的
+- 学习babel对于我们理解代码从编写到线上转变的工程至关重要
+那么babel到底是什么
+- babel是一个工具链，主要用于旧的浏览器或者环境中将ECMAScript2015+代码转换为向后兼容版本的javascript
+- 包括：语法转换，源代码转换等
+~~~javascript
+[1, 2, 3].map(n => n + 1);
+[1, 2, 3].map(function (n) {
+  return n + 1
+})
+~~~
+#### babel命令行使用
+babel本身可以作为一个独立的工具(和postcss一样)，不和webpack等构建工具配置来单独使用
+如果我们希望在命令行尝试使用babel，需要安装如下库：
+- @babel/core:babel的核心代码吗,必须安装
+- @babel/cli:可以让我们在命令行使用babel
+使用babel处理我们源代码
+- src 源文件的暑促目录
+- --out-dir 指定要输出的文件夹dist
+#### 插件的使用
+比如我们需要转换箭头函数，那么我们就可以使用箭头函数转换相关的插件
+`npm install @babe1/plugin-transform-arrow-functions -D`
+`npx babel src --out-dir dist --plugins =@babel/ plugin-transform- arrow- functions`
+查看转换后的结果:我们会发现const并没有转成var
+- 这是因为plugin-transform-arrow-functions ,并没有提供这样的功能; 
+- 我们需要使用plugin-transform-block- scoping来完成这样的功能;
+`npm install @babe1/plugin-transform- block-scoping -D`
+`npx babel src --out-dir dist --plugins=@babel/plugin-transform-block-scoping,@babe1/ plugin-transform- arrow-functions`
+#### babel的预设preset
+但是如果需要转换的内容过多，一个个设置是比较麻烦的，我们可以使用预设(preset)
+- 后面我们在具体来讲预设代表的含义
+安装@babel/preset-env预设
+
+#### babel的底层原理
+babel是如何做到将我们的- -段代码( ES6、TypeScript. React )转成另外一段代码( ES5 )的呢?
+- 从一种源代码(原生语言)转换成另一种源代码(目标语言) , 这是什么的工作呢?
+- 就是编译器,事实上我们可以将babel看成就是一个编译器。
+- Babel编译器的作用就是将我们的源代码,转换成浏览器可以直接识别的另外一段源代码;
+babel也拥有编译器的工作流程：
+- 解析阶段
+- 转换阶段
+- 生成阶段
+#### babel编译器的执行原理
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220113172345.png)
+
+
+#### babel的配置文件
+像之前一样，我们可以讲babel配置信息放到一个独立文件中，babel给我们提供了两种配置文件的编写
+- babel.config.json(或者.js,.cjs,.mjs)文件
+- .babelrc.json(或者.babelrc,.js,.cjs,.mjs)文件
+它们两个有什么区别呢?目前很多的项目都采用了多包管理的方式( babel本身element-plus、 umi等)
+- .babelrc.json :早期使用较多的配置方式,但是对于配置Monorepos项目是比较麻烦的; .
+- babel.configjson ( babel7 ) : 可以直接作用于Monorepos项目的子包,更加推荐;
+
+
+#### Vue源码打包
+打包后不同版本解析
++ vue(.runtime).global(.prod).js :
+  - 通过浏览器中的`<script src=".."></script>`直接使用;
+  - 我们之前通过CDN引入和下载的Vue版本就是这个版本;
+  - 会暴露一个全局的Vue来使用;
++ vue(.runtime).esm-browser(.prod).js:
+  - 用于通过原生ES模块导入使用(在浏览器中通过<script type= "module" >来使用)。
++ vue(.runtime).esm-bundler.js :
+  - 用于webpack，rollup和parcel等构建工具;
+  - 构建工具中默认是vue.runtime.esm-bundlerjs ;
+  - 如果我们需要解析模板template ,那么需要手动指定vue.esm-bundlerjs;
++ vue.cjs(.prod).js
+- 服务器端渲染使用
+- 通过require()在nodejs中使用
+
+#### 运行时+编译器 vs 仅运行时
++ 在vue的开发过程中我们有三种方式来编写DOM元素
+  - template模板方式
+  - render函数方式
+  - 通过.vue文件中的template来编写模板
++ 它们的模板分别是如何处理的呢?
+  - 方式二中的h函数可以直接返回-一个虚拟节点,也就是Vnode节点;
+  - 方式一和方式三的template都需 要有特定的代码来对其进行解析:
+    - 方式三.vue文件中的template可以通过在vue-loader对其进行编译和处理;
+    - 方式一种的template我们必须要通过源码中一部分代码来进行编译 ;
++ 所以, Vue在让我们选择版本的时候分为运行时+编译器vs仅运行时
+  - 运行时+编译器包含了对template模板的编译代码,更加完整,但是也更大一些;
+  - 仅运行时没有包含对template版本的编译代码,相对更小一些;
+#### VScode对SFC文件的支持
+在前面提到过，真是开发中大多数情况下都是使用SFC(single-file components(单文件组件))。
+我们先说一下VScode对SFC的支持
+- Vetur 聪vue2开发就一直在使用的VScode支持Vue插件
+- Volar，官方推荐的插件
+#### 编写App.vue代码
+
+
+#### 为什么要搭建本地服务器
++ 目前我们开发的代码,为了运行需要有两个操作:
+  - 操作一: npm run build ,编译相关的代码;
+  - 操作二:通过live server或者直接通过浏览器,打开index.html代码,查看效果;
++ 这个过程经常操作会影响我们的开发效率,我们希望可以做到，当文件发生变化时,可以自动的完成编译和展示;
++ 为了完成自动编译, webpack提供了几种可选的方式:
+  - webpack watch mode ;
+  - webpack-dev-server (常用) ;
+  - webpack-dev-middleware ;
+
+#### webpack watch
++ webpack给我们提供了watch模式: .
+  - 在该模式下, webpack依赖图中的所有文件,只要有一个发生了更新,那么代码将被重新编译;
+  - 我们不需要手动去运行npm run build指令了;
++ 如何开启watch呢?两种方式:
+  - 方式- - : 在导出的配置中,添加watch: true ;
+  - 方式二:在启动webpack的命令中,添加--watch的标识;
