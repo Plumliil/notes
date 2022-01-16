@@ -17,9 +17,9 @@ module.exports={
     },
     devServer:{
         // 如果一些资源没有在webpack中加载，就会从一下文件中加载
-        contentBase:"./abc",
-        hot:true，
-        hsot:"0.0.0.0",
+        // contentBase:"./abc",
+        hot:true,
+        host:"0.0.0.0",
         port:7777,
         open:true,
         compress:true,
@@ -36,7 +36,7 @@ module.exports={
     },
     resolve:{
         extensions:[".js",".json",".mjs",".vue"]
-    }
+    },
     module:{
         rules:[
             {

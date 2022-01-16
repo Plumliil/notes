@@ -20,3 +20,6 @@ module.exports = {
       }
   }
 ~~~
+### 命令行无法启动vue
+`Cannot find module 'C:\Users\22584\Desktop\@vue\cli-service\bin\vue-cli-service.js' `
+文件夹目录中包含&，替换掉即可，webpack无法运行同理

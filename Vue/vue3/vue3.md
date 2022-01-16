@@ -678,3 +678,171 @@ html资源的处理
 - 打包html资源文件
 处理vue项目的sfc文件.vue文件
 
+#### vuecli 脚手架
++ 什么是Vue脚手架?
+  - 我们前面学习了如何通过webpack配置Vue的开发环境,但是在真实开发中我们不可能每一个项目从头来完成所有的webpack配置,这样显示开发的效率会大大的降低;
+  - 所以在真实开发中,我们通常会使用脚手架来创建一个项目 , Vue的项目我们使用的就是Vue的脚手架;
+  - 脚手架其实是建筑工程中的一个概念,在我们软件工程中也会将-些帮助我们搭建项目 的工具称之为脚手架;
++ Vue的脚手架就是Vue CLI :
+  - CLI是Command-Line Interface,翻译为命令行界面;
+  - 我们可以通过CLI选择项目的配置和创建出我们的项目;
+  - Vue CL已经内置了webpack相关的配置,我们不需要从零来配置;
+#### 创建项目过程
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220114163036.png)
+
+#### vuecli运行原理
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220115092500.png)
+
+#### 认识vite
+webpack是目前整个前端使用最多的构建工具，但是除了webpack之后也有其他的构建工具
+  - 比如rollup,parcel,gulp,vite等等
+什么是vite？官方定位:下一代前端开发与构建工具
+如何定义下一代开发和构建工具？
+  - 我们知道在实际开发中，我们编写的代码往往是不能被浏览器直接识别的，比如es6,typescript,vue文件等；
+  - 所以我们必须通过构建工具来对代码进行转换，编译，类似的工具有webpack，rollup，parcel
+  - 但是随着项目越来越拉，需要处理的javascript呈指数级增长，模块越来越多
+  - 构建工具需要很长时间才能开启服务器，HMR也需要几秒钟才能在浏览器反应过来
+  - 所以有这样的说法：天下苦webpack久矣
+
+#### vite构造
+它主要由两部分组成
+  - 一个开发服务器，它基于原生es模块提供了吩咐的内建功能，HMR的速度非常快速
+  - 一套构建指令，它使用rollup打开我们代码，并且它是与配置的，可以输出生成环境的优化过的静态资源
+目前是否要大力学习vite ? vite的未来是怎么样的?
+  - 我个人非常看好vite的未来,也希望它可以有更好的发展;
+  - 但是,目前vite虽然已经更新到2.0 ,依然并不算非常的稳定,并且比较少大型项目(或框架)使用vite来进行
+构建;
+  - vite的整个社区插件等支持也还不够完善; .
+  - 包括vue脚手架本身,目前也还没有打算迁移到vite ,而依然使用webpack (虽然后期-定是有这个打算的)
+  - 所以vite看起来非常的火热,在面试也可能会问到,但是实际项目中应用的还比较少;
+
+#### vite原理
+vite会建造一个本地服务器 vite 1 koa vite 2 connect
+
+
+#### vite对vue支持
+vite对vue提供第一优先级支持 :
+  - Vue 3单文件组件支持主@vitejs/plugin-vue_ 中
+  - Vue 3 JSX支持: @vitejs/plugin-vue-jsx
+  - Vue 2支持: underfin/vite-plugin-vue2
+
+#### vite打包项目
+
+
+#### ESBuild
+ESBuild使用Go语言编写，可以直接转换成机器代码，而无需经过字节码
+ESBuild可以充分利用CPU的多内核，尽可能让他们进行饱和
+ESBuild的所有内容都是从0开始编写，而不是使用第三方，所以从一开始就可以考虑各种性能问题
+ESBuild的特点:
+  - 超快的构建速度,并且不需要缓存;
+  - 支持ES6和CommonJS的模块化; 
+  - 支持ES6的Tree Shaking ;
+  - 支持Go、JavaScript的API ;
+  - 支持TypeScript. JSX等语法编译;
+  - 支持SourceMap ;
+  - 支持代码压缩;
+  - 支持扩展其他插件;
+
+
+#### vite脚手架
+官方文档
+
+## vue3组件化开发
+
+#### 认识组件嵌套
++ 前面我们是将所有的逻辑放到- -个App.vue中:
+  - 在之前的案例中,我们只是创建了-个组件App ;
+  - 如果我们一个应用程序将所有的逻辑都放在一个组件中 ,那么这个组件就会变成非
+常的臃肿和难以维护;
+  - 所以组件化的核心思想应该是对组件进行拆分,拆分成一个个小的组件;
+  - 再将这些组件组合嵌套在-起,最终形成我们的应用程序;
+#### 组件的拆分
+我们可以按照以下方式进行拆分
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220115100700.png)
+
+#### css作用域
+`scoped`防止样式污染
+没有根组件会被污染
+
+
+#### 组件通信
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220115100700.png)
++ 上面的嵌套逻辑如下,它们存在如下关系:
+  - App组件是Header. Main、 Footer组件的父组件
+  - Main组件是Banner. ProductList组件的父组件 ;
++ 在开发过程中,我们会经常遇到需要组件之间相互进行通信:
+  - 比如App可能使用了多个Header ,每个地方的Header展示的内容不同,那么我们就需要使用者传递给Header
+一些数据, 让其进行展示;
+  - 又比如我们在Main中- -次性请求了Banner数据和ProductList数据,那么就需要传递给它们来进行展示;
+  - 也可能是子组件中发生了事件,需要由父组件来完成某些操作,那就需要子组件向父组件传递事件;
+
+#### 父子组件之间通信
+- 父组件传递给子组件：通过props属性
+- 子组件传递给父组件：通过$emit触发事件
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220115103940.png)
+
+#### 父组件传递给子组件
+在开发过程中很常见的就是负组件之间通信，比如父组件的一些数据需要子组件来展示:
+  - 这个时候可以通过props来完成组件之间通信
+什么是props
+  - props可与是在组件上注册一些自定义的attribute
+  - 父组件给这些attribute赋值，子组件通过attribute的名称获取到相应的值
+props有两种常见写法
+  - 字符串数组，数组中的字符串就是attribute的名称
+  - 对象类型，对象类型我们可以在指定的attribute名称同时，指定它需要传递的类型，是否是必须的，默认值等等
+    - type:String,Number,Bollean,Array,Object,Data,Function,Symbol
+    - object类型写一个函数 创建多个组件时，引用的是一个地址 所以需要写成函数进行返回
+    - 可以通过valuedator进行验证
+对象类型其他写法 ![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220115105718.png)
+Prop的大小写命名(camelCase vs kebab-case)
+  - HTML中的attribute名是大小写不敏感的,所以浏览器会把所有大写字符解释为小写字符; 
+  - 这意味着当你使用DOM中的模板时, camelCase (驼峰命名法)的prop名需要使用其等价的kebab-case (短横线分隔命名)命名;
+
+    ~~~javascript
+    obj:{
+        type:Object,
+        default(){
+            return {name:'zs'}
+        }
+    }
+    ~~~
+~~~javascript
+    props:['title','content','footer'],
+~~~
+~~~javascript
+props: {
+  title: {
+    type: String,
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+},
+~~~
+
+#### 非Prop的Attribute
+什么是非Prop的Attribute
+  - 当我们传递一个组件某个属性，但是该属性并没有定义对应的props或者emits时，就称之为非Prop的Attribute
+  - 常见的包括class，style，id属性
+Attribute继承
+  - 当组件有单个根节点时，非Prop的Attribute将自动添加到根节点的Attribute中
+
+  #### 禁用Attribute
+如果我们不希望组件的根元素继承attribute ,可以在组件中设置inheritAttrs: false :
+  - 禁用attribute继承的常见情况是需要将attribute应用于根元素之外的其他元素;
+  - 我们可以通过$attrs来访问所有的非props的attribute ;
+  - ![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220115112647.png)
+多个根节点的attribute
+  - 多个根节点的attribute如果没有显示的绑定,那么会报警告,我们必须手动的指定要绑定到哪一个属性上:
+  - ![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220115112752.png)
+
+#### 子组件传递给父组件
++ 什么情况下子组件需要传递内容到父组件呢?
+  - 当子组件有一些事件发生的时候 ,比如在组件中发生了点击,父组件需要切换内容;
+  - 子组件有一-些内容想要传递给父组件的时候;
++ 我们如何完成上面的操作呢?
+  - 首先,我们需要在子组件中定义好在某些情况下触发的事件名称; 
+  - 其次,在父组件中以v-on的方式传入要监听的事件名称,并且绑定到对应的方法中;
+  - 最后,在子组件中发生某个事件的时候,根据事件名称触发对应的事件; 
