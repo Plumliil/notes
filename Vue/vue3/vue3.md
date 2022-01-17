@@ -999,6 +999,15 @@ v-slot: ===> #
 #### 作用域插槽案例
 ![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220117153615.png)
 ~~~html
+  <!-- 子组件内 -->
+  <div>
+      <template v-for="(item,index) in names">
+          <slot name="plum" :item="item" :index="index"></slot>
+          <slot :item="item" :index="index"></slot>
+      </template>
+  </div>
+
+  <!-- 父组件内 -->
   <div>
     <h1>APP</h1>
     <!-- 非默认插槽 -->
@@ -1013,6 +1022,7 @@ v-slot: ===> #
       <strong>{{ slotProps.item }}--{{ slotProps.index }}</strong>
     </child-cpn>
     <!-- 如果有其他具名插槽，需要使用template编写 -->
+    <!-- 默认插槽和具名插槽混合 -->
     <child-cpn :names="names">
       <template v-slot="slotProps">
         <strong>{{ slotProps.item }}--{{ slotProps.index }}</strong>
