@@ -846,3 +846,180 @@ Attribute继承
   - 首先,我们需要在子组件中定义好在某些情况下触发的事件名称; 
   - 其次,在父组件中以v-on的方式传入要监听的事件名称,并且绑定到对应的方法中;
   - 最后,在子组件中发生某个事件的时候,根据事件名称触发对应的事件; 
+
+
+#### 非父子组件之间通信
+在开发中，我们构建了组件树之后，除了父子组件之间的通信外，还会有非父子组件之间的通信
+在这里主要学两种方式
+- Provide/Inject
+- Mitt全局事件总线
+
+#### Provide/Inject
+Provide/Inject用于非父子组件之间共享数据
+  - 比如有一些深度嵌套的组件，子组件想要获取父组件的部分内容
+  - 在这种情况下，如果仍然按照props沿着组件链逐级传递下去，就会变得非常麻烦
+对于这种情况，我们为你可以使用Provide和Inject
+  - 无论层级多深，父组件都可以作为其所有组件的以来提供者
+  - 父组件有一个Provide选项来提供数据
+  - 子组件有一个inject选项来使用这些数据
+实际上，你可以将依赖注入看作是long range props，除了：
+  - 父组件不需要知道哪些子组件使用它provide的property
+  - 子组件不需要知道inject的property来自哪里
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220117095809.png)
+provide最好不变，确保使用this的时候不会出错
+~~~javascript
+// 爷
+  provide() {
+    return {
+      name: "plumli",
+      age: 20,
+      length: computed(()=>this.names.length), // 一次性赋值 返回ref对象 .value 
+    };
+  },
+// 孙
+inject:['name','age','length'],
+~~~
+#### 处理响应式数据
+我们先来验证一个结果:如果我们修改了this.names的内容,那么使用length的子组件会不会是响应式的?
+我们会发现对应的子组件中是没有反应的:
+  - 这是因为当我们修改了names之后,之前在provide中引入的this.names.length本身并不是响应式的;
+那么怎么样可以让我们的数据变成响应式的呢?
+  - 非常的简单,我们可以使用响应式的一些API来完成这些功能,比如说computed函数;
+  - 当然,这个computed是vue3的新特性，在后面我会专]讲解,这里大家可以先直接使用一下;
+注意:我们在使用length的时候需要获取其中的value
+  - 这是因为computed返回的是一个ref对象 ,需要取出其中的value来使用;
+#### 全局事件总线mitt库(eventBus)
+Vue3从实例中移除了$on、 $off和$once方法,所以我们如果希望继续使用全局事件总线,要通过第三方的库:
+  - Vue3官方有推荐- -些库 ,例如mitt或tiny-emitter ;
+  - 这里我们主要讲解一下mitt库的使用 ;
+发送事件
+`emitter.emit('cli',{name:'plumli',age:20})`
+监听事件
+~~~javascript
+    emitter.on('cli, (info) => {
+      console.log('cli',info);
+    });
+~~~
+#### mitt的事件取消
+在某些情况下可能希望取消掉之前注册的函数监听
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220117105335.png)
+
+#### 认识插槽slot
+在开发中,我们会经常封装-个个可复用的组件:
+  - 前面我们会通过props传递给组件一些数据 ,让组件来进行展示;
+  - 但是为了让这个组件具备更强的通用性,我们不能将组件中的内容限制为固定的div、span等等这些元素;
+  - 比如某种情况下我们使用组件,希望组件显示的是一个按钮 ,某种情况下我们使用组件希望显示的是一张图片;
+  - 我们应该让使用者可以决定某一块区域到底存放什么内容和原生;
+举个栗子:假如我们定制一一个通用的导航组件- NavBar
+  - 这个组件分成三块区域:左边-中间-右边,每块区域的内容是不固定;
+  - 左边区域可能显示一个菜单图标,也可能显示一个返回按钮,可能什么都不显示;
+  - 中间区域可能显示一个搜索框,也可能是一个列表,也可能是一个标题 ,等等;
+  - 右边可能是- -个文字,也可能是一个图标,也可能什么都不显示;
+  ![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220117110117.png)
+#### 如何使用插槽
+这个时候我们就可以来定义插槽slot:
+  - 插槽的使用过程其实是抽取共性、预留不同;
+  - 我们会将共同的元素、内容依然在组件内进行封装; 
+  - 同时会将不同的元素使用slot作为占位,让外部决定到底显示什么样的元素;
+如何使用slot呢?
+  - Vue中将<slot> 元素作为承载分发内容的出口;
+  - 在封装组件中,使用特殊的元素<slot>就可以为封装组件开启一个插槽;
+  - 该插槽插入什么内容取决于父组件如何使用;
+#### 插槽的基本使用
+
+
+#### 具名插槽使用
+事实上,我们希望达到的效果是插槽对应的显示,这个时候我们就可以使用具名插槽:
+  - 具名插槽顾名思义就是给插槽起一个名字, <slot>元素有一一个特殊的attribute : name ;
+  - 一个不带name的slot ,会带有隐含的名字default ;
+
+~~~javascript
+    // 父
+    <div>
+        <h1>App</h1>
+        <nav-bar>
+            <template v-slot:left>
+                <button>左边按钮</button>
+            </template>
+            <template v-slot:center>
+                <h2>title</h2>
+            </template>
+            <template v-slot:right>
+                <i>右边元素</i>
+            </template>
+        </nav-bar>
+    </div>
+~~~
+~~~javascript
+  // 子
+  <div class="nav-bar">
+    <div class="left">
+        <slot name="left"></slot>
+    </div>
+    <div class="center">
+        <slot name="center"></slot>
+    </div>
+    <div class="right">
+        <slot name="right"></slot>
+    </div>
+  </div>
+~~~
+
+#### 动态插槽名
+什么是动态插槽名呢?
+  - 目前我们使用的插槽名称都是固定的;
+  - 比如v-slot:left、v-slot:center等等 ;
+  - 我们可以通过v-slot:[dynamicSlotName]方式动态绑定一个名称;
+  - 通过props传递
+
+#### 具名插槽v-slot缩写
+
+v-slot: ===> #
+
+#### 渲染作用域
+在vue中有渲染作用域的概念：
+  - 父级模板里的内容都是在父级作用域编译的
+  - 子级模板内容都是在子作用域编译的
+如何理解这句话：
+  - 在我们的案例中ChildCpn自然是可以让问自己作用域中的title内容的;
+  - 但是在App中,是访问不了ChildCpn中的内容的,因为它们是跨作用域的访问;
+
+#### 作用域插槽
+但是有时候我们希望插槽可以访问到子组件中的内容是非常重要的:
+  - 当一个组件被用来渲染一个数组元素时 ,我们使用插槽,并且希望插槽中没有显示每项的内容;
+  - 这个Vue给我们提供了作用域插槽;
+我们来看下面的- -个案例:
+  - 在App.vue中定义好数据
+  - 传递给ShowNames组件中
+  - ShowNames组件中遍历names数据
+  - 定义插槽的prop
+  - 通过v-slot:default的方式获取到slot的props
+  - 使用slotProps中的item和index
+
+#### 作用域插槽案例
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220117153615.png)
+~~~html
+  <div>
+    <h1>APP</h1>
+    <!-- 非默认插槽 -->
+    <child-cpn :names="names">
+      <template #plum="slotProps">
+        <strong>{{ slotProps.item }}--{{ slotProps.index }}</strong>
+      </template>
+    </child-cpn>
+
+    <!-- 独占默认插槽缩写 -->
+    <child-cpn :names="names" v-slot="slotProps">
+      <strong>{{ slotProps.item }}--{{ slotProps.index }}</strong>
+    </child-cpn>
+    <!-- 如果有其他具名插槽，需要使用template编写 -->
+    <child-cpn :names="names">
+      <template v-slot="slotProps">
+        <strong>{{ slotProps.item }}--{{ slotProps.index }}</strong>
+      </template>
+      <template #plum>
+        <h2>xxx</h2>
+      </template>
+    </child-cpn>
+  </div>
+~~~
