@@ -1,0 +1,1 @@
+(()=>{"use strict";var o={490:(o,e)=>{Object.defineProperty(e,"__esModule",{value:!0}),e.mathFn=void 0,e.mathFn=function(){console.log("math.ts")}}},e={};(0,function t(r){var n=e[r];if(void 0!==n)return n.exports;var l=e[r]={exports:{}};return o[r](l,l.exports,t),l.exports}(490).mathFn)(),console.log("hello world"),console.log(20010502)})();
