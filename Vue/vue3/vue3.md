@@ -1033,3 +1033,376 @@ v-slot: ===> #
     </child-cpn>
   </div>
 ~~~
+
+### keepalive生命周期组件vmodel
+
+#### 切换组件案例
+
+##### v-if
+~~~html
+<button
+  :class="{ active: currentTab === item }"
+  v-for="(item, index) in tabs"
+  :key="index"
+  @click="itemClick(item)"
+>
+  {{ item }}
+</button>
+<template v-if="currentTab==='home'">
+  <home></home>
+</template>
+<template v-else-if="currentTab==='about'">
+  <about></about>
+</template>
+<template v-else>
+  <category></category>
+</template>
+~~~
+##### 动态组件实现
+动态组件是使用component组件，通过一个特殊的attribute is 来实现：
+~~~html
+<button
+  :class="{ active: currentTab === item }"
+  v-for="(item, index) in tabs"
+  :key="index"
+  @click="itemClick(item)"
+>
+  {{ item }}
+</button>
+<component :is="currentTab"></component>
+~~~
+这个currentTab的值需要什么内容
+  - 可以是通过component函数注册的组件；
+  - 在一个组件对象的components对象中注册组件
+
+  #### 动态组件传值
+  ~~~html
+<component :is="currentTab" name="plum" :age="18"       @pageClick="pageClick"></component>
+  ~~~
+
+#### keep-alive
+我们先对之前的案例中About组件进行改造:
+  - 在其中增加了一个按钮，点击可以递增的功能
+比如减counter点到10，那么在切换到home再切换到about是，状态是否可以保持
+  - 答案是否定的
+  - 这是因为默认情况下，我们在切换组件后，about组件会被销毁掉，再次回来的时候会重新创建组件
+但是再开发情况下我们希望继续保持组件状态而不是销毁掉，此时就可以使用一个内置组件：`keep-alive`
+~~~html
+<keep-alive>
+  <component
+    :is="currentTab"
+    name="plum"
+    :age="18"
+    @pageClick="pageClick"
+  ></component>
+</keep-alive>
+~~~
+#### keep-alive属性
+keep-alive有一些属性
+  - include-string|RegExp|Array，只有名称匹配的组件会被缓存
+  - exclude-string|RegExp|Array，任何名称匹配的组件都不会被缓存
+  - max-number|string。最多可以缓存多少个组件实例，一旦达到这个数字，那么缓存组件中最近没有被缓存的组件示例会被销毁
+include和extende prop允许组件有条件的缓存
+  - 二者都可以用逗号分割字符串，正则表达式或一个数组来表示
+  - 匹配首先检查组件自身的name选项
+~~~html
+    <!-- 逗号分隔 -->
+    <keep-alive include="home,about">
+      <component
+        :is="currentTab"
+        name="plum"
+        :age="18"
+        @pageClick="pageClick"
+      ></component>
+    </keep-alive>
+    <!-- 正则 使用v-bind -->
+    <keep-alive :include="/home|about/">
+      <component
+        :is="currentTab"
+        name="plum"
+        :age="18"
+        @pageClick="pageClick"
+      ></component>
+    </keep-alive>
+    <!-- Array 使用v-bind -->
+    <keep-alive :include="['home','about']">
+      <component
+        :is="currentTab"
+        name="plum"
+        :age="18"
+        @pageClick="pageClick"
+      ></component>
+    </keep-alive>
+~~~
+#### 缓存组件的生命周期
+对于缓存的组件来说，再次进入是，我们是不会执行created或者mounted等生命周期函数的:
+  - 但是有时候我们确实希望监听到何时进入到了该组件，何时离开了该组件；
+  - 这个时候我们可以使用activated和deactivated这两个什么名周期钩子函数来监听
+
+#### webpack的代码分包
+默认打包过程：
+  - 默认情况下，在构建整个组件树的过程中，因为组件和组件之间通信是通过模块化直接以来的，那么webpack在打包时会将组建模块打包到1一起(比如一个app.js文件中)
+  - 这时候随着项目的不断庞大，app.js文件的内容过大，会造成受聘的渲染速度变慢；
+  
+~~~javascript
+// 通过import函数导入的模块，webpack打包时会进行分包操作
+import('./11/utils/math').then(res=>{
+    console.log(res.sum(1,2));
+})
+
+~~~
+
+#### vue中实现异步组件
+异步组件实现代码分包
+如果项目过大，对于某些组件我们希望通过异步的方式进行加载(目的是对其进行分包处理)，那么vue中提供给我们了一个:defineAsyncComponent
+`import { defineAsyncComponent } from "vue";`
+defineAsyncComponent 接受两种类新的参数:
+  - 类型一：工厂函数，该工厂函数需要返回一个promise对象；
+  - 类型二：接受一个对象类型，对异步函数进行配置
+~~~javascript
+// 类型一：
+import { defineAsyncComponent } from "vue";
+const AsyncCategory =
+   defineAsyncComponent(() => import("./AsyncCategory.vue"));
+export default {
+  components: { AsyncCategory },
+};
+~~~
+~~~javascript
+// 类型二：
+import { defineAsyncComponent } from "vue";
+const AsyncCategory = defineAsyncComponent({
+  loader: () => import("./AsyncCategory.vue"),
+  // 加载过程占位组件
+  loadingComponent: Loading,
+  // errorComponent: 加载失败时的组件，
+  // 在现实 loadingComponent 组件前等待多长时间
+  delay:2000,
+  /**
+   * err:错误信息
+   * retry：函数，调用retry尝试重新加载
+   * attempts：记录尝试的次数
+   */
+  onError: function(err,retry,attempts){}
+});
+export default {
+  components: { AsyncCategory },
+};
+~~~
+#### 异步组件和Suspense
+async-category 为异步组件
+loading 为非异步组件
+Suspense是一个内置全局组件，该组件有两个插槽
+  - default:如果default可以显示，那么显示default内容
+  - fallback:如果default无法显示，那么回西安是fallback
+~~~html
+    <suspense>
+        <template #default>
+            <async-category></async-category>
+        </template>
+        <template #fallback>
+            <loading></loading>
+        </template>
+    </suspense>
+~~~
+#### $refs的使用
+某些情况下,我们在组件中想要直接获取到元素对象或者子组件实例:
+  - 在Vue开发中我们是不推荐进行DOM操作的;
+  - 这个时候,我们可以给元素或者组件绑定一个ref的attribute属性 ;
+组件实例有一个$refs属性:
+  - 它本身是个对象Object ,持有注册过ref attribute的所有DOM元素和组件实例。
+~~~html
+    <h1 ref="h1">app</h1>
+    <nav-bar ref="navBar"></nav-bar>
+    <button @click="btnClick">获取元素</button>
+~~~
+~~~javascript
+    btnClick() {
+      console.log(this.$refs.h1);
+      console.log(this.$refs.navBar.message);
+      this.$refs.navBar.sayHello()
+    },
+~~~
+#### $parent和$root
+用于在子组件中获取对应的父组件或者根组件
+我们可以通过$parent来访问父元素。
+HelloWorld.vue的实现:
+  - 这里我们也可以通过$root来实现,因为App是我们的根组件;
+  - ~~~javascript
+      visitParent(){
+        console. log (this. s$parent . message) ;
+        console. log(this. $root . message) ;
+      }
+      ~~~
+注意:在Vue3中已经移除了$children的属性,所以不可以使用了。
+
+#### $el
+在组件中通过$el拿到组件根元素
+
+~~~javascript
+// NavBar
+console.log(this.$el);
+// <div>
+    // <h3>NavBar</h3>
+    // <h3>{{message}}</h3>
+    // <button @click="getDate">NavBar获取父组件和根组件</button>
+// </div>
+~~~
+
+#### 生命周期
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220118115059.png)
+什么是生命周期呢?
+  - 每个组件都可能会经历从创建、挂载、更新、卸载等一系列的过程;
+  - 在这个过程中的某一个阶段 ,用于可能会想要添加一一些属于自己的代码逻辑(比如组件创建完后就请求-些服务器数据) ;
+  - 但是我们如何可以知道目前组件正在哪一个过程呢? Vue给我们提供了组件的生命周期函数;
+生命周期函数: 
+  - 生命周期函数是-些钩子函数,在某个时间会被Vue源码内部进行回调;
+  - 通过对生命周期函数的回调,我们可以知道目前组件正在经历什么阶段; 
+  - 那么我们就可以在该生命周期中编写属于自己的逻辑代码了;
+  ~~~javascript
+    beforeCreate() {
+      console.log("beforeCreate 阶段 创建前");
+    },
+    created() {
+      console.log("created 阶段 创建成功");
+    },
+    beforeMount() {
+      console.log("beforeMount 阶段 挂载前");
+    },
+    mounted() {
+      console.log("mounted 阶段 挂载成功");
+    },
+    beforeUnmount() {
+      console.log("beforeUnmount 阶段 卸载前");
+    },
+    unmount() {
+      // 取消注册的事件
+      console.log("beforeUnmount 阶段 卸载成功");
+    },
+    beforeUpdate() {
+      console.log("beforeUpdate 阶段 更新前");
+    },
+    updated() {
+      console.log("update 阶段 更新成功");
+    },
+  ~~~
+
+#### 组件的v-model
+
+~~~html
+  <!-- 父 -->
+  <div>
+    <h1>组件的v-model</h1>
+    <h2>{{ message }}</h2>
+    <input :value="message" @input:model-value="message=$event">
+    <pl-input v-model="message"></pl-input>
+  </div>
+  <!-- 子 -->
+  <template>
+  <div>
+    <strong>PlInput：</strong>
+    <input :value="modelValue" @input="btnClick" />
+  </div>
+</template>
+<script>
+export default {
+  props: {
+    modelValue: String,
+  },
+  emits:['update:modelValue'],
+  methods: {
+    btnClick(event) {
+        this.$emit('update:modelValue',event.target.value)
+    },
+  },
+};
+</script>
+~~~
+计算属性实现
+~~~html
+<template>
+  <div>
+    <strong>PlInput：</strong>
+    <input v-model="value">
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    modelValue: String,
+  },
+  emits:['update:modelValue'],
+  computed:{
+      value:{
+          set(value){
+              this.$emit('update:modelValue',value)
+          },
+          get(){
+              return this.modelValue
+          }
+      }
+  },
+};
+</script>
+~~~
+传入多个v-model
+~~~html
+<template>
+  <div>
+    <h4>PlInput：</h4>
+    <input v-model="value" />
+    <br>
+    <input v-model="titleI" />
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    modelValue: String,
+    title:String
+  },
+  emits: ["update:modelValue","update:title"],
+  computed: {
+    value: {
+      set(value) {
+        this.$emit("update:modelValue", value);
+      },
+      get() {
+        return this.modelValue;
+      },
+    },
+    titleI: {
+      set(title) {
+        this.$emit("update:title", title);
+      },
+      get() {
+        return this.title;
+      },
+    },
+  },
+};
+</script>
+
+<style scoped>
+</style>
+~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

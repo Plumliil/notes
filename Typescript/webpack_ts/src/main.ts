@@ -10,11 +10,10 @@ const num: number = 20010502;
 // eslint => js代码规范
 // tslint => ts代码规范
 
+// 默认情况下赋值时，沪江赋值的类型，作为前边标识符的类型
+// 这个过程称之为类型推断(类型推导)
 // foo无类型注解
 let foo='foo';
-
-foo=123;
-
 
 mathFn()
 console.log(msg);
