@@ -1389,20 +1389,266 @@ export default {
 </style>
 ~~~
 
+#### 认识动画
+在开发中,我们想要给一个组件的显示和消失添加某种过渡动画 ,可以很好的增加用户体验:
+  - React框架本身并没有提供任何动画相关的API ,所以在React中使用过渡动画我们需要使用一一个第三方库
+react-transition-group ;
+  - Vue中为我们提供一些内置组件和对应的API来完成动画,利用它们我们可以方便的实现过渡动画效果;
+我们来看一个案例:
+  - Hello World的显示和隐藏;
+  - 通过下面的代码实现,是不会有任何动画效果的;
+没有动画的情况下,整个内容的显示和隐藏会非常的生硬:
+  - 如果我们希望给单元素或者组件实现过渡动画,可以使用transition内置组件来完成动画;
+~~~vue
+<template>
+  <div>
+    <button @click="isShow = !isShow">isShow</button>
+    <transition name="plum">
+      <h1 v-if="isShow">Hello World</h1>
+    </transition>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      isShow: true,
+    };
+  },
+};
+</script>
+
+<style scoped>
+.plum-enter-from,
+.plum-leave-to {
+    opacity: 0;
+}
+.plum-enter-to,
+.plum-leave-from{
+    opacity: 1;
+}
+
+.plum.enter-active,
+.plum-leave-active{
+    transition: opacity 2s;
+}
+</style>
+~~~
+#### Transition组件原理
+我们发现，vue自动给h2添加动画，这是什么原理
+当插入或者删除包含在transition组件中的元素是，vue将会做出以下处理
+  - 自动嗅探目标元素是否应用了css过度或者动画，如果有那么在适当的时机添加或删除css类名
+  - 如果transition组件提供了javascript钩子函数，这些钩子函数在适当的时机会被调用
+  - 如果没有找到javascript狗子并且也没有检测到css过渡动画，Dom插入，删除操作将会立即执行
+
+#### 过渡动画class
+class的name命名规则如下:
+  - 如果我们使用的是一个没有name的transition ,那么所有的class是以-作为默认前缀;
+  - 如果我们添加了-个name属性,比如<transtion name="why"> ,那么所有的class会以why-开头;
+我们会发现.上面提到了很多个class ,事实上Vue就是帮助我们在这些class之间来回切换完成的动画:
+  - v-enter-from :定义进入过渡的开始状态。在元素被插入之前生效,在元素被插入之后的下- -帧移除。
+  - v-enter-active :定义进入过渡生效时的状态。在整个进入过渡的阶段中应用,在元素被插入之前生效,在过渡/动
+画完成之后移除。这个类可以被用来定义进入过渡的过程时间,延迟和曲线函数。
+  - v-enter-to :定义进入过渡的结束状态。在元素被插入之后下- -帧生效(与此同时v-enter-from被移除) , 在过渡/
+动画完成之后移除。
+  - v-leave-from :定义离开过渡的开始状态。在离开过渡被触发时立刻生效，下一帧被移除。
+  - v-leave-active :定义离开过渡生效时的状态。在整个离开过渡的阶段中应用,在离开过渡被触发时立刻生效,在
+过渡/动画完成之后移除。这个类可以被用来定义离开过渡的过程时间,延迟和曲线函数。
+  - v-leave-to :离开过渡的结束状态。在离开过渡被触发之后下一帧生效(与此同时v-leave-from被删除) ,在过渡/
+动画完成之后移除。
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220119103650.png)
 
 
+#### animation 帧动画
+~~~vue
+<script>
+<style scoped>
+.plum-enter-active{
+    animation: bounce 1s ease;
+}
+.plum-leave-active{
+    animation:  bounce 1s ease reverse;
+}
+@keyframes bounce {
+    0%{
+        transform: scale(0);
+    }
+    50%{
+        transform: scale(1.2);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+</style>
+~~~
 
+#### 同时设置transition和animation
+Vue为了知道过渡的完成,内部是在监听transitionend或animationend ,到底使用哪一个取决于元素应用的
+CSS规则:
+  - 如果我们只是使用了其中的-个,那么Vue能自动识别类型并设置监听;
+但是如果我们同时使用了过渡和动画呢?
+  - 并且在这个情况下可能某一个动画执行结束时 ,另外-个动画还没有结束; 
+  - 在这种情况下,我们可以设置type属性为animation或者transition来明确的告知Vue监听的类型;
 
+#### 过渡模式mode
+我们来看当前的动画在两个元素之间切换的时候存在的问题:
+Toogle
+Hello World你好啊,李银河
+我们会发现Hello World和你好啊,李银河是同时存在的:
+  - 这是因为默认情况下进入和离开动画是同时发生的;
+  - 如果确实我们希望达到这个的效果,那么是没有问题;
+可以设置mode in-out 或者 out-in 来使节点动画有个先后顺序
+#### 组件显隐动画
+~~~html
+<transition name="plum" type="animation">
+      <h1 v-if="isShow">Hello World</h1>
+      <component :is="isShow ? 'home' : 'about'"></component>
+</transition>
+~~~
+#### 结合三方库使用
+animate.css
+如果我们手动一个个来编写这些动画,那么效率是比较低的,所以在开发中我们可能会引用一些第三方库的动画库,
+比如animate.css。
+什么是animate.css呢?
+  - Animate.css is a library of ready-to-use, cross browser animations for use in your web projects. Great
+for emphasis, home pages, sliders, and attention-guiding hints.
+  - Animate.css是一个已经准备好的、跨平台的动画库为我们的web项目,对于强调、主页、滑动、注意力引导
+非常有用;
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220119111832.png)
+#### gsap库
+某些情况下我们希望通过JavaScript来实现一 些动画的效果,这个时候我们可以选择使用gsap库来完成。
+什么是gsap呢?
+  - GSAP是The GreenSock Animation Platform ( GreenSock动画平台)的缩写;
+  - 它可以通过JavaScript为CSS属性、SVG、 Canvas等设置动画 ,并且是浏览器兼容的;
+这个库应该如何使用呢?
+  - 第一步:需要安装gsap库;
+  - 第二步:导入gsap库;
+  - 第三步:使用对应的api即可;
 
+#### javascript钩子
+~~~html
+    <transition
+      name="plum"
+      type="animation"
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @after-enter="afterenter"
+      @before-leave="beforeleave"
+      @leave="leave"
+      @afterLeave="afterleave"
+    >
+      <h1 v-if="isShow">Hello World</h1>
+      <component :is="isShow ? 'home' : 'about'"></component>
+    </transition>
+~~~
 
+#### gsap实现数字变化
+~~~vue
+<template>
+  <div>
+    <input type="text" v-model="counter" />
+    <h2>当前计数：{{ showCounter }}</h2>
+  </div>
+</template>
 
+<script>
+import gsap from 'gsap'
+export default {
+  data() {
+    return {
+      counter:0,
+      showNumber:0
+    };
+  },
+  computed:{
+    showCounter(){
+      return this.showNumber.toFixed(0)
+    }
+  },
+  watch:{
+    counter(newValue){
+      gsap.to(this,{duration:1,showNumber:newValue})
+    }
+  }
+};
+</script>
+<style scoped>
+</style>
+~~~
 
+#### 列表过度
+目前为止，过渡动画只要是针对单个元素或者组件的
+  - 要么是单个节点
+  - 要么是同一时间渲染多个节点中的一个
+如果希望渲染的是一个列表，并且该列表中添加删除数据也有动画执行
+  - 这个时候我们要使用`<transition-group>`
+使用`<transition-group>`有如下特点
+  - 默认情况下，他不会渲染一个元素的包裹器，但是可以指定一个元素并以tag attribute进行渲染
+  - 过渡模式不可用，因为我们不在相互切换特有元素
+  - 内部元素总是需要提供唯一的key attribute值
+  - css过度的类将会引用在内部的元素中，而不是这个组/容器本身
 
+数组添加删除动画
+~~~vue
+<template>
+  <div>
+    <button @click="add">添加数字</button>
+    <button @click="remove">删除数字</button>
+    <transition-group name="plum" tag="p">
+      <span class="item" v-for="item in numbers" :key="item">
+        {{item}}
+      </span>
+    </transition-group>
+  </div>
+</template>
 
+<script>
+export default {
+  data() {
+    return {
+      numbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      numberCounter: 10,
+    };
+  },
+  methods: {
+    add() {
+      this.numbers.splice(this.randomIndex(),0,this.numberCounter++);
+    },
+    remove(){
+      this.numbers.splice(this.randomIndex(),1);
 
+    },
+    randomIndex() {
+      return Math.floor(Math.random()*this.numbers.length)
+    },
+  },
+};
+</script>
 
+<style scoped>
+.item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.plum-enter-from,
+.plum-leave-to{
+  opacity: 0;
+  transform: translateY(50px);
+}
+.plum-enter-active,
+.plum-leave-active{
+  transition: all 1s ease;
+}
+.plum-leave-active{
+  /* 使原来元素脱离文档流 */
+  position: absolute;
+}
+.plum-move{
+  transition: transform 1s ease;
+}
+</style>
+~~~
 
-
-
-
-
+#### 列表交错过渡案例
