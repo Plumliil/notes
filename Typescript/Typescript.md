@@ -114,3 +114,192 @@ let obj= {
 let n1: null = null;
 let u1: undefined = undefined;
 ~~~
+
+##### Symbol类型
+在es5中，如果我们是不可以再对象中添加相同属性名称的，比如下面的做法:
+~~~typescript
+let person={
+    title:'coder',
+    title:'teacher'
+}
+~~~
+通常我们的做法是定义两个不同的属性名字:比如identity1和identity2
+但是我们也可以通过symbol来定义相同的名称，因为symbol返回的是不同的值
+~~~typescript
+let sb1: symbol = Symbol('title');
+let sb2: symbol = Symbol('title');
+
+let person = {
+    [sb1]: 'coder',
+    [sb2]: 'teacher'
+}
+~~~
+
+##### any
+在某些情况下，我们无法确定一个变量的类型，并且它可能会发生一些变化，这个时候我们可以使用any类型(类似dart语言中的dynamic类型)
+
+~~~typescript
+// 当进行类型断言是 as any 先转成 any 再转成其他
+// 在不想给某些javascript代码添加数据类型时可以使用any
+let a: any = 'Hello world'
+a = 1;
+a=true;
+a={};
+~~~
+
+如果对于某些情况的处理过于频繁不希望添加规定的类型注解，或者在引入一些第三方库时，缺失了类型注解，这个时候我们可以使用any
+  - 包括在vue源码中也会使用any来进行某些属性的适配  
+
+##### unknown类型
+用于描述不确定变量
+
+不确定类型不能赋值给确定类型
+~~~typescript
+// 不可行
+let u: unknown;
+let m: string = u
+// 可行
+let u: any;
+let m: string = u
+~~~
+
+##### void类型
+void类型通常来指定一个函数没有返回值的，那么它的类型就是void类型
+我们可以将null和undefined赋值给void类型，也就是函数可以返回null和undefined
+
+##### never
+表示永远不会发生值的类型，比如一个函数：
+  - 如果一个函数中是一个死循环或者抛出一个异常，那么这个函数会返回东西吗
+  - 不会，那么写void类型或者其他类型作为返回值类型都不合适，我们就可以使用never类型
+~~~typescript
+function fn(): never {
+    // Infinite loop
+    while (true) {
+
+    }
+}
+
+function bar(): never {
+    throw new Error()
+}
+~~~
+never应用场景:进行验证
+~~~typescript
+function handleMsg(message: string | number | boolean) {
+    switch (typeof message) {
+        case 'string':
+            console.log('string形式处理');
+            break;
+        case 'number':
+            console.log('number形式处理');
+            break;
+        case 'boolean':
+            console.log('boolean形式处理');
+            break;
+        default:
+            const check: never = message
+            break;
+    }
+}
+~~~
+##### typle类型 元组类型
+多种元素的组合
+~~~typescript
+let info1:[string,number,number]=['plum',18,188]
+let name1=info1[0]
+~~~
+
+应用场景
+~~~typescript
+function useState<T>(state: T) {
+    let currentState = state;
+    const changeState = (newState: T) => {
+        currentState = newState
+    }
+    const tuple: [T, (newState: T) => void] = [currentState, changeState];
+    return tuple
+}
+
+const [counter, setCounter] = useState(10);
+const [title, setTitle] = useState('AA');
+const [flag, setFlag] = useState(true);typescript
+
+~~~
+
+##### 函数的参数类型及返回值类型
+~~~typescript
+// 给参数加类型注解
+// 给返回值加类型注解 ():类型注解
+// 开发情况下可以不写，会自动推导
+// 对参数个数也有限制
+function sum(num1: number, num2: number): number {
+    console.log(num1 + num2);
+    return num1 + num2
+}
+sum(1, 2)
+~~~
+匿名函数参数类型
+
+~~~typescript
+const names = ['abc', 'cba', 'aaa'];
+// 根据上下文环境推导，可以不添加类型注解
+names.forEach((item)=>{
+    console.log(item);
+    
+})
+~~~
+
+##### 对象类型及可选类型
+`{ x: number, y: number, z: number }`
+~~~typescript
+// point: x/y -> 对象类型
+// 可选类型加问好
+// { x: number, y: number, z?: number }
+function printPoint(point: { x: number, y: number, z?: number }) {
+    console.log(point.x);
+    console.log(point.y);
+    // console.log(point.z);
+}
+
+printPoint({ x: 100, y: 200})
+~~~
+
+##### 联合类型
+typescript类型允许我们使用多种运算符，从现有类型中构建新的类型
+我们来使用第一种组合类型的方法 :联合类型( Union Type )
+  - 联合类型是由两个或者多个其他类型组成的类型;
+  - 表示可以是这些类型中的任何一个值;
+  - 联合类型中的每一个类型被称之 为联合成员( union's members) ;
+
+~~~typescript
+// 使用联合类型时需要小心
+function printId(id: number | string) {
+    console.log('id',id);
+}
+printId(1)
+printId('a')
+~~~
+##### 可选类型和联合类型的联系
+
+~~~typescript
+// 可选类型和联合类型联系
+// 一个参数一个可选类型的时候，它其实本质上表示的是这个参数是：类型|undefined 的联合类型
+function printId(id?: number | string) {
+    console.log('id',id);
+}
+printId(1)
+printId('a')
+printId(undefined)
+~~~
+
+##### 类型别名
+使用关键字type来给类型起别名
+~~~typescript
+type UnionType = string | number | boolean;
+function unionType(arg:UnionType){
+    console.log(arg);
+}
+unionType('a')
+unionType(1)
+unionType(true)
+~~~
