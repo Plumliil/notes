@@ -1,1 +1,1 @@
-(()=>{"use strict";var o={490:(o,e)=>{Object.defineProperty(e,"__esModule",{value:!0}),e.mathFn=void 0,e.mathFn=function(){console.log("math.ts")}}},e={};(0,function t(r){var n=e[r];if(void 0!==n)return n.exports;var l=e[r]={exports:{}};return o[r](l,l.exports,t),l.exports}(490).mathFn)(),console.log("hello world"),console.log(20010502)})();
+(()=>{"use strict";var r={394:()=>{let r="hello world";r=`num1:100--flag:true--msg${r}`}},t={};!function e(o){var s=t[o];if(void 0!==s)return s.exports;var u=t[o]={exports:{}};return r[o](u,u.exports,e),u.exports}(394)})();
