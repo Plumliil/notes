@@ -1,4 +1,6 @@
 ### vue解决跨域问题
+vue.config.js
+
 ~~~JavaScript
 module.exports = {
   devServer: {
