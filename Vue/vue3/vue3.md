@@ -890,8 +890,8 @@ inject:['name','age','length'],
   - 这是因为computed返回的是一个ref对象 ,需要取出其中的value来使用;
 #### 全局事件总线mitt库(eventBus)
 Vue3从实例中移除了$on、 $off和$once方法,所以我们如果希望继续使用全局事件总线,要通过第三方的库:
-  - Vue3官方有推荐- -些库 ,例如mitt或tiny-emitter ;
-  - 这里我们主要讲解一下mitt库的使用 ;
+  - Vue3官方有推荐- -些库 ,例如mitt或tiny-emitter;
+  - 这里我们主要讲解一下mitt库的使用;
 发送事件
 `emitter.emit('cli',{name:'plumli',age:20})`
 监听事件
