@@ -1834,3 +1834,23 @@ info.counter.value
 ~~~
 在reactive中对象形式会自动解包
 
+#### readonly
++ 我们通过reactive或者ref可以获取到一个响应式对象，但某些情况下我们传入给其他地方(组件)的这个响应式对象希望在另外一个地方被使用，但是不能被修改
+  - vue3提供了readonly方法
+  - readonly会返回原生对象的只读代理(也就是它依然是一个proxy，这是一个proxy的set方法被劫持，并且不能对其进行修改)
+~~~js
+    // 1.普通对象
+    let info1 = { name: "plumli" };
+    const rdoyInfo1=readonly(info1)
+    // 2.reactive对象
+    let info2 = reactive({ name: "plum" });
+    const rdoyInfo2=readonly(info2)
+    // 3.ref对象
+    let info3 = ref('pl');
+    const rdoyInfo3=readonly(info3)
+    let changeState = () => {
+        rdoyInfo1.name='plum';
+        rdoyInfo2.name='li';
+        rdoyInfo3.value='li';
+    };
+~~~
