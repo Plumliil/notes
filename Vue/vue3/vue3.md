@@ -1749,6 +1749,13 @@ export default {
   + 如果组件中的某些选线是所有组件都需要有的，那么这俄格时候我们可以使用全局的mixin；
     - 全局的mixin可以使用app的方法mixin来完成注册
     - 一旦注册，那么全局混入的选项将会去影响每一个组件
+  ~~~js
+    app.mixin({
+        created(){
+            console.log('hello plumli');
+        }
+    })
+  ~~~
 #### entends
 直接继承组件，只能继承对象里的选项，不能继承标签
 类似于mixin，可以用mixin代替
@@ -1854,3 +1861,144 @@ info.counter.value
         rdoyInfo3.value='li';
     };
 ~~~
+### ref-computed-watch等api
+
+#### reactive判断的api
+- isProxy 检查对象是否由reactive 或 readonly创建的proxy
+- isReactive 检查对象是否由reactive创建的响应式代理 如果该代理时readonly创建的，但包裹了reactive创建的另一个代理，它也会返回true
+- isReadonly 检查对象是否由readonly创建的只读代理
+- toRaw 返回reactive 或 readonly 代理的原始对象（谨慎使用）
+- shallowReactive 创建一个响应式代理，它跟踪其自身的property的响应性，但不执行嵌套对象的深层次响应式转换（深层还是原生对象）
+
+#### ref Api
+##### toRefs和toRef
+传入响应式对象(reactive对象)
++ 如果使用es6的解构语法，对reactive返回的对象进行解构获取值，那么之后无论是修改解构后的变量，还是修改reactive返回的state对象，数据都不再是响应式的
+
+~~~js
+    const info = reactive({ name: "zs", age: "20", sex: "男" });
+    // toRef 将对象中某个属性转换成ref 建立链接
+    let { name } = toRef(info, "name");
+    // toRef 将reactive中的所有属性转成ref 建立链接
+    let { name, age, sex } = toRefs(info);
+~~~
+
+##### unref
+如果我们想要获取一个ref引用中的value，那么也可以通过unref方法
+  如果参数是一个ref，则返回内部值，否则返回函数本身
+  这是`val=isRef(val)?val.value:val`语法糖函数
+##### isRef
+判断值是否是一个ref对象
+##### shallowRef
+创建一个浅层的ref对象 页面不变数据改变
+~~~js
+    const info = shallowRef({ name: "zs"});
+    const changeInfo = () => {
+      info.value.name='ls';
+      console.log(info.value);
+      // age.value++;
+    };
+~~~
+##### triggerRef
+手动触发和shallowRef相关联的副作用
+
+##### customRef
+创建一个自定义的ref，并对其以来项进行跟踪和更新触发进行显示控制
+  - 他需要一个工厂函数，该函数接受track和trigger函数作为函数
+  - 并且应该返回一个带有get和set的对象
+案例:对双向绑定的属性进行debounce操作
+~~~js
+import { customRef } from 'vue'
+// 自定义ref
+export default function (value) {
+    let timer = null;
+    return customRef((track, trigger) => {
+        // track 什么时候收集
+        // trigger 什么时候更新
+        return {
+            get() {
+                track();
+                return value;
+            },
+            set(newValue) {
+                if(timer) clearTimeout(timer);
+                timer=setTimeout(() => {
+                    value = newValue
+                    trigger();
+                }, 1000);
+            }
+        }
+    })
+}
+~~~
+#### computed
+- 接受一个 getter 函数，并根据 getter 的返回值返回一个不可变的响应式 ref 对象。
+- 接受一个包含get和set函数的对象
+~~~js
+    const firstName = ref("zhang");
+    const lastName = ref("san");
+    // 1.传入getter函数
+    // computed的返回值是一个ref对象
+    // const fullName = computed(() => firstName.value + "" + lastName.value);
+    // 2.传入一个对象，包含getter和setter
+    const fullName = computed({
+        get:()=>() => firstName.value + "" + lastName.value,
+        set:(newValue)=>{
+            const names=newValue.split(' ');
+            firstName=name[0];
+            lastName=name[1];
+        }
+    });
+~~~
+#### 侦听数据变化
++ 在前面的Options API中,我们可以通过watch选项来侦听data或者props的数据变化,当数据变化时执行某- -些
+操作。
++ 在Composition API中,我们可以使用watchEffect和watch来完成响应式数据的侦听;
+  - watchEffect用于自动收集响应式数据的依赖;
+  - watch需要手动指定侦听的数据源;
+##### watchEffect
++ 当侦听到某些响应式数据变化时,我们希望执行某些操作,这个时候可以使用watchEffect。
++ 我们来看一个案例:
+  - 首先, watchEffect传入的函数会被立即执行一次,并且在执行的过程中会收集依赖;
+  - 其次,只有收集的依赖发生变化时, watchEffect传入的函数才会再次执行;
+~~~js
+    watchEffect(()=>{
+        console.log('name',name.value);
+    })
+~~~
+###### 停止侦听
+~~~js
+    const changeA = () => {
+      age.value++;
+      if (age.value > 25) {
+        stop();
+      }
+    };
+    // 默认执行一次
+    const stop = watchEffect(() => {
+      console.log("name", name.value, "age", age.value);
+    });
+~~~
+###### 清除副作用
++ 什么是清除副作用呢?
+  - 比如在开发中我们需要在侦听函数中执行网络请求,但是在网络请求还没有达到的时候,我们停止了侦听器或者侦听器侦听函数被再次执行了。
+  - 那么上- -次的网络请求应该被取消掉,这个时候我们就可以清除上一 -次的副作用;
++ 在我们给watchEffect传入的函数被回调时,其实可以获取到一个参数: onInvalidate
+  - 当副作用即将重新执行或者侦听器被停止时会执行该函数传入的回调函数;
+  - 我们可以在传入的回调函数中,执行一 些清楚工作;
+~~~js
+    // 默认执行一次
+    const stop = watchEffect((onInvalidate) => {
+      // 根据name和age两个变量发送网络请求
+      const timer=setTimeout(() => {
+          console.log('网络请求成功');
+      }, 2000);
+      onInvalidate(()=>{
+          clearTimeout(timer)
+          console.log('onInvalidate');
+      });
+      console.log("name", name.value, "age", age.value);
+    });
+~~~
+
+##### watch
