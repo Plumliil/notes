@@ -1749,3 +1749,12 @@ export default {
   + 如果组件中的某些选线是所有组件都需要有的，那么这俄格时候我们可以使用全局的mixin；
     - 全局的mixin可以使用app的方法mixin来完成注册
     - 一旦注册，那么全局混入的选项将会去影响每一个组件
+#### entends
+直接继承组件，只能继承对象里的选项，不能继承标签
+类似于mixin，可以用mixin代替
+~~~JavaScript
+import BasePage from './BasePage.vue'
+export default {
+    extends:BasePage,
+};
+~~~
