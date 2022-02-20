@@ -1758,3 +1758,24 @@ export default {
     extends:BasePage,
 };
 ~~~
+#### 认识CompositionApi
++ 那么既然知道CompositionApi想要帮助我们做什么事，接下来看一下到底是怎么做的
+  - 为了开始使用CompositionApi，需要有一个可以实际使用它的地方
+  - 在vue中，这个位置就是setup函数
++ setup其实就是组件的另外一个选项
+  - 只不过这个选项强大到我们可以用它来替代之前所编写的大部分其他选项
+  - 比如methods，computed，watch，data，生命周期等等
++ 接下学习setup函数使用
+  - 函数的参数
+  - 函数的返回值
+#### setup函数参数 
++ props
+  - 对于定义props的类型，我们还是和之前一样，在props中定义
+  - 并且在template中依然可以正常使用props中属性，比如message
+  - 如果我们在setup函数中想要使用props，那么不可以通过this去获取
+  - 因为props有直接将作为参数传递到setup中，所以我们可以直接通过参数来使用即可
++ context
+  - attrs 所有的非prop的attribute
+  - slots 父组件传递过来的插槽(这个在以渲染函数返回时会有作用，后面会讲到)
+  - emit 当我们组件内部需要发出事件时会用到emit(因为不能访问this，所以不能通过this.$emit发出事件)
+#### setup返回值可以在template中使用
