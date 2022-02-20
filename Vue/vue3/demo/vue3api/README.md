@@ -1,4 +1,4 @@
-# vue_compositionapi
+# vue3api
 
 ## Project setup
 ```
