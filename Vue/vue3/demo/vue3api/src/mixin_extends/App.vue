@@ -9,6 +9,9 @@
 <script>
 import { demoMixin } from "./mixin/demoMixin";
 export default {
+  created() {
+    console.log('组件内created')
+  },
   mixins: [demoMixin],
   data() {
     return {
