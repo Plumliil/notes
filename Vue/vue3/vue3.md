@@ -1779,3 +1779,58 @@ export default {
   - slots 父组件传递过来的插槽(这个在以渲染函数返回时会有作用，后面会讲到)
   - emit 当我们组件内部需要发出事件时会用到emit(因为不能访问this，所以不能通过this.$emit发出事件)
 #### setup返回值可以在template中使用
+普通返回数据不具有响应式的效果
++ setup既然是一个函数，那么他也有返回值，它的返回值用来做什么
+  - setup的返回值可以在模板template中使用
+  - 也就是说可以通过setup的返回值来代替data选项
++ 甚至可以返回一个执行函数来替代methods中的方法
+  ~~~javascript
+  setup() {
+    let counter = 100;
+    // 局部函数
+    const add = () => {
+      console.log("add");
+    };
+    const sub = () => {
+      console.log("sub");
+    };
+    return {
+      counter,
+      add,
+      sub,
+    };
+  },
+  ~~~
+#### setup中不能使用this
+在 setup() 内部，this 不是该活跃实例的引用，因为 setup() 是在解析其它组件选项之前被调用的，所以 setup() 内部的 this 的行为与其它选项中的 this 完全不同。这使得 setup() 在和其它选项式 API 一起使用时可能会导致混淆。
+
+#### ref API
++ reactive API对传入的类型是有限制的，他要求我们必须传入的是一个对象或者数组类型
+  - 如果我们传入一个基本数据类型会报警告
++ 这时候vue3提供了另外一个API：ref API
+  - ref 会返回一个可变的响应式对象
+  - 逻辑代码中仍然需要使用.value
+  - 它内部的值时在ref的value属性中被维护的
+~~~javascript
+    let counter = ref(100);
+    // 局部函数
+    const add = () => {
+      counter.value++;
+    };
+    const sub = () => {
+      counter.value--;
+    };
+~~~
++ 注意事项：
+  - 在模板中引入ref值时，vue会自动帮助我们进行解包操作，所以我们并不需要在模板中通过ref.value的方式来使用
+#### ref中的自动解包(浅层解包)
+不是最外层无法解包，需要使用.value
+~~~javascript
+const info={
+        counter
+      }
+// template中
+info.counter.value
+~~~
+在reactive中对象形式会自动解包
+

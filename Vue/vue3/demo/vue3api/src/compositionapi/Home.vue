@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { ref } from "vue";
 export default {
   props: {
     message: {
@@ -24,17 +25,16 @@ export default {
   setup(props, context) {
     console.log("props", props);
     console.log("context", context);
-    let counter = 100;
+    let counter = ref(100);
+    // const info={
+    //     counter
+    // }
     // 局部函数
     const add = () => {
-      console.log("add");
-      counter++;
-      console.log(counter);
+      counter.value++;
     };
     const sub = () => {
-      console.log("sub");
-      counter--;
-      console.log(counter);
+      counter.value--;
     };
     return {
       title: "hello home",
