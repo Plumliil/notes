@@ -2000,5 +2000,86 @@ export default function (value) {
       console.log("name", name.value, "age", age.value);
     });
 ~~~
+##### 执行时机
+默认情况下,组件的更新会在副作用函数执行之前:
+0如果我们希望在副作用函数中获取到元素,是否可行呢?
+戈们会发现打印结果打印了两次: .
+0这是因为setup函数在执行时就会立即执行传入的副作用函数,这个时候DOM并没有挂载,所以打印为null ;
+0而当DOM挂载时,会给title的ref对象赋值新的值,副作用函数会再次执行,打印出来对应的元素;
+~~~js
+    const title = ref(null);
+    watchEffect(()=>{
+        console.log(title.value);
+    },{
+      // 挂载完成后拿到ref
+      flush:"post"
+    })
+~~~
+##### 调整执行时机
++ 如果我们希望在第一次的时候就打印出来对应的元素呢 ?
+  - 这个时候我们需要改变副作用函数的执行时机;
+  - 它的默认值是pre ,它会在元素挂载或者更新之前执行;
+  - 所以我们会先打印出来一个空的,当依赖的title发生改变时,就会再次执行一-次 ,打印出元素;
+我们可以设置副作用函数的执行时机:
+~~~js
+    watchEffect(()=>{
+        console.log(title.value);
+    },{
+      // 挂载完成后拿到ref
+      flush:"post"
+    })
+~~~
+#### 使用ref获取dom元素
+在讲解watchEffect执行时机之前，我们先补充一个知识 :在setup中如何使用ref或者元素或者组件?
+- 其实非常简单,我们只需要定义一个ref对象 ,绑定到元素或者组件的ref属性.上即可;
+~~~js
+    watchEffect(()=>{
+        console.log(title.value);
+    },{
+      // 挂载完成后拿到ref
+      flush:"post"
+    })
+~~~
+#### watch
++ watch的api完全等同于组件watch选项的property
+  - watch需要侦听特定的数据源，并在回调函数中执行副作用
+  - 默认情况下是惰性的，只有当被侦听源发生变化时才会执行回调
++ 与watchEffect比较，watch允许:
+  - 懒执行副作用(第一次不会直接执行)
+  - 更具体的说明了哪些状态发生变化时，触发侦听器的执行
+  - 访问侦听器变化前后的值
+##### 侦听单个数据源
+watch侦听函数的数据源有两种类型
+  - 一个getter函数：但是getter函数必须引用可响应式对象(比如reactive或者ref)
+  - 直接写入一个可响应式对象,ref(如果是一个reactive对象的侦听,需要进行某些转换)
+~~~js
+    // getter
+    watch(()=>watchInfo.name, (newValue, oldValue) => {
+      console.log(newValue, oldValue);
+    });
+~~~
+~~~js
+    // ref对象
+    watch(watchInfo, (newValue, oldValue) => {
+      console.log(newValue, oldValue);
+    });
+~~~
+注意多个同步更改只会触发一次侦听器。
+通过更改设置 flush: 'sync'，我们可以为每个更改都强制触发侦听器，尽管这通常是不推荐的。或者，可以用 nextTick 等待侦听器在下一步改变之前运行。例如:
+~~~js
+const changeValues = async () => {
+  firstName.value = 'John' // 打印 ["John", ""] ["", ""]
+  await nextTick()
+  lastName.value = 'Smith' // 打印 ["John", "Smith"] ["John", ""]
+}
+~~~
+##### 侦听多个数据源
 
-##### watch
+~~~js
+    const watchInfo = reactive({ name: "watch", age: 20 });
+    const name=ref('zs');
+    watch([()=>({...watchInfo}),name], (newValue, oldValue) => {
+      console.log(newValue, oldValue);
+    });
+~~~
+详情见 [vue3官方文档][https://v3.cn.vuejs.org/guide/reactivity-computed-watchers.html#%E4%BE%A6%E5%90%AC%E5%93%8D%E5%BA%94%E5%BC%8F%E5%AF%B9%E8%B1%A1]

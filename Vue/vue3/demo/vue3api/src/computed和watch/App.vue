@@ -12,11 +12,21 @@
       <button @click="changeN">changeN</button>
       <button @click="changeA">changeA</button>
     </section>
+    <section>
+      <hr />
+      <h2 ref="title">title</h2>
+    </section>
+    <section>
+      <hr />
+      <h3>watch监听单个数据源</h3>
+      <h3>{{watchInfo.name}}</h3>
+      <button @click="changeWI">changeWI</button>
+    </section>
   </div>
 </template>
 
 <script>
-import { computed, ref, watchEffect } from "vue";
+import { computed, reactive, ref, watchEffect, watch } from "vue";
 export default {
   setup() {
     let firstName = ref("zhang");
@@ -49,15 +59,35 @@ export default {
     // 默认执行一次
     const stop = watchEffect((onInvalidate) => {
       // 根据name和age两个变量发送网络请求
-      const timer=setTimeout(() => {
-          console.log('网络请求成功');
+      const timer = setTimeout(() => {
+        console.log("网络请求成功");
       }, 2000);
-      onInvalidate(()=>{
-          clearTimeout(timer)
-          console.log('onInvalidate');
+      onInvalidate(() => {
+        clearTimeout(timer);
+        console.log("onInvalidate");
       });
       console.log("name", name.value, "age", age.value);
     });
+    const title = ref(null);
+    watchEffect(
+      () => {
+        console.log(title.value);
+      },
+      {
+        // 挂载完成后拿到ref
+        flush: "post",
+      }
+    );
+    const watchInfo = reactive({ name: "watch", age: 20 });
+    // watchEffect(()=>{
+    //   console.log(watchInfo.name);
+    // })
+    watch(()=>watchInfo.name, (newValue, oldValue) => {
+      console.log(newValue, oldValue);
+    });
+    const changeWI=()=>{
+      watchInfo.name='wi'
+    }
     return {
       firstName,
       lastName,
@@ -67,6 +97,9 @@ export default {
       age,
       changeN,
       changeA,
+      title,
+      watchInfo,
+      changeWI
     };
   },
 };
