@@ -2124,3 +2124,26 @@ app.directive('focus', {
     }
 })
 ~~~
+#### 指令的生命周期
+一个指令定义的对象，vue提供了如下几个钩子函数
+- created:在绑定元素的attribute或事件监听器被应用之前调用
+- beforeMount:当指令第一次绑定到元素并且在挂载父组件之前调用
+- mounted:在绑定元素的父组件被挂载后调用
+- beforeUpdate:在更新包含组件的VNode之前调用
+- update:在包含组件的VNode及其子组件的VNode更新后调用
+- beforeUnmounted:在卸载绑定元素的父组件之前调用
+- unmounted:当指令与元素接触绑定且父组件已卸载时，只调用一次
+
+#### 修饰符和参数
+有四个参数
+- el:指令绑定到的元素。这可用于直接操作 DOM
++ bindings:
+  - instance：使用指令的组件实例。
+  - value：传递给指令的值。例如，在 v-my-directive="1 + 1" 中，该值为 2。
+  - oldValue：先前的值，仅在 beforeUpdate 和 updated 中可用。无论值是否有更改都可用。
+  - arg：传递给指令的参数(如果有的话)。例如在 v-my-directive:foo 中，arg 为 "foo"。
+  - modifiers：包含修饰符(如果有的话) 的对象。例如在 v-my-directive.foo.bar 中，修饰符对象为 {foo: true，bar: true}。
+  - dir：一个对象，在注册指令时作为参数传递。例如，在以下指令中
+- vnode:一个真实 DOM 元素的蓝图，对应上面收到的 el 参数
+- prvenode:上一个虚拟节点，仅在 beforeUpdate 和 updated 钩子中可用。
+注意:除了 el 之外，你应该将这些参数视为只读，并且永远不要修改它们。如果你需要跨钩子共享信息，建议通过元素的自定义数据属性集进行共享。
