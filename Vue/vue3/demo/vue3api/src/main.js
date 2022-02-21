@@ -1,12 +1,8 @@
 import { createApp } from 'vue'
 import App from './vue3高级语法/App.vue'
-
+import registerDirectives from './directives'
 const app = createApp(App);
-app.directive('focus', {
-    mounted(el) {
-        el.focus()
-        console.log(el);
-    }
-})
+
+registerDirectives(app)
 
 app.mount('#app')

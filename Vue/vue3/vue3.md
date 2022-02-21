@@ -2147,3 +2147,65 @@ app.directive('focus', {
 - vnode:一个真实 DOM 元素的蓝图，对应上面收到的 el 参数
 - prvenode:上一个虚拟节点，仅在 beforeUpdate 和 updated 钩子中可用。
 注意:除了 el 之外，你应该将这些参数视为只读，并且永远不要修改它们。如果你需要跨钩子共享信息，建议通过元素的自定义数据属性集进行共享。
+
+#### 自定义指令练习
++ 自定义指令案例:时间戳的显示需求:
+ - 在开发中,大多数情况下从服务器获取到的都是时间戳;
+ - 我们需要将时间戳转换成具体格式化的时间来展示;
+ - 在Vue2中我们可以通过过滤器来完成;
+ - 在Vue3中我们可以通过计算属性( computed )或者自定义一个方法( methods )来完成;
+ - 其实我们还可以通过一个自定义的指令来完成;
+~~~js
+// format-time.js
+import dayjs from 'dayjs'
+export default function registerDirectives(app) {
+    app.directive('format-time', {
+        mounted(el,bindings) {
+            let formatString=bindings.value;
+            console.log(formatString);
+            if(!formatString){
+                formatString='YYYY-MM-DD  hh:mm:ss';
+            }
+            const textContent = el.textContent;
+            let timestamp = parseInt(textContent)
+            if (timestamp.length === 10) {
+                timestamp = timestamp * 1000
+            }
+            el.textContent = dayjs(timestamp).format(formatString)
+            console.log(typeof textContent);
+        },
+    })
+}
+~~~
+~~~js
+// index.js
+import registerFormatTime from "./format-time";
+export default function registerDirectives(app) {
+    registerFormatTime(app)
+}
+~~~
+~~~js
+// main.js
+import { createApp } from 'vue'
+import App from 'App.vue'
+import registerDirectives from './directives'
+const app = createApp(App);
+registerDirectives(app)
+app.mount('#app')
+~~~
+~~~js
+// <!-- App.vue -->
+<template>
+  <h4 v-format-time="'YYYY/MM/DD hh:mm:ss'">
+    {{timestamp}}
+  </h4>
+</template>
+// js
+setup(){
+  const timestamp = new Date().getTime();
+  return{
+    timestamp
+  }
+}
+
+~~~

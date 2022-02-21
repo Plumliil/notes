@@ -13,6 +13,13 @@
         当前计数:{{ counter }}
       </h4>
     </section>
+    <section>
+      <hr />
+      <h3>自定义指令练习</h3>
+      <h4 v-format-time="'YYYY/MM/DD hh:mm:ss'">
+        {{timestamp}}
+      </h4>
+    </section>
   </div>
 </template>
 
@@ -42,7 +49,7 @@ export default {
       beforeUpdate() {
         console.log("pl beforeUpdate");
       },
-      updated(_,bindings) {
+      updated(_, bindings) {
         console.log(bindings.value);
         console.log(bindings.modifiers);
         console.log("pl updated");
@@ -53,16 +60,20 @@ export default {
       unmounted() {
         console.log("pl unmounted");
       },
-    },
+    }
   },
   setup() {
     let counter = ref(0);
     const changeCounter = () => {
       counter.value++;
     };
+    // const timestamp = 1645405199;
+    const timestamp = new Date().getTime();
+    console.log(new Date().getTime());
     return {
       counter,
       changeCounter,
+      timestamp
     };
   },
 };
