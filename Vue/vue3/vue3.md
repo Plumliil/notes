@@ -2083,3 +2083,44 @@ const changeValues = async () => {
     });
 ~~~
 详情见 [vue3官方文档][https://v3.cn.vuejs.org/guide/reactivity-computed-watchers.html#%E4%BE%A6%E5%90%AC%E5%93%8D%E5%BA%94%E5%BC%8F%E5%AF%B9%E8%B1%A1]
+### 自定义指令
+#### 认识自定义指令
++ 在vue的模板语法中我们学习过各种指令:v-show。v-for，v-model等等，除了使用指令外，vue也允许自己自定义指令
+ - 在vue中，代码复用和抽象主要还是通过组件
+ - 通常在某些情况下对dom进行底层操作，这时候就会使用自定义指令
++ 自定义指令分为两种
+ - 局部指令：组件通过directives选项，只能在当前组件使用
+ - 全局指令：app的directive方法，可以在任意组件中被使用
++ 比如我们来做非常简单的案例：当某个元素挂在完成后可以自定获取焦点
+ - 实现方式一:使用默认指令
+~~~js
+  setup() {
+    const input = ref(null);
+    onMounted(()=>{
+        input.value.focus()
+    })
+    return {
+      input,
+    };
+~~~
+ - 实现方式二:使用v-focus局部指令
+~~~js
+ directives:{
+    focus:{
+        mounted(el){
+            el.focus()
+            console.log(el);
+        }
+    }
+ },
+~~~
+ - 实现方式三:使用v-focus全局指令
+~~~js
+const app = createApp(App);
+app.directive('focus', {
+    mounted(el) {
+        el.focus()
+        console.log(el);
+    }
+})
+~~~
