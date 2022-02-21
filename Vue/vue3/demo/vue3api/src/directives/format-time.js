@@ -3,7 +3,7 @@ export default function registerDirectives(app) {
     app.directive('format-time', {
         mounted(el,bindings) {
             let formatString=bindings.value;
-            console.log(formatString);
+            // console.log(formatString);
             if(!formatString){
                 formatString='YYYY-MM-DD  hh:mm:ss';
             }
@@ -13,7 +13,7 @@ export default function registerDirectives(app) {
                 timestamp = timestamp * 1000
             }
             el.textContent = dayjs(timestamp).format(formatString)
-            console.log(typeof textContent);
+            // console.log(typeof textContent);
         },
     })
 }

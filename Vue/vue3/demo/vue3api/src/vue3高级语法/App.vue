@@ -17,14 +17,20 @@
       <hr />
       <h3>自定义指令练习</h3>
       <h4 v-format-time="'YYYY/MM/DD hh:mm:ss'">
-        {{timestamp}}
+        {{ timestamp }}
       </h4>
+    </section>
+    <section>
+      <hr />
+      <teleport to="#plum">
+        <h3>Teleport</h3>
+      </teleport>
     </section>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, getCurrentInstance } from "vue";
 export default {
   directives: {
     focus: {
@@ -33,34 +39,28 @@ export default {
       },
     },
     pl: {
-      created() {
-        console.log("pl created");
-      },
-      beforeMount() {
-        console.log("pl beforeMount");
-      },
-      mounted(el, bindings, vnode, prvenode) {
-        console.log(el);
-        console.log(bindings);
-        console.log(vnode);
-        console.log(prvenode);
-        console.log("pl mounted");
-      },
-      beforeUpdate() {
-        console.log("pl beforeUpdate");
-      },
+      // created() {
+      //   console.log("pl created");
+      // },
+      // beforeMount() {
+      //   console.log("pl beforeMount");
+      // },
+      // mounted() {},
+      // beforeUpdate() {
+      //   console.log("pl beforeUpdate");
+      // },
       updated(_, bindings) {
         console.log(bindings.value);
         console.log(bindings.modifiers);
         console.log("pl updated");
       },
-      beforeUnmount() {
-        console.log("pl beforeUnmount");
-      },
-      unmounted() {
-        console.log("pl unmounted");
-      },
-    }
+      // beforeUnmount() {
+      //   console.log("pl beforeUnmount");
+      // },
+      // unmounted() {
+      //   console.log("pl unmounted");
+      // },
+    },
   },
   setup() {
     let counter = ref(0);
@@ -69,12 +69,18 @@ export default {
     };
     // const timestamp = 1645405199;
     const timestamp = new Date().getTime();
-    console.log(new Date().getTime());
+    // console.log(new Date().getTime());
+    const instance = getCurrentInstance();
+    console.log(instance.$name);
+    console.log(instance.appContext.config.globalProperties.$name);
     return {
       counter,
       changeCounter,
-      timestamp
+      timestamp,
     };
+  },
+  created() {
+    console.log(this.$name);
   },
 };
 </script>
