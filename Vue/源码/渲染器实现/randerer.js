@@ -16,7 +16,10 @@ const mount = (vnode, container) => {
             const value = vnode.props[key]
             if (key.startsWith('on')) {
                 // 事件监听的判断
-                el.addEventListener(key.slice(2).toLowerCase, value)
+                // console.log(key.toLowerCase());
+                el.addEventListener(key.slice(2).toLowerCase(), value)
+                // el.setAttribute(key, value)
+                // console.log(el);
             } else {
                 el.setAttribute(key, value)
             }
@@ -39,7 +42,8 @@ const mount = (vnode, container) => {
 }
 
 const patch = (n1, n2) => {
-    console.log(n1, n2);
+    console.log(n1);
+    console.log(n2);
     if (n1.tag !== n2.tag) {
         const n1ElParent = n1.el.parentElement;
         n1ElParent.removeChild(n1.el)

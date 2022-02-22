@@ -73,24 +73,24 @@ function reactive(raw) {
 
 // 响应式系统
 
-const info = reactive({ counter: 100, name: 'zs' });
-// info.counter=1231;
-console.log(info);
-const foo = reactive({ hight: 1.80 })
-const dep = new Dep();
+// const info = reactive({ counter: 100, name: 'zs' });
+// // info.counter=1231;
+// console.log(info);
+// const foo = reactive({ hight: 1.80 })
+// const dep = new Dep();
 
-watchEffect(function () {
-    console.log('effect1',info.counter * 2, info.name);
-})
-watchEffect(function () {
-    console.log('effect2',info.counter * info.counter);
-})
-watchEffect(function () {
-    console.log('effect3',info.counter + 10, info.name);
-})
-watchEffect(function(){
-    console.log('effect4',foo.hight);
-})
-// info.counter++;
-// info.name = 'ls';
-foo.hight=1.78;
+// watchEffect(function () {
+//     console.log('effect1',info.counter * 2, info.name);
+// })
+// watchEffect(function () {
+//     console.log('effect2',info.counter * info.counter);
+// })
+// watchEffect(function () {
+//     console.log('effect3',info.counter + 10, info.name);
+// })
+// watchEffect(function(){
+//     console.log('effect4',foo.hight);
+// })
+// // info.counter++;
+// // info.name = 'ls';
+// foo.hight=1.78;
