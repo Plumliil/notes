@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="./randerer.js"></script>
+    <script>
+        // 1.通过h函数创建vnode
+        // h(name,props,childrenNode)
+        const vnode = h(
+            'div',
+            { class: 'pl' },
+            [
+                h('h2', null, '当前计数100'),
+                h('h2', null, '当前计数1000'),
+            ]
+        )
+        console.log(vnode);
+    </script>
+</body>
+
+</html>   
