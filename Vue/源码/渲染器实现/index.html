@@ -15,24 +15,32 @@
         // 1.通过h函数创建vnode
         // h(name,props,childrenNode)
         const vnode = h(
-                    'div',
-            { class: 'pl',id:'aaa' },
+            'div',
+            { class: 'pl', id: 'aaa' },
             [
-                h('h2', null, '当前计数100'),
-                h('button', {onClick:function(){console.log('+1')}}, '+1'),
+                h('h3', null, 'new1'),
+                h('h3', null, 'old2'),
+                h('h3', null, 'old3'),
+                h('h3', null, 'old4'),
+                h('h3', null, 'old5'),
             ]
         )
         console.log(vnode);
         // 通过mount函数将vnode挂载到div为app上
-        mount(vnode,document.querySelector('#app'))
+        mount(vnode, document.querySelector('#app'))
 
         // 创建新的vnode
-        const vnode1=h('div',{class:'newPl',id:'aaa'},'diff算法');
-
+        const vnode1 = h('div', { class: 'newPl', id: 'aaa' }, [
+            h('h3', null, 'new1'),
+            h('h3', null, 'new2'),
+            h('h3', null, 'new3'),
+            h('h3', null, 'new4'),
+        ]);
         setTimeout(() => {
-            patch(vnode,vnode1)
-        }, 100);
+            patch(vnode, vnode1)
+
+        }, 1000);
     </script>
 </body>
 
-</html>   
+</html>
