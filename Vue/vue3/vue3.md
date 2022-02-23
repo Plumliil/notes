@@ -2328,3 +2328,22 @@ for (let aEl of aEls) {
     })
 }
 ~~~
+### vue-router
+
+#### 认识vue-router
++ 目前前端流行的三大框架,都有自己的路由实现:
+  - Angular的ngRouter
+  - React的ReactRouter
+  - Vue的vue-router
++ Vue Router是Vue.js的官方路由。它与Vue.js核心深度集成,让用Vue.js构建单页应用变得非常容易。
+  - 目前Vue路由最新的版本是4.x版本,我们上课会基于最新的版本讲解。
++ vue-router是基于路由和组件的
+  - 路由用于设定访问路径,将路径和组件映射起来.
+  - 在vue-router的单页面应用中,页面的路径的改变就是组件的切换.
++ 安装
+   - npm install vue-router@4
+#### 路由使用步骤
+- 创建路由组件
+- 配置路由映射
+- 通过createRouter创建路由对象,并且传入routes和history模式
+- 通过router-link和router-view使用
