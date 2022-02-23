@@ -2246,3 +2246,85 @@ setup(){
 ### 路由
 
 #### 前端路由
++ 路由其实就是网络工程中一个术语
+  - 在架构一个网络时,非常重要的两个设备就是路由器和交换机
+  - 事实上,路由器主要维护的是一个映射表(ip地址和电脑的mac地址映射关系)
+  - 映射表会决定数据的流向
++ 路由的概念在软件工程中出现,最早是在后端路由中实现,原因是web的发展主要经历了这样的一些阶段:
+  - 后端路由阶段
+  - 前后端分离阶段
+  - 单页面富应用(SPA)
+#### 后端路由
++ 早期的网站开发整个html页面是由服务器来渲染
+  - 服务器直接生产渲染好对应的html页面,返回给客户端进行展示
++ 但是, -个网站,这么多页面服务器如何处理呢?
+  - 一个页面有自己对应的网址，也就是URL ;
+  -  URL会发送到服务器,服务器会通过正则对该URL进行匹配,并且最后交给-个Controller进行处理 ;
+  - Controller进行各种处理,最终生成HTML或者数据，返回给前端.
++ 上面的这种操作,就是后端路由:
+  - 当我们页面中需要请求不同的路径内容时,交给服务器来进行处理,服务器渲染好整个页面,并且将页面返回给客户端.
+  - 这种情况下渲染好的页面,不需要单独加载任何的js和css,可以直接交给浏览器展示，这样也有利于SEO的优化.
+#### 前后端分离
++ 前端渲染的理解:
+  - 每次请求涉及到的静态资源都会从静态资源服务器获取,这些资源包括HTML+CSS+JS ,然后在前端对这些请求回来的资源进行渲染; 
+  - 需要注意的是,客户端的每一次请求,都会从静态资源服务器请求文件;
+  - 同时可以看到,和之前的后端路由不同,这时后端只是负责提供API了;
++ 前后端分离阶段:
+  - 随着Ajax的出现,有了前后端分离的开发模式;
+  - 后端只提供API来返回数据,前端通过Ajax获取数据,并且可以通过JavaScript将数据渲染到页面中; .
+  - 这样做最大的优点就是前后端责任的清晰,后端专注于数据上,前端专注于交互和可视化上;
+  - 并且当移动端(iOS/Android)出现后，后端不需要进行任何处理,依然使用之前的一套API即可;
+  - 目前比较少的网站采用这种模式开发(jQuery开发模式) ;
+#### 改变内容是不刷新页面
+
+##### URL的hash
+前端路由是如何做到url和内容映射,监听url改变
++ url的hash
+  - url的hash也就是锚点(#),本质上是window.location的href属性
+  - 我们可以通过直接赋值location.hash来改变href,但是页面不发生刷新
++ hash的优势是兼容性更好,在老版ie中都可以运行,但是缺陷有一个#,显得不像是一个真实的路径
+~~~javascript
+window.addEventListener('hashchange', (){
+    switch (location.hash) {
+        case '#/home':
+            contentEl.innerHTML = 'home';
+            break;
+        case '#/about':
+            contentEl.innerHTML = 'about';
+            break;
+        default:
+            contentEl.innerHTML = 'default';
+            break;
+    }
+})
+~~~
+##### html5的history模式
++ history接口是HTML5新增的,他有六种模式改变URL而不刷新页面
+  - replaceState:替换原来路径
+  - pushState:使用新路径 `history.pushState({},'',href);` 压栈操作
+  - popState:路径的回退
+  - go:向前或向后改变路径
+  - forward:向前改变路径
+  - back:向后改变路径
+
+获取到href改变内容
+~~~javascript
+for (let aEl of aEls) {
+    aEl.addEventListener('click', e => {
+        e.preventDefault()
+        const href = aEl.getAttri('href');
+        history.pushState({},'',href);
+        switch (location.pathname) {
+        case '/home':
+            contentEl.innerHTML = 'home';
+            break;
+        case '/about':
+            contentEl.innerHTML = 'about';
+            break;
+        default:
+            contentEl.innerHTML = 'default';
+            break;
+    }
+    })
+}
+~~~

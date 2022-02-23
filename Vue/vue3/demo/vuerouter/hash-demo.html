@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <a href="#/home">home</a>
+        <a href="#/about">about</a>
+        <a class="h" href="/home">h home</a>
+        <a class="h" href="/about">h about</a>
+    </div>
+    <div class="content">default</div>
+    <script>
+        const contentEl = document.querySelector('.content');
+        window.addEventListener('hashchange', () => {
+            switch (location.hash) {
+                case '#/home':
+                    contentEl.innerHTML = 'home';
+                    break;
+                case '#/about':
+                    contentEl.innerHTML = 'about';
+                    break;
+                default:
+                    contentEl.innerHTML = 'default';
+                    break;
+            }
+        })
+        const aEls = document.querySelectorAll('.h');
+        for (let aEl of aEls) {
+            aEl.addEventListener('click', e => {
+                e.preventDefault()
+                const href = aEl.getAttribute('href');
+                history.pushState({},'',href);
+                switch (location.pathname) {
+                case '/home':
+                    contentEl.innerHTML = 'home';
+                    break;
+                case '/about':
+                    contentEl.innerHTML = 'about';
+                    break;
+                default:
+                    contentEl.innerHTML = 'default';
+                    break;
+            }
+            })
+        }
+    </script>
+</body>
+
+</html>
