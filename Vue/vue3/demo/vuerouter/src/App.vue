@@ -1,13 +1,47 @@
 <template>
   <div id="nav">
     <h1>VUE-ROUTER</h1>
-    <router-link to="/home">home</router-link> | 
-    <router-link to="/about">about</router-link>
-    <hr>
+    <router-link to="/home">home</router-link> |
+    <router-link to="/about">about</router-link> |
+    <router-link to="/user/plum">user</router-link>
+    <hr />
+    <button @click="jumpToAbout">关于</button>
+    <hr />
     <router-view />
-    <hr>
+    <hr />
   </div>
 </template>
+
+<script>
+// import router from './router'
+import { useRouter } from "vue-router";
+export default {
+  // methods: {
+  //   jumpToAbout(){
+  //     // 拿到router对象
+  //     this.$router.push('/about')
+  //     console.log(this.$router);
+  //   }
+  // },
+  setup() {
+    const router = useRouter();
+    const jumpToAbout = () => {
+      router.push({
+        path:'/about',
+        query:{
+          name:'zs',
+          age:20
+        }
+      });
+      // replace
+      // router.go()
+    };
+    return {
+      jumpToAbout,
+    };
+  },
+};
+</script>
 
 <style>
 #app {

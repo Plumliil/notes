@@ -2347,3 +2347,131 @@ for (let aEl of aEls) {
 - 配置路由映射
 - 通过createRouter创建路由对象,并且传入routes和history模式
 - 通过router-link和router-view使用
+#### 路由的默认路径
+可以在routes中配置一个映射
+- path配置的根路径 /
+- redirect是重定向,也就是我们将根路径重定向到/home的路径下,这样就可以得到想要的结果
+
+#### history模式
+`import {createRouter,createWebHistory,,createWebHashHistory} from 'vue-router';`
+
+#### router-link
+router-link事实上有很多属性可以配置:
+- to属性:是一个字符串或者一个对象
+- replace属性:设置replace属性的话,点击时,会调用router.replace()而不是router.push()
+- active-class:设置激活a元素后应用class,默认是router-link-active
+- exact-active-class:链接精准激活时,应用于渲染a的class默认是router-exact-active-class
+
+#### 路由懒加载
++ 当打包构建应用时, JavaScript包会变得非常大,影响页面加载:
+  - 如果我们能把不同路由对应的组件分割成不同的代码块,然后当路由被访问的时候才加载对应组件,这样就会
+更加高效;
+  - 也可以提高首屏的渲染效率;
++ 其实这里还是我们前面讲到过的webpack的分包知识,而Vue Router默认就支持动态来导入组件:
+  - 这是因为component可以传入-个组件,也可以接收一个函数 ,该函数需要放回一个Promise ;
+  - 而import函数就是返回一个Promise ;
+component的值也可以是函数
+使用懒加载方式载入组件,在编译时会进行分包,在浏览器加载时不会立即加载出来
+~~~javascript
+const routes=[
+    {path:'/',redirect:'/home'},
+    {path:'/home',component:()=>{
+        return import(/* webpackChunkName:"home-chunk" */'../views/Home.vue')
+    }},
+    {path:'/about',component:()=>{
+        return import(/* webpackChunkName:"about-chunk" */'../views/About.vue')
+    }}
+];
+~~~
+#### 路由的其他属性
+- name 字符串类型 可以通过name进行跳转
+- meta 对象类型 自定义数据数据 拿到route对象后可以取到meta属性
+#### 动态路由基本匹配
+~~~javascript
+    {
+        path: '/user/:username', component: () => {
+            return import('../views/User.vue')
+        }
+    },
+~~~
++ 很多时候我们需要将给定匹配模式的路由映射到同一个组件: 
+  - 例如,我们可能有一个User组件,它应该对所有用户进行渲染,但是用户的ID是不同的;
+  - 在Vue Router中,我们可以在路径中使用一个动态字段来实现,我们称之为路径参数;
++ 在router-link中做如下跳转
+ <router-link to="/user/plum">user</router-link>
+
+setup中使用useRoute,通过import在vue-router中引用
+#### 获取动态路由的值
+在template中可以用`$route.aras.id`
+在setup中要使用vue-router提供的hook useRoute
+该hook会返回一个Route对象,对象中保存着当前路由的相关值
+
+#### NotFound
+使用`/:patchMatch(.*)`匹配不存在路由
+~~~javascript
+{
+    path: '/:patchMatch(.*)', component: () => {
+        return import('../views/NotFound.vue')
+    }
+},
+~~~
+在notfound页面可以通过`$route.params.patchMatch`获取信息
+~~~javascript
+<h1>Page <span style="color:red">{{$route.params.patchMatch}}</span> Not Found</h1>
+~~~
+
+#### 路由的嵌套
+~~~javascript
+{
+  path: '/home',
+    component: () => {
+      return import(/* webpackChunkName:"home-chunk" */'../views/Home.vue')
+    },
+      children: [
+        {
+          path: '',
+          redirect: '/home/message'
+        },
+        {
+          path: 'message',
+          component: () => import('../views/HomeMsg.vue')
+        },
+        {
+          path: 'shop',
+          component: () => import('../views/HomeShop.vue')
+        },
+      ]
+},
+~~~
+
+
+#### 编程式导航 代码的页面跳转
+函数中
+~~~javascript
+// <button @click="jumpToAbout">关于</button>
+jumpToAbout(){
+  // 拿到router对象
+  this.$router.push('/about')
+  console.log(this.$router);
+}
+~~~
+setup中
+~~~javascript
+// <button @click="jumpToAbout">关于</button>
+import { useRouter } from "vue-router";
+setup() {
+  const router = useRouter();
+  const jumpToAbout = () => {
+    router.push({
+      path:'/about',
+      query:{
+        name:'zs',
+        age:20
+      }
+    });
+  }
+}
+// 也可以使用
+// router.replace()
+// router.go()
+~~~
