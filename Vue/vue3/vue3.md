@@ -2489,3 +2489,112 @@ custom取消a链接,
       <!-- {{props}} -->
     </router-link>
 ~~~
+
+#### router-view增强
+router-view的v-slot
+router-view也提供给我们一个插槽,可以用于<transition> 和<keep-alive>组件来包裹你的路由组件:
+  - Component :要渲染的组件;
+  - route :解析出的标准化路由对象;
+
+~~~html
+<router-view v-slot="props">
+  <transition name="pl">
+    <keep-alive>
+      <component :is="props.Component"></component>
+        </keep-alive>
+      </transition>
+  </router - view >
+<style>
+.pl-enter-from,
+.pl-leave-to {
+      opacity: 0;
+}
+
+.pl-enter-to,
+.pl-leave-from {
+      opacity: 1;
+}
+.pl-enter-active,
+.pl-leave-active {
+      transition: opacity 1s ease;
+}
+</style>
+~~~
+
+#### 动态添加路由
+真实开发中rotes可能不是写死的
+而是根据角色来动态添加路由
+
+~~~javascript
+// 动态添加路由
+const categoryRoute={
+    path:'/category',
+    component:()=>import('../views/Category.vue')
+}
+// 最外层顶级路由对象
+router.addRoute(categoryRoute);
+// 给home children添加路由对象
+router.addRoute('home',{
+    path:'/info',
+    component:()=>import('../views/HomeInfo.vue')
+})
+~~~
+
+#### 动态删除路由
+
+- 添加一个name相同的路由
+- 通过removeRoute方法,传入路由名称
+- 通过addRoute方法返回值回调 
+
+#### 路由导航守卫
++ vue-router提供的导航守卫主要用来通过跳转或取消的方式守卫导航。
++ 全局的前置守卫beforeEach是在导航触发时会被回调的:
+它有两个参数: 
+  - to :即将进入的路由Route对象; .
+  - from :即将离开的路由Route对象;
++ 它有返回值:
+  - false :取消当前导航; .
+  - 不返回或者undefined :进行默认导航;
+})
+  + 返回- -个路由地址:
+    - 可以是一个string类型的路径 ;
+    - 可以是一个对象,对象中包含path、query. params等信息 ;
++ 可选的第三个参数: next
+  - 在Vue2中我们是通过next函数来决定如何进行跳转的;
+  - 但是在Vue3中我们是通过返回值来控制的,不再推荐使用next函数,这是因为开发中很容易调用多次next;
+
+#### 其他导航守卫
+- router.beforeResolve
+- router.afterEach
+- 在路由配置上定义 beforeEnter 守卫,全局独享守卫
+- 组件内的守卫
+~~~javascript
+const UserDetails = {
+  template: `...`,
+  beforeRouteEnter(to, from) {
+    // 在渲染该组件的对应路由被验证前调用
+    // 不能获取组件实例 `this` ！
+    // 因为当守卫执行时，组件实例还没被创建！
+  },
+  beforeRouteUpdate(to, from) {
+    // 在当前路由改变，但是该组件被复用时调用
+    // 举例来说，对于一个带有动态参数的路径 `/users/:id`，在 `/users/1` 和 `/users/2` 之间跳转的时候，
+    // 由于会渲染同样的 `UserDetails` 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+    // 因为在这种情况发生的时候，组件已经挂载好了，导航守卫可以访问组件实例 `this`
+  },
+  beforeRouteLeave(to, from) {
+    // 在导航离开渲染该组件的对应路由时调用
+    // 与 `beforeRouteUpdate` 一样，它可以访问组件实例 `this`
+  },
+}
+~~~
+导航守卫详见https://router.vuejs.org/zh/guide/advanced/navigation-guards.html#%E5%AE%8C%E6%95%B4%E7%9A%84%E5%AF%BC%E8%88%AA%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B
+
+
+### vuex
+
+#### 什么是状态管理
++ 在开发中,我们会的应用程序需要处理各种各样的数据,这些数据需要保存在我们应用程序中的某一位置,对于这些数据的管理我们称之为是状态管理
+在前面是如何管理自己的状态
++ 在前面如何管理自己状态
+  阿松大

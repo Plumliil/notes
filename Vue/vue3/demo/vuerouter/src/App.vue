@@ -1,26 +1,26 @@
 <template>
   <div id="nav">
     <h1>VUE-ROUTER</h1>
-    <router-link to="/home" v-slot="props" custom>
-      <new-bar title="home" />
-      <button @click="props.navigate">{{props.href}}</button>
-      <button @click="props.navigate">{{props.href}}</button>
-      <span :class="{'active':props.isActive}">{{props.isActive}}</span>
-      <!-- {{props}} -->
-    </router-link>
+    <router-link to="/home"> home </router-link>
     | <router-link to="/about">about</router-link> |
-    <router-link to="/user/plum">user</router-link>
+    <router-link to="/user/plum">user</router-link> |
+    <router-link to="/category">category</router-link> |
+    <router-link to="/login">login</router-link>
     <hr />
     <button @click="jumpToAbout">关于</button>
     <hr />
-    <router-view />
+    <router-view v-slot="props">
+      <transition name="pl">
+        <keep-alive>
+          <component :is="props.Component"></component>
+        </keep-alive>
+      </transition>
+    </router-view>
     <hr />
   </div>
 </template>
 
 <script>
-// import router from './router'
-import NewBar from './components/NewBar.vue'
 import { useRouter } from "vue-router";
 export default {
   // methods: {
@@ -30,9 +30,7 @@ export default {
   //     console.log(this.$router);
   //   }
   // },
-  components:{
-    NewBar
-  },
+  components: {},
   setup() {
     const router = useRouter();
     const jumpToAbout = () => {
@@ -75,7 +73,20 @@ export default {
 #nav a.router-link-exact-active {
   color: #42b983;
 }
-.active{
+.active {
   color: red;
+}
+.pl-enter-from,
+.pl-leave-to {
+  opacity: 0;
+}
+
+.pl-enter-to,
+.pl-leave-from {
+  opacity: 1;
+}
+.pl-enter-active,
+.pl-leave-active {
+  transition: opacity 1s ease;
 }
 </style>
