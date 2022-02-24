@@ -2475,3 +2475,17 @@ setup() {
 // router.replace()
 // router.go()
 ~~~
+
+#### router-link中的v-slot
+使用props接受参数,
+custom取消a链接,
+~~~html
+    <router-link to="/home" v-slot="props" custom>
+      <new-bar title="home" />
+      <button @click="props.navigate">{{props.href}}</button>
+      <button @click="props.navigate">{{props.href}}</button>
+      <span :class="{'active':props.isActive}">{{props.isActive}}</span>
+      <span :class="{'active':props.isActive}">{{props.isActive}}</span>
+      <!-- {{props}} -->
+    </router-link>
+~~~

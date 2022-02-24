@@ -1,8 +1,14 @@
 <template>
   <div id="nav">
     <h1>VUE-ROUTER</h1>
-    <router-link to="/home">home</router-link> |
-    <router-link to="/about">about</router-link> |
+    <router-link to="/home" v-slot="props" custom>
+      <new-bar title="home" />
+      <button @click="props.navigate">{{props.href}}</button>
+      <button @click="props.navigate">{{props.href}}</button>
+      <span :class="{'active':props.isActive}">{{props.isActive}}</span>
+      <!-- {{props}} -->
+    </router-link>
+    | <router-link to="/about">about</router-link> |
     <router-link to="/user/plum">user</router-link>
     <hr />
     <button @click="jumpToAbout">关于</button>
@@ -14,6 +20,7 @@
 
 <script>
 // import router from './router'
+import NewBar from './components/NewBar.vue'
 import { useRouter } from "vue-router";
 export default {
   // methods: {
@@ -23,15 +30,18 @@ export default {
   //     console.log(this.$router);
   //   }
   // },
+  components:{
+    NewBar
+  },
   setup() {
     const router = useRouter();
     const jumpToAbout = () => {
       router.push({
-        path:'/about',
-        query:{
-          name:'zs',
-          age:20
-        }
+        path: "/about",
+        query: {
+          name: "zs",
+          age: 20,
+        },
       });
       // replace
       // router.go()
@@ -64,5 +74,8 @@ export default {
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+.active{
+  color: red;
 }
 </style>
