@@ -2686,24 +2686,72 @@ export default {
 ~~~
 
 setup中调用store中的数据
+
+#### mapState
++ 在setup中如果我们单个获取装是非常简单的:
+  - 通过useStore拿到store后去获取某个状态即可;
+  - 但是如果我们需要使用mapState的功能呢?
++ 默认情况下, Vuex并没有提供非常方便的使用mapState的方式,这里我们进行了- 个函数的封装:
 ~~~javascript
-import { mapState,useStore } from "vuex";
-import {computed} from 'vue'
+import { computed } from 'vue'
+import { mapState,useStore } from 'vuex'
+
+
+export function useState(mapper) {
+    // 拿到store独享
+    const store = useStore(); // store对象相当于optionApi中的this.$store
+    const storeStateFns = mapState(mapper); // 进行遍历,获取数据的函数
+    // key:function 对数据进行转换
+    const storeState = {}; // 生命空对象存值
+    Object.keys(storeStateFns).forEach(fnKey => {
+        const fn = storeStateFns[fnKey].bind({ $store: store }); // bind改变this指向,指向store对象
+        storeState[fnKey] = computed(fn); // 通过计算属性 同步值
+    })
+    // 返回生产的数据对象
+    return storeState
+}
+~~~
+~~~javascript
+import {useState} from '../hooks/useState'
 export default {
   setup() {
-    const store =useStore()
-    const sCounter=computed(()=>store.state.counter);
-    const storeStateFns=mapState(['counter','name','age']);
-    // key:function
-    const storeState={};
-    Object.keys(storeStateFns).forEach(fnKey=>{
-      const fn=storeStateFns[fnKey].bind({$store:store});
-      storeState[fnKey]=computed(fn)
+    const storeState=useState(['counter','name','age'])
+    const storeState2=useState({
+      sCounter:state=>state.counter
     })
     return{
-      sCounter,
-      ...storeState
+      ...storeState,
+      ...storeState2,
     }
   },
 };
+~~~
+
+#### getters的基本使用
++ 某些属性我们可能需要经过变化后来使用,这个时候可以使用getters
+  
+~~~javascript
+  getters: {
+    totalPrice(state,getters) {
+      let totalPrice = 0;
+      for (const book of state.books) {
+        totalPrice += book.count + book.price
+      }
+      return totalPrice * getters.currentDiscount
+    },
+    currentDiscount(state) {
+      return state.discount * 0.9
+    },
+    titalCounterGreaterN(state){
+      return function(n){
+        return state.books.filter(item=>item.count>n)
+      }
+    },
+    nameInfo(state){
+      return `name:${state.name}`
+    },
+    ageInfo(state){
+      return `age:${state.age}`
+    }
+  }
 ~~~

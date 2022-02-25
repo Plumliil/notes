@@ -1,30 +1,27 @@
 <template>
   <section>
     <h2>Home</h2>
-    <h3>Home:{{ counter }}</h3>
-    <h3>Home:{{ sCounter }}</h3>
-    <!-- <h3>Home:{{ name }}</h3>
-    <h3>Home:{{ age }}</h3> -->
+    <!-- <h3>{{$store.getters.totalPrice}}</h3> -->
+    <!-- <h3>{{$store.getters.titalCounterGreaterN(20)[0].name}}</h3> -->
+    <!-- <h3>{{$store.getters.nameInfo}}</h3> -->
+    <!-- <h3>{{$store.getters.ageInfo}}</h3> -->
+    <h3>{{nameInfo}}</h3>
+    <h3>{{ageInfo}}</h3>
+    <h3>{{sNameInfo}}</h3>
+    <h3>{{sAgeInfo}}</h3>
   </section>
 </template>
 
 <script>
-// import { useStore } from 'vuex';
-// import { mapState,useStore } from "vuex";
-// import {computed} from 'vue'
-import {useState} from '../hooks/useState'
+import {mapGetters} from 'vuex'
 export default {
-  setup() {
-    // const store=useStore();
-    const storeState=useState(['counter','name','age'])
-    const storeState2=useState({
-      sCounter:state=>state.counter
+  computed:{
+    ...mapGetters(['nameInfo','ageInfo',]),
+    ...mapGetters({
+      sNameInfo:"nameInfo",
+      sAgeInfo:"ageInfo",
     })
-    return{
-      ...storeState,
-      ...storeState2,
-    }
-  },
+  }
 };
 </script>
 
