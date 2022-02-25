@@ -2597,4 +2597,113 @@ const UserDetails = {
 + 在开发中,我们会的应用程序需要处理各种各样的数据,这些数据需要保存在我们应用程序中的某一位置,对于这些数据的管理我们称之为是状态管理
 在前面是如何管理自己的状态
 + 在前面如何管理自己状态
-  阿松大
+  - 在Vue开发中,我们使用组件化开发模式
+  - 而在组件中我们定义data或者setup中返回使用的数据,这些数据我们称之为state
+  - 在模块template中我们可以使用这些数据,模块最终会被渲染成DOM,我们称之为view
+  - 在模块中我们会产生1一些行为时间,处理这些行为事件时,有可能会修改state,这些行为事件我们称之为actions
+
+### vuex的状态管理
++ 管理不断变化的state本身是非常困难的:
+  - 状态之间相互会存在依赖, -个状态的变化会引起另一个状态的变化, View页面也有可能会引起状态的变化;
+  - 当应用程序复杂时, state在什么时候,因为什么原因而发生了变化,发生了怎么样的变化,会变得非常难以控制和追踪;
++ 因此,我们是否可以考虑将组件的内部状态抽离出来,以一一个全局单例的方式来管理呢?
+  - 在这种模式下,我们的组件树构成了一个巨大的“试图View” ;
+  - 不管在树的哪个位置,任何组件都能获取状态或者触发行为;
+  - 通过定义和隔离状态管理中的各个概念,并通过强制性的规则来维护试图和状态间的独立性,我们的代码边会变得更加结构化和易于维护、跟踪;
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220225102425.png)
+
+#### 创建store
++ 每一个vuex应用的核心就是store(仓库)
+  - store本质上是一个容器,它包含着应用中大部分状态1
++ vuex和单纯的全局对象有什么区别
+  - 第一:vuex的状态储存时响应式的,当vue组件从store中读取状态的时候,若store中的状态发生变化,那么相应的组件也会被更新
+  - 第二:不能直接改变store中的状态,改变store中的状态为疑途径就是提交(commit)mutation.这样使得我们可以方便的跟踪每一个状态的变化,从而让我们能够通过一些工具更好的管理应用状态
+  - 使用步骤:创建Store对象,在app中安装
+~~~javascript
+import { createStore } from 'vuex'
+
+const store = createStore({
+  state() {
+    return {
+      counter: 0
+    }
+  },
+  mutations:{
+    add(state){
+      state.counter++
+    },
+    sun(state){
+      state.counter--
+    },
+  }
+})
+
+export default store
+~~~
+~~~javascript
+export default {
+  methods:{
+    sub(){
+      this.$store.commit('sub')
+    },
+    add(){
+      this.$store.commit('add');
+    }
+  }
+}
+~~~
+
+#### 单一状态树
++ vuex使用单一状态树:
+ - 用一个对象就包含了全部的应用层级别状态
+ - 采用的是ssot,singl source of truth,也可以翻译成单一数据源
+ - 这也意味着,每个应用将仅仅包含一个store实例
+ - 单状态数和模块化并不冲突,后面会讲到module的概念
++ 单一状态树优势
+  - 如果你的状态新是保存到多个Store对象中,那么之后的管理和维护等等都会变得特别困难
+  - 所以vuex也使用单一状态树来管理应用层级全部状态
+  - 单一状态树能够让我们最直接的方式找到某个状态的片段,而且在之后的维护调试中,也可以非常方便的管理和维护
+
+~~~javascript
+import { mapState } from "vuex";
+export default {
+  computed: {
+    // 原有的
+    fullName() {
+      return "ls";
+    },
+    // 其他计算属性,从stote中获取
+    // 1.使用数组接收
+    // ...mapState(["counter", "name", "age"]),
+    // 2.可以传递对象,改变名称使用
+    ...mapState({
+      sCounter:state=>state.counter,
+      sName:state=>state.name,
+      sAge:state=>state.age,
+    })
+  },
+};
+~~~
+
+setup中调用store中的数据
+~~~javascript
+import { mapState,useStore } from "vuex";
+import {computed} from 'vue'
+export default {
+  setup() {
+    const store =useStore()
+    const sCounter=computed(()=>store.state.counter);
+    const storeStateFns=mapState(['counter','name','age']);
+    // key:function
+    const storeState={};
+    Object.keys(storeStateFns).forEach(fnKey=>{
+      const fn=storeStateFns[fnKey].bind({$store:store});
+      storeState[fnKey]=computed(fn)
+    })
+    return{
+      sCounter,
+      ...storeState
+    }
+  },
+};
+~~~
