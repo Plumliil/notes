@@ -2729,6 +2729,7 @@ export default {
 
 #### getters的基本使用
 + 某些属性我们可能需要经过变化后来使用,这个时候可以使用getters
++ getter第一个参数是state状态,第二个是getters,都可以帮助getters拿到想要的数据
   
 ~~~javascript
   getters: {
@@ -2755,3 +2756,38 @@ export default {
     }
   }
 ~~~
+
+~~~javascript
+const store = useStore();
+let mapGettersFns = mapGetters(["nameInfo","ageInfo"]);
+let mapGetter = {};
+Object.keys(mapGettersFns).forEach((fnKey) => {
+  const fn = mapGettersFns[fnKey].bind({$store:store});
+  mapGetter[fnKey]=computed(fn)
+});
+console.log(mapGetter);
+~~~
+
+#### mutation
++ 更改vuex的store种状态的唯一方式就是更改mutation
+~~~javascript
+state:{},
+mutations: {
+  add(state) {
+    state.counter++
+  },
+  sub(state) {
+    state.counter--
+  },
+},
+getters:{}
+~~~
++ mutation携带数据 函数中第一个是state用于操作state中值,第二个为payload,参数传入的值,通常为一个对象
+`this.$store.commit('addTen',{num:10});`
+~~~javascript
+this.$store.commit({
+  type:'addTen',
+  num:10
+})
+~~~
++ mutation函数映射到methods中

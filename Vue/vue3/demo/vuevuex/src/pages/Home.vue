@@ -1,27 +1,22 @@
 <template>
-  <section>
-    <h2>Home</h2>
-    <!-- <h3>{{$store.getters.totalPrice}}</h3> -->
-    <!-- <h3>{{$store.getters.titalCounterGreaterN(20)[0].name}}</h3> -->
-    <!-- <h3>{{$store.getters.nameInfo}}</h3> -->
-    <!-- <h3>{{$store.getters.ageInfo}}</h3> -->
-    <h3>{{nameInfo}}</h3>
-    <h3>{{ageInfo}}</h3>
-    <h3>{{sNameInfo}}</h3>
-    <h3>{{sAgeInfo}}</h3>
-  </section>
+  <div>
+    <hr />
+    <h2>HOME</h2>
+    <h2>{{ $store.state.counter }}</h2>
+    <button @click="sub">-1</button>
+    <button @click="add">+1</button>
+    <button @click="add_n({ num: 10 })">+10</button>
+    <hr />
+  </div>
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import { mapMutations } from "vuex";
+import {ADD_N} from '../store/mutation-type';
 export default {
-  computed:{
-    ...mapGetters(['nameInfo','ageInfo',]),
-    ...mapGetters({
-      sNameInfo:"nameInfo",
-      sAgeInfo:"ageInfo",
-    })
-  }
+  methods: {
+    ...mapMutations(["add", "sub", ADD_N]),
+  },
 };
 </script>
 

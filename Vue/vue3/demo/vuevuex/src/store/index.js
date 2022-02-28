@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-
+import { ADD_N } from '../store/mutation-type';
 const store = createStore({
   state() {
     return {
@@ -19,12 +19,16 @@ const store = createStore({
     add(state) {
       state.counter++
     },
+    [ADD_N](state, payload) {
+      console.log(payload);
+      state.counter += payload.num
+    },
     sub(state) {
       state.counter--
     },
   },
   getters: {
-    totalPrice(state,getters) {
+    totalPrice(state, getters) {
       let totalPrice = 0;
       for (const book of state.books) {
         totalPrice += book.count + book.price
@@ -34,15 +38,15 @@ const store = createStore({
     currentDiscount(state) {
       return state.discount * 0.9
     },
-    titalCounterGreaterN(state){
-      return function(n){
-        return state.books.filter(item=>item.count>n)
+    titalCounterGreaterN(state) {
+      return function (n) {
+        return state.books.filter(item => item.count > n)
       }
     },
-    nameInfo(state){
+    nameInfo(state) {
       return `name:${state.name}`
     },
-    ageInfo(state){
+    ageInfo(state) {
       return `age:${state.age}`
     }
   }

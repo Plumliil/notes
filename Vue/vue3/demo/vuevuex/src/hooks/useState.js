@@ -2,7 +2,7 @@ import { computed } from 'vue'
 import { mapState,useStore } from 'vuex'
 
 
-export function useState(mapper) {
+export function useState(mapper,mapFn) {
     // 拿到store独享
     const store = useStore(); // store对象相当于optionApi中的this.$store
     const storeStateFns = mapState(mapper); // 进行遍历,获取数据的函数
