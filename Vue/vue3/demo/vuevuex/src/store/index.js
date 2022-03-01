@@ -1,4 +1,6 @@
 import { createStore } from 'vuex'
+import axios from 'axios'
+
 import { ADD_N } from '../store/mutation-type';
 const store = createStore({
   state() {
@@ -12,7 +14,8 @@ const store = createStore({
         { name: 'node.js', price: 220, count: 23 },
         { name: 'js', price: 230, count: 33 },
       ],
-      discount: 0.6
+      discount: 0.6,
+      heros:[]
     }
   },
   mutations: {
@@ -26,6 +29,9 @@ const store = createStore({
     sub(state) {
       state.counter--
     },
+    addHeroData(state,payload){
+      state.heros=payload;
+    }
   },
   getters: {
     totalPrice(state, getters) {
@@ -48,6 +54,20 @@ const store = createStore({
     },
     ageInfo(state) {
       return `age:${state.age}`
+    }
+  },
+  actions:{
+    addAction(context){
+      console.log(context);
+      setTimeout(() => {
+        context.commit('add')
+      }, 1000);
+    },
+    getHomeHero(context){
+      axios.get('https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2741699')
+      .then(res=>{
+        context.commit('addHeroData',res.data.hero)
+      })
     }
   }
 })

@@ -2790,4 +2790,65 @@ this.$store.commit({
   num:10
 })
 ~~~
-+ mutation函数映射到methods中
++ mutation函数映射到methods中 也可以传入对象改变名字
+~~~javascript
+// <button @click="sub">-1</button>
+// <button @click="add">+1</button>
+// <button @click="add_n({ num: 10 })">+10</button>
+import { mapMutations } from "vuex";
+import {ADD_N} from '../store/mutation-type';
+export default {
+  methods: {
+    ...mapMutations(["add", "sub", ADD_N]),
+  },
+};
+~~~
+
+#### actions的基本使用
+Action类似于mutation,不同在于:
+  - Action提交的是mutation而不是直接改变状态
+  - Action可以包含任意异步操作
+这里有一个非常重要的参数context:
+  - context是一个和store实例均有相同方法和属性的context对象
+  - 我们可以从其中获取commit方法来提交一个mutation,或者通过context.state和context.getters来获取state和getters
+  - 但是它为什么不是store对象,Modules
+  - 可以对context进行解构
+~~~javascript
+    addAction({commit}){
+      // add 为mutation中函数
+      setTimeout(() => {
+        commit('add')
+      }, 1000);
+    },
+~~~
+
+
+~~~javascript
+// actions dispatch
+this.$store.dispatch('getHomeHero')
+this.$store.dispatch({
+  type:'getHomeHero'
+})
+~~~
+~~~javascript
+  actions:{
+    addAction(context){
+      // add 为mutation中函数
+      setTimeout(() => {
+        context.commit('add')
+      }, 1000);
+    },
+    getHomeHero(context){
+      axios.get('https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js?ts=2741699')
+      .then(res=>{
+        // addHeroData 为 mutation 中函数
+        // 在actions中执行异步操作
+        // state 为store中参数
+        // addHeroData(state,payload){
+        //   state.heros=payload;
+        // }
+        context.commit('addHeroData',res.data.hero)
+      })
+    }
+  }
+~~~

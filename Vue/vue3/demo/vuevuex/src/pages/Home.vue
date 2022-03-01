@@ -1,21 +1,29 @@
 <template>
   <div>
-    <hr />
     <h2>HOME</h2>
     <h2>{{ $store.state.counter }}</h2>
-    <button @click="sub">-1</button>
     <button @click="add">+1</button>
-    <button @click="add_n({ num: 10 })">+10</button>
+    <ul>
+      <li v-for="(item,index) in $store.state.heros" :key="index">{{item.name}}----{{item.title}}</li>
+    </ul>
     <hr />
   </div>
 </template>
 
 <script>
-import { mapMutations } from "vuex";
-import {ADD_N} from '../store/mutation-type';
+// import axios from 'axios'
 export default {
+  mounted() {
+    // axios.get -> ts
+    this.$store.dispatch('getHomeHero')
+  },
   methods: {
-    ...mapMutations(["add", "sub", ADD_N]),
+    add(){
+      setTimeout(() => {
+        this.$store.dispatch('addAction')
+      }, 1000);
+    },
+
   },
 };
 </script>
