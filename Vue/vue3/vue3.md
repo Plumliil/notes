@@ -2822,7 +2822,8 @@ Action类似于mutation,不同在于:
     },
 ~~~
 
-
+#### actions分发
+使用store中的dispatch进行分发
 ~~~javascript
 // actions dispatch
 this.$store.dispatch('getHomeHero')
@@ -2852,3 +2853,67 @@ this.$store.dispatch({
     }
   }
 ~~~
+
+#### 组件中使用actions
+~~~javascript
+import { mapActions } from "vuex";
+export default {
+  // methods 中 使用
+  methods: {
+    ...mapActions(['addAction','getHomeHero'])
+  },
+  // setup 中 使用
+  setup() {
+    const actions=mapActions(['addAction','getHomeHero']);
+    return{
+      ...actions
+    }
+  },
+};
+~~~
+
+#### modules基本使用
++ 什么是Module ?
+  - 由于使用单一状态树,应用的所有状态会集中到一个比较大的对象,当应用变得非常复杂时, store对象就有可
+能变得相当臃肿;
+  - 为了解决以上问题, Vuex允许我们将store分割成模块( module) ;
+  - 每个模块拥有自己的state、mutation. action. getter、 甚至是嵌套子模块;
+~~~html
+<h2>{{ $store.state.home.homeCounter }}</h2>
+~~~
+~~~javascript
+const store = createStore({
+  state() {
+    return {
+      rootCounter: 0
+    }
+  },
+  mutations:{
+    add(state){
+      state.rootCounter++;
+    },
+    sub(state){
+      state.rootCounter--;
+    },
+  },
+  getters:{},
+  actions:{},
+  modules:{
+    // home 内有自己的homecounter 通过1createStore创建
+    home,
+    user
+  }
+})
+~~~
+
+#### module的局部状态
+对于模块内部的mutation和getter ,接收的第一个参数是模块的局部状态对象:
+
+
+#### module的命名空间
++ 默认情况下,模块内部的action和mutation仍然是注册在全局的命名空间中的:
+  - 这样使得多个模块能够对同-一个action或mutation作出响应;
+  - Getter同样也默认注册在全局命名空间;
++ 如果我们希望模块具有更高的封装度和复用性,可以添加namespaced: true的方式使其成为带命名空间的模块:
+  - 当模块被注册后,它的所有getter. action 及mutation都会自动根据模块注册的路径调整命名;
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220301160609.png)

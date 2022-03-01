@@ -2,7 +2,7 @@
   <div>
     <h1>App Vuex</h1>
     <hr>
-    <h2>{{$store.state.counter}}</h2>
+    <h2>root:{{$store.state.rootCounter}}</h2>
     <button @click="sub">-1</button>
     <button @click="add">+1</button>
     <hr>
@@ -18,7 +18,7 @@ export default {
   },
   methods:{
     sub(){
-      this.$store.commit('sub')
+      this.$store.commit('sub');
     },
     add(){
       this.$store.commit('add');

@@ -1,30 +1,23 @@
 <template>
   <div>
     <h2>HOME</h2>
-    <h2>{{ $store.state.counter }}</h2>
-    <button @click="add">+1</button>
-    <ul>
-      <li v-for="(item,index) in $store.state.heros" :key="index">{{item.name}}----{{item.title}}</li>
-    </ul>
+    <h2>home:{{ $store.state.home.homeCounter }}</h2>
+    <button @click="add">home +1</button>
+    <h2>{{ $store.getters['home/doubleCounter'] }}</h2>
     <hr />
   </div>
 </template>
 
 <script>
-// import axios from 'axios'
 export default {
-  mounted() {
-    // axios.get -> ts
-    this.$store.dispatch('getHomeHero')
-  },
   methods: {
     add(){
-      setTimeout(() => {
-        this.$store.dispatch('addAction')
-      }, 1000);
-    },
-
+      this.$store.commit('home/add')
+    }
   },
+// setup() {
+
+  // },
 };
 </script>
 
