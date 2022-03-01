@@ -2916,4 +2916,58 @@ const store = createStore({
   - Getter同样也默认注册在全局命名空间;
 + 如果我们希望模块具有更高的封装度和复用性,可以添加namespaced: true的方式使其成为带命名空间的模块:
   - 当模块被注册后,它的所有getter. action 及mutation都会自动根据模块注册的路径调整命名;
+  - `this.$store.commit('home/add')`
+  - `<h2>{{ $store.getters['home/doubleCounter'] }}</h2>`
 ![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220301160609.png)
+
+~~~javascript
+// import { mapGetters, mapState, mapMutations, mapActions, createNamespacedHelpers } from "vuex";
+import { createNamespacedHelpers } from "vuex";
+const { mapGetters, mapState, mapMutations, mapActions } =
+  createNamespacedHelpers("home");
+
+export default {
+  computed: {
+    // 写法一
+    // ...mapState({
+    //   homeCounter: (state) => state.home.homeCounter,
+    // }),
+    // ...mapGetters({
+    //   doubleCounter: "home/doubleCounter",
+    // }),
+    // 写法二
+    // ...mapState('home',['homeCounter']),
+    // ...mapGetters('home',['doubleCounter'])
+    // 写法三
+    // ...mapState(["homeCounter"]),
+    // ...mapGetters(["doubleCounter"]),
+  },
+  methods: {
+    // 写法一
+    // ...mapMutations(["home/add"]),
+    // ...mapActions(["home/addAction"]),
+    // 写法二
+    // ...mapMutations('home',["add"]),
+    // ...mapActions('home',["addAction"]),
+    // 写法三
+    // ...mapMutations(["add"]),
+    // ...mapActions(["addAction"]),
+    
+    // add(){
+    //   this.$store.commit('home/add')
+    // }
+  },
+  // setup() {
+  //   const state=mapState(['homeCounter']);
+  //   const getters=mapGetters(['doubleCounter']);
+  //   const mutations=mapMutations(['add']);
+  //   const actions=mapActions(['addAction']);
+  //   return{
+  //     ...state,
+  //     ...getters,
+  //     ...mutations,
+  //     ...actions
+  //   }
+  // },
+};
+~~~

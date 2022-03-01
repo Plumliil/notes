@@ -16,7 +16,9 @@ const homeModule={
         }
     },
     actions:{
-
+        addAction(){
+            console.log('addAction');
+        }
     }
 }
 
