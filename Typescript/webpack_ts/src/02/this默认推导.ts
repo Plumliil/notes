@@ -7,5 +7,5 @@ const pl = {
     eating: eating
 }
 pl.eating();
-eating.call({ name: 'zs' })
+eating.call({ name: 'zs' }/*this指向1*/)
 export { };
