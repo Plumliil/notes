@@ -1,4 +1,4 @@
-let message: string | null = 'hello world';
+// let message: string | null = 'hello world';
 
-const content = message ?? 'content';
-console.log(content);
+// const content = message ?? 'content';
+// console.log(content);

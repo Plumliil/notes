@@ -387,3 +387,227 @@ let message: string | null = 'hello world';
 const content = message ?? 'content';
 console.log(content);
 ~~~
+
+#### 字面量类型
+![](https://raw.githubusercontent.com/Plumliil/images/main/img/20220302152208.png)
+字面量类型的意义,就是必须结合联合类型
+~~~typescript
+// 字面量类型的意义,就是必须结合联合类型
+type Alignment = 'left' | 'right' | 'center';
+let align: Alignment = 'left';
+align='center'
+console.log(align);
+~~~
+~~~typescript
+// 字面量推理
+type Methods = 'Get' | 'Post';
+// type RequestM = {
+//     url:string,
+//     method:Methods
+// }
+function request(url:string,method:Methods) {}
+// const options:RequestM={
+//     url:'',
+//     method:'Get'
+// }; 
+const options={
+    url:'',
+    method:'Get'
+}
+request(options.url,options.method as Methods);
+~~~
+
+#### 类型缩小
++ 什么是类型缩小呢?
+  - 类型缩小的英文是Type Narrowing ;
+ - 我们可以通过类似于typeof padding == = "number"的判断语句，来改变TypeScript的执行路径; .
+  - 在给定的执行路径中,我们可以缩小比声明时更小的类型,这个过程称之为缩小;:
+  - 而我们编写的typeof padding === "number可以称之为类型保护( type guards) ;
++ 常见的类型保护有如下几种:
+  - typeof
+  - 平等缩小(比如===、!== )
+  - instanceof
+  - in
+  - 等等..
+~~~ts
+// typeof
+type IDType = number | string;
+function printID(id: IDType) {
+    if (typeof id === 'string') {
+        console.log(id);
+    } else {
+        console.log(id);
+    }
+}
+printID(1);
+printID('1');
+// ===
+type Direction = 'left' | 'right' | 'top' | 'bottom';
+function printDirection(direction: Direction) {
+    switch (direction) {
+        case 'left':
+            console.log(direction);
+            break;
+        case 'right':
+            console.log(direction);
+            break;
+        case 'top':
+            console.log(direction);
+            break;
+        case 'bottom':
+            console.log(direction);
+            break;
+        default:
+            break;
+    }
+}
+printDirection('top') // top
+// instanceof
+function printTime(time: string | Date) {
+    if (time instanceof Date) {
+        console.log(time.toUTCString());
+    } else {
+        console.log(time);
+    }
+}
+printTime(new Date()) // Wed, 02 Mar 2022 13:22:44 GMT
+// instanceof
+class Stu {
+    studying() {
+        console.log('i am a student');
+    }
+}
+class Tea {
+    teaching() {
+        console.log('i am a teacher');
+    }
+}
+function work(p: Stu | Tea) {
+    if (p instanceof Stu) {
+        p.studying()
+    } else {
+        p.teaching()
+    }
+}
+work(new Stu()) // i am a student
+// in
+type Fish={
+    swimming:()=>void
+}
+type Dog={
+    running:()=>void
+}
+
+function walk(animal:Fish|Dog) {
+    if('swimming' in animal){
+        animal.swimming()
+    }else{
+        animal.running()
+    }
+}
+const fish:Fish={
+    swimming(){
+        console.log('fish swimming');
+    }
+}
+const dog:Dog={
+    running(){
+        console.log('dog running');
+    }
+}
+walk(fish)
+~~~
+#### typescript 函数类型
+在javascript开发中,函数是重要组成部分,并且函数可以作为一等公民(可以作为参数,也可以作为返回值进行传递
+##### 类型解析
++ 在上面的语法中(num1: number, num2: number) => void ,代表的就是一 个函数类型
+  - 接收两个参数的函数: num1和num2 ,并且都是number类型;
+  - 并且这个函数是没有返回值的,所以是void ;
+在某些语言中,可能参数名称num1和num2是可以省略,但是TypeScript是不可以的:
+
+~~~ts
+// 1.函数作为参数时,在参数中如何编写类型
+function fn() {}
+type FnType = () => void;
+function bar(fn: FnType) {
+    fn()
+}
+bar(fn)
+// 2.定义常量时,编写函数的类型
+type AddFnType = (num1: number, num2: number) => number;
+const add: AddFnType = (num1: number, num2: number) => {
+    return num1 + num2
+}
+console.log(add(1, 2));
+~~~
+案例
+~~~ts
+function calc(n1: number, n2: number, fn: (n1: number, n2: number) => number) {
+    return fn(n1, n2)
+}
+let r1 = calc(20, 30, function (a1, a2) {
+    return a1 + a2
+});
+let r2 = calc(20, 30, function (a1, a2) {
+    return a1 - a2
+})
+console.log(r1,r2); // 50 -10
+~~~
+##### 函数参数的可选类型
+- 我们可以指定某个参数是可选的
+- 这个时候这个参数y依然是有类型的,它是什么类型number|undefined
+- 另外可选类型被须在必传参数的后面
+~~~ts
+function fn(x: number, y?: number) {
+    if (y) {
+        return x + y
+    }else{
+        return x
+    }
+}
+console.log(fn(20));
+~~~
+
+##### 参数的默认值
+必传 -> 有默认值参数 -> 可选参数
+~~~ts
+function fn(x: number, y: number = 100) {
+    return x+y
+}
+console.log(fn(20)); // 120
+function fn(x: number=30, y: number) {
+    return x+y
+}
+console.log(fn(undefined,20)); // 50
+~~~
+
+
+##### 函数的剩余参数
+
+~~~ts
+function sumNum(initalNum:number,...nums:number[]) {
+    let total=initalNum;
+    for(const num of nums){
+        total+=num
+    }
+    return total
+}
+console.log(sumNum(20,30));
+console.log(sumNum(20,30,40));
+console.log(sumNum(20,30,40,50));
+~~~
+
+#### 可推导的this类型
+~~~ts
+type ThisType = { name: string };
+function eating(this: ThisType) {
+    console.log(this.name + 'eating');
+}
+const pl = {
+    name: 'pl',
+    eating: eating
+}
+pl.eating();
+eating.call({ name: 'zs' }/*this指向1*/)
+export { };
+~~~
