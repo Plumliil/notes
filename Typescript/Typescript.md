@@ -238,7 +238,7 @@ function sum(num1: number, num2: number): number {
 }
 sum(1, 2)
 ~~~
-匿名函数参数类型
+#### 匿名函数参数类型
 
 ~~~typescript
 const names = ['abc', 'cba', 'aaa'];
@@ -302,4 +302,88 @@ function unionType(arg:UnionType){
 unionType('a')
 unionType(1)
 unionType(true)
+~~~
+
+#### 类型断言 as
+通过类型断言将一个比较普遍的类型转化为具体类型
+
+~~~typescript
+const el = document.querySelector('#pl') as HTMLImageElement;
+el.src='xxx' // 可以赋值
+~~~
+在类方法中使用类型断言
+~~~typescript
+class Person{}
+class Student extends Person{
+    studying(){
+        console.log('studying');
+    }
+}
+function sayHello(p:Person) {
+    (p as Student).studying()
+}
+const stu=new Student();
+sayHello(stu)
+~~~
+不建议使用
+~~~typescript
+const message = 'hello world';
+const num: number = (message as unknown) as number
+~~~
+
+#### 非空类型断言
+当我们编写下面的代码时,在执行ts的编译阶段会报错:
+  - 这是因为传入的message有可能是为undefined的,这个时候是不能执行方法的;
+~~~typescript
+function printMsgLen(msg?: string) {
+    console.log(msg.length);
+}
+~~~
+但是,我们确定传入的参数是有值的,这个时候我们可以使用非空类型断言:
+  - 非空断言使用的是! , 表示可以确定某个标识符是有值的,跳过ts在编译阶段对它的检测;
+~~~typescript
+function printMsgLen(msg?: string) {
+    console.log(msg!.length);
+}
+~~~
+
+#### 可选链的使用
++ 可选链事实上并不是TypeScript独有的特性,它是ES11 (ES2020)中增加的特性:
+  - 可选链使用可选链操作符?. ;
+  - 它的作用是当对象的属性不存在时,会短路,直接返回undefined ,如果存在,那么才会继续执行; 
+  - 虽然可选链操作是ECMAScript提出的特性,但是和TypeScript-起使用更版本;
+~~~typescript
+type Person={
+    name:string,
+    friend?:{
+        name:string,
+        age?:number
+    }
+}
+const info:Person={
+    name:'ls',
+    friend:{
+        name:'zs'
+    }
+}
+console.log(info.friend?.name);
+~~~
+
+#### ??和!!
++ !!操作符
+  - 将一个其他类型1转化为布尔类型boolean
+  - 类似于Boolean(变量)的方式
+~~~typescript
+const message ='hello world';
+const flag=!!message;
+console.log(flag); // true
+~~~
++ ??操作符
+  - 它是ES11增加的属性
+  - 空值合并操作符(??)是一个逻辑操作符,当操作符的做测试null或者undefined时,返回其右侧操作数,否则返回左侧操作数
+~~~typescript
+// 类似于三目运算符
+let message: string | null = 'hello world';
+const content = message ?? 'content';
+console.log(content);
 ~~~
