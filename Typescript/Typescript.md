@@ -651,3 +651,221 @@ function getLength(args: any): number {
 console.log(getLength('asd'));
 console.log(getLength([1,2,3,4,5,6,7]));
 ~~~
+
+### 类的使用
+在早期的javascript中需要通过函数和原型链来实现类和继承,从es6
+开始,引入class关键字,可以更加方便的定义和使用类
+~~~ts
+class Person {
+    name: string
+    age: number
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age
+    }
+    eating() {
+        console.log(this.name + 'eating');
+    }
+}
+const p = new Person('pli', 18)
+p.eating()
+console.log(p.name);
+console.log(p.age);
+~~~
+#### 类的继承
++ 面向对象的其中一大特性就是继承,继承不仅仅可以减少我们的代码量,也是多态的使用前提。
++ 我们使用extends关键字来实现继承,子类中使用super来访问父类。
++ 我们来看一-下Student类继承自Person :
+  - Student类可以有自己的属性和方法,并且会继承Person的属性和方法;
+  - 在构造函数中,我们可以通过super来调用父类的构造方法,对父类中的属性进行初始化;
+~~~ts
+class Person {
+    name: string = ''
+    age: number = 0
+    constructor(name: string = '', age: number = 0) {
+        this.name = name;
+        this.age = age
+    }
+    eating() {
+        console.log(this.name + '---------' + 'eating');
+    }
+}
+class Student extends Person {
+    sno: number
+    constructor(name: string = '', age: number = 0, sno: number = 0) {
+        super(name, age)
+        this.sno = sno
+    }
+    studying() {
+        console.log('studying');
+    }
+    eating(){
+        super.eating()
+        console.log('student eating');
+    }
+}
+class Teacher extends Person {
+    title: string = ''
+    teaching() {
+        console.log('teaching');
+    }
+}
+const stu = new Student('pli', 18)
+~~~
+#### 类的多态
+~~~ts
+class Animal {
+    action(){
+        console.log('animal action');
+    }
+}
+class Dog extends Animal {
+    action(){
+        console.log('dog running');
+    }
+}
+class Fish extends Animal {
+    action(){
+        console.log('fish swimming');
+    }
+}
+
+function makeActions(animals:Animal[]) {
+    animals.forEach(animal=>{
+        animal.action()
+    })
+}
+// 父类引用指向子类对象
+// 相同的引用表现出来的形式不一样1,这个过程称为多态(必然会有继承)
+// 多态的目的是为了写出更加具备通用性的代码
+// makeActions写成函数重载或联合类型
+makeActions([new Dog(),new Fish()])
+~~~
+
+#### 类的成员修饰符
++ 在TypeScript中,类的属性和方法支持三种修饰符: public. private、 protected
+  - public修饰的是在任何地方可见、公有的属性或方法,默认编写的属性就是public的;
+  - private修饰的是仅在同- -类中可见、私有的属性或方法;
+  - protected修饰的是仅在类自身及子类中可见、受保护的属性或方法;
+~~~ts
+class Person {
+    public name: string = 'zs' // 都可以访问
+    private gfName: string = 'ls' // 只能在内部访问
+    protected children: string = 'ww' // 在类内部和子类中可以访问
+    // 属性本身不能被修改,如果它是对象类型,那么对象里的内容可以更改
+    readonly sex: string = '男' // 都可以访问
+    // 通过内部方法 访问私有属性
+    getName() {
+        return this.gfName
+    }
+}
+class Son extends Person {
+    getChild() {
+        return this.children
+    }
+}
+const s = new Son()
+console.log(s.getChild()); // ww
+const p = new Person()
+console.log(p.name); // zs
+// p.sex='女'; 报错
+console.log(p.getName()); // ls
+console.log(p.gfName); // 无法访问
+~~~
+#### readonly
+- 只读属性是可以在构造器中赋值,赋值之后就不可以修改
+- 属性本身不能被修改,如果它是对象类型,那么对象里的内容可以更改
+
+#### getter/setter
+~~~ts
+class Person {
+    private _name: string
+    constructor(name: string) {
+        this._name = name
+    }
+    set name(newName) {
+        this._name = newName
+    }
+    get name() {
+        return 'this._name'+'-----'+this._name
+    }
+}
+
+const p = new Person('pli');
+p.name = 'plumli';
+console.log(p.name); // this._name-----plumli
+~~~
+
+
+#### 类的静态成员
+
+~~~ts
+class Student {
+    // 静态属性可以通过类直接访问
+    static time: string = '20:00' // 静态属性
+    // 静态方法
+    static attendClass(){
+        console.log('go to school');
+    }
+}
+console.log(Student.time); // 20:00
+Student.attendClass(); // go to school
+~~~
+
+#### 抽象类abstract
+我们知道,继承是多态使用的前提。
+  - 所以在定义很多通用的调用接口时，我们通常会让调用者传入父类,通过多态来实现更加灵活的调用方式。
+  - 但是,父类本身可能并不需要对某些方法进行具体的实现,所以父类中定义的方法，,我们可以定义为抽象方法。
+~~~ts
+function makeArea(shape: Shape) {
+    return shape.getArea()
+}
+abstract class Shape {
+    // 抽象类的抽象方法子类必须实现
+    abstract getArea():number
+}
+class Rectangle extends Shape {
+    private width: number
+    private height: number
+    constructor(width: number, height: number) {
+        super()
+        this.width = width
+        this.height = height
+    }
+    getArea() {
+        return this.width * this.height
+    }
+}
+class Circle extends Shape {
+    private r: number
+    constructor(r: number) {
+        super()
+        this.r = r
+    }
+    getArea() {
+        return this.r * this.r * 3.14
+    }
+}
+const r = new Rectangle(20, 30);
+const c = new Circle(5);
+console.log(makeArea(r)); // 600
+console.log(makeArea(c)); // 78.5
+~~~
+
+#### 类的类型
+~~~ts
+class Person {
+    name: string = '123'
+}
+const p = new Person();
+// 类类型
+const p1: Person = {
+    name:'xxx'
+}
+console.log(p1.name); // xxx 
+function  printPerson(p:Person) {
+    console.log(p.name);
+}
+printPerson(new Person());// 123
+printPerson({name:'zs'});// zs
+~~~
