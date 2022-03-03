@@ -633,3 +633,21 @@ console.log(res1);
 // 在函数的重载中,实现的函数是不能被调用的
 // add({ name: 'zs' }, { name: 'ls' })
 ~~~
+
+如果能够使用联合类型实现的逻辑尽量使用联合类型
+~~~ts
+// 联合类型实现
+function getLength(args:string|any[]) {
+    return args.length
+}
+console.log(getLength('asd'));
+console.log(getLength([1,2,3,4,5,6,7]));
+// 函数重载实现
+function getLength(args: string): number;
+function getLength(args: any[]): number;
+function getLength(args: any): number {
+    return args.length
+}
+console.log(getLength('asd'));
+console.log(getLength([1,2,3,4,5,6,7]));
+~~~
