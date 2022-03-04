@@ -48,27 +48,75 @@
 // console.log(calc(10,20,add));// 30
 
 
-// 联合类型
-type PliType = number | string;
-type DicType = 'l' | 'r' | 't' | 'b';
-// 交叉类型 & 既符合 a 又符合 b
-type PType = number & string
+// // 联合类型
+// type PliType = number | string;
+// type DicType = 'l' | 'r' | 't' | 'b';
+// // 交叉类型 & 既符合 a 又符合 b
+// type PType = number & string
 
+// interface ISwim {
+//     swimming: () => void,
+// }
+// interface IFly {
+//     flying: () => void,
+// }
+
+// type MyType1 = ISwim & IFly;
+// type MyType2 = ISwim | IFly;
+
+// // 接口继承 支持多继承
+// interface IAction extends ISwim, IFly { }
+// const action: IAction = {
+//     swimming() { },
+//     flying() { }
+// }
+
+interface IEat {
+    eating: () => void
+}
 interface ISwim {
-    swimming: () => void,
-}
-interface IFly {
-    flying: () => void,
+    swimming: () => void
 }
 
-type MyType1 = ISwim & IFly;
-type MyType2 = ISwim | IFly;
+class Animal {
 
-// 接口继承 支持多继承
-interface IAction extends ISwim, IFly { }
-const action: IAction = {
-    swimming() { },
-    flying() { }
+}
+
+// 继承:只能实现单继承
+// 实现: 实现接口,类可以实现多个接口
+
+class Fish extends Animal implements ISwim, IEat {
+    swimming() {
+        console.log('Fish Swimming');
+    }
+    eating() {
+        console.log('Fish Eating');
+    }
+}
+// 编写一些公共API:面向接口编程
+// 所有实现接口的类都可以传入作为参数
+function swimAction(swimable: ISwim) {
+    swimable.swimming()
+}
+swimAction(new Fish())
+swimAction({
+    swimming() {
+        console.log('i can swimming');
+    }
+})
+
+
+// 接口名相同,接口内类型合并
+// type 不可以这么做 type不能合并 使用上最根本的区别
+interface IFoo {
+    name: string
+}
+interface IFoo {
+    age: number
+}
+const foo: IFoo = {
+    name:'zs',
+    age:18
 }
 
 
