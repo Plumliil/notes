@@ -1007,3 +1007,169 @@ swimAction({
     }
 })
 ~~~
+
+#### 字面量赋值
+通过字面量复制可以进行多余属性的擦除
+freshness 擦除
+在类型检测这一步擦除属性,如果擦除掉依然满足,既可以赋值
+擦除后相同,即可赋值
+
+~~~ts
+interface IPerson {
+    name: string
+    age: number
+    height: number
+}
+
+const info = {
+    name: 'why',
+    age: 18,
+    height: 180,
+    address: '广州'
+}
+// // freshness 擦除
+// // 在类型检测这一步擦除属性,如果擦除掉依然满足,既可以赋值
+// // 擦除后相同,即可赋值
+// const p: IPerson = info 
+
+function printInfo(person:IPerson) {
+    console.log(person.name);
+    console.log(person.age);
+    // console.log(person.adress); 报错,不可取
+    
+}
+printInfo(info)
+~~~
+
+### 枚举类型
+#### 类型用法
+
+~~~ts
+// 有值 默认从0开始
+// 可以更改值 数字或字符串常量
+enum Direction {
+    LEFT,
+    RIGHT,
+    TOP,
+    BOTTOM
+}
+
+function turnDirection(direction:Direction) {
+    console.log(direction);
+}
+turnDirection(Direction.LEFT); // 0
+turnDirection(Direction.RIGHT); // 1
+turnDirection(Direction.TOP); // 2
+~~~
+
+### 泛型
+#### 认识泛型
++ 软件工程的主要目的是构建不仅仅明确和一致的API ,还要让你的代码具有很强的可重用性:
+  - 比如我们可以通过函数来封装-些API ,通过传入不同的函数参数,让函数帮助我们完成不同的操作; .
+  - 但是对于参数的类型是否也可以参数化呢?
++ 什么是类型的参数化?
+  - 我们来提一个需求:封装一个函数,传入-个参数,并且返回这个参数;
+如果我们是TypeScript的思维方式,要考虑这个参数和返回值的类型需要一致:
+
+#### 类型参数化
++ 虽然any是可以的,但是定义为any的时候,我们其实已经丢失了类型信息:
+  - 比如我们传入的是一个number ,那么我们希望返回的可不是any类型,而是number类型;
+  - 所以,我们需要在函数中可以捕获到参数的类型是number ,并且同时使用它来作为返回值的类型;
++ 我们需要在这里使用一种特性的变量-类型变量( type variable)，它作用于类型,而不是值:
++ 这里我们可以使用两种方式来调用它:
+  - 方式一: 通过<类型>的方式将类型传递给函数;
+  - 方式二:通过类型推到，自动推到出我们传入变量的类型:
+  - 在这里会推导出它们是字面量类型的,因为字面量类型对于我们的函数也是适用的
+~~~ts
+// 在定义这个函数时,不决定这些函数的1类型1
+// 而是让调用者以参数的形式告知,我这里的函数参数应该是什么类型
+// 接受一个参数
+function sum<Type>(n: Type) {
+    console.log(n);
+}
+function foo<T, E, O>(arg1: T, arg2: E, arg3: O) {
+    console.log(arg1, arg2, arg3);
+}
+sum<number>(1)
+sum<{ name: string }>({ name: 'pli' })
+foo<number, string, boolean>(1, 'a', true)
+~~~
+#### 泛型基本补充
+传入多个类型
+~~~ts
+function foo<T, E, O>(arg1: T, arg2: E, arg3: O) {
+    console.log(arg1, arg2, arg3);
+}
+~~~
++ 平时在开发中可能会看到的一些名称
+  - T:Type的缩写,类型
+  - K,V:key和value的缩写,键值对
+  - E:Element的缩写,元素1
+  - O:Object的缩写,对象
+
+#### 泛型接口
+~~~TS
+interface IPerson<T1,T2>{
+    name:T1
+    age:T2
+}
+const ps:IPerson<string,number>={
+    name:'pli',
+    age:18
+}
+
+class Point<T> {
+    x:T
+    y:T
+    z:T
+    constructor(x:T,y:T,z:T) {
+        this.x=x;
+        this.y=y;
+        this.z=z
+    }
+}
+const pt=new Point('1.33.2','2.33.2','3.33.2')
+~~~
+
+#### 泛型的类型约束
+如示例,要求传入的值有length属性
+~~~ts
+interface ILength{
+    length:number
+}
+
+function getLen<T extends ILength>(arg:T) {
+    console.log(arg.length);
+    return arg.length
+}
+getLen('sasdas');
+getLen([1,2,3,54]);
+~~~
+
+### 模块化开发
++ TypeScript支持两种方式来控制我们的作用域:
+  - 模块化:每个文件可以是一个独立的模块,支持ES Module ,也支持CommonJS ;
+  - 命名空间:通过namespace来声明一个命名空间
+~~~ts
+export namespace time {
+    export function format(time: string) {
+        return '2022-02-02'
+    }
+    export function fn() {
+
+    }
+    export const name: string = 'zs'
+}
+namespace price {
+    export function format(time: string) {
+        return '99.9'
+    }
+}
+
+// 命名空间内东西想要使用1需要导出
+// 命名空间在其他模块使用也需要使用export导出
+time.format
+price.format
+~~~
+
+### 
