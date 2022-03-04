@@ -1172,4 +1172,39 @@ time.format
 price.format
 ~~~
 
-### 
+### 类型查找
+
+如果模块被声明过,那么使用时就不会被报错
++ 之前我们所有的typescript中的类型，几乎都是我们自己编写的，但是我们也有用到一些其他的类型:
++ 大家是否会奇怪,我们的HTMLImageElement类型来自哪里呢?甚至是document为什么可以有getElementByld的方
+法呢?
+  - 其实这里就涉及到typescrip对类型的管理和查找规则了。
++ 我们这里先给大家介绍另外的一种typescript文件: .d.ts文件
+  - 我们之前编写的typescript文件都是.ts文件,这些文件最终会输出js文件,也是我们通常编写代码的地方;
+  - 还有另外一种文件.d.ts 文件,它是用来做类型的声明(declare)。它仅仅用来做类型检测 ,告知typescript我们有哪
+些类型;
++ 那么typescript会在哪里查找我们的类型声明呢?
+  - 内置类型声明;
+  - 外部定义类型声明;
+  - 自己定义类型声明;
+
+#### 内置声明
+- 内置类型声明是typescript自带的、帮助我们内置了JavaScript运行时的一 些标准化API的声明文件;
+- 包括比如Math、Date等内置类型 ,也包括DOM API ,比如Window. Document等 ;
+内置类型声明通常在我们安装typescript的环境中会带有的;
+
+#### 外部类型声明和自定义声明
+- 外部类型声明通常是我们使用一-些库(比如第三方库)时,需要的一些类型声明。
+- 这些库通常有两种类型声明方式:
+- 方式一:在自己库中进行类型声明(编写.d.ts文件) , 比如axios
+- 方式二:通过社区的一个公有库DefinitelyTyped存放类型声明文件
+  - 该库的GitHub地址: https:/qithub.com/DefinitelyTyped/DefinitelyTyped/
+  - 该库查找声明安装方式的地址: https://www.typescriptlang.org/dt/search?search=
+  - 比如我们安装react的类型声明: npm i @types/react --save-dev
+
+- 自定义声明
+~~~ts
+declare module 'lodash' {
+    export function join(arr: any[]): void
+}
+~~~

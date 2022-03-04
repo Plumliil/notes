@@ -1,1 +1,0 @@
-(()=>{"use strict";var e={29:(e,r)=>{function t(e){return console.log(e.length),e.length}Object.defineProperty(r,"__esModule",{value:!0}),t("sasdas"),t([1,2,3,54])}},r={};!function t(o){var n=r[o];if(void 0!==n)return n.exports;var s=r[o]={exports:{}};return e[o](s,s.exports,t),s.exports}(29)})();
