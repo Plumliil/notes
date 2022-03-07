@@ -14,9 +14,7 @@ declare class Person {
 }
 // 声明文件
 declare module '*.jpg'
-
 // 声明命名空间
-
 declare namespace $ {
     export function ajax(settings: any): any
 }
