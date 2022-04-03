@@ -443,3 +443,10 @@ $ git branch -a 查看分支
 $ git branch -d 删除本地分支
 ```
 
+#### 30.commit message修改
+
+提交信息写错但是还没有推(push)此时可以使用
+~~~shell
+git commit --amend --only -m 'xxxx'
+~~~
+来更改提交信息.

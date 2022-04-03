@@ -5491,7 +5491,7 @@ export default class Style {
         let reg=new RegExp(con,'g')
         let div=document.querySelector('.content');
         div.innerHTML=div.innerHTML.replace(reg,search=>{
-            return `<span style="color:red">${search}</span>`
+            return `</br><span style="color:red">${search}</span>`
         })
 ~~~
 #### 4.选择符
