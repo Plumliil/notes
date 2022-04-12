@@ -1,0 +1,49 @@
+### `BFC`(块级格式化上下文)
+
+#### 什么是`BFC`
+
+指的是一个块级渲染作用域,该区域内拥有一套完整的规则来约束块级盒子的布局,且与区域外部无关.
+
+#### 为什么要使用`BFC`
+
+当一个盒子不设置高度,当其中的子元素都浮动时,这个盒子便无法撑起自身.
+
+![1649573049146.png](https://s2.loli.net/2022/04/10/VB3xt8R4fheSGKg.png)
+
+这个问题可以使用`BFC`来解决,形成一个块级格式化上下文.
+
+#### 那么如何创建`BFC`
+
+- <code>float</code>的值不为<code>none</code>
+
+![1649573470436.png](https://img-blog.csdnimg.cn/img_convert/1b86ee8550af6178fa56345c70ffa9cb.png)
+
+- <code>position</code>的值不为<code>static</code>或<code>relative</code>
+
+![](https://s2.loli.net/2022/04/10/nYNCFSL9a7pd5vb.png)
+
+- <code>display</code>的值为<code>inline-block</code>,<code>flex</code>,<code>inline-flex</code>
+
+  ![](https://s2.loli.net/2022/04/10/XBwM2Tf7yuvcNP4.png)
+
+- 设置<code>overflow:hidden</code>
+
+![](https://s2.loli.net/2022/04/10/xfipgHNPVldOv64.png)
+
+#### BFC的其他作用
+
+- 取消盒子的<code>margin</code>塌陷
+
+  如图所示,父元素盒子不做设置,当子盒子设置margin-top后,父元素盒子也会随之变化.
+
+  ![](https://s2.loli.net/2022/04/10/cGspifHSk8uZ6nC.png)
+
+  此时给父元素设置<code>overflow:hidden</code>创建块级格式化上下文可以有效解决margin塌陷问题
+
+  ![](https://s2.loli.net/2022/04/10/ryShZXeu7b3c6YU.png)
+
+- 清除浮动
+
+![](https://s2.loli.net/2022/04/10/EQBRmCe7KOrYdTA.png)
+
+如图所示,当父盒子中有元素浮动,有元素不浮动时,不浮动的元素会出现在浮动元素下方此时给浮动元素设置<code>overflow:hidden</code>可以清除浮动,显示出不浮动元素.

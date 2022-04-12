@@ -242,7 +242,17 @@ myStep();
 ## 异步
 
 ## 防抖
-
+~~~javascript
+function debounce(fn,wait){
+  let timeOut;
+  return function(...args){
+    if(timeOut) clearTimeout(timeOut);
+    timeOut=setTimeout(()=>{
+      fn.apply(this,args)
+    },wait)
+  }
+}
+~~~
 ## 节流
 
 ## 宏任务，微任务
