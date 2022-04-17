@@ -1,31 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>canvas</title>
+    <style>
+        body {
+            /* background-color: black; */
+        }
+    </style>
 </head>
+
 <body>
-    <canvas id="cvs" width="500" height="300">
+    <canvas id="cvs" width="600" height="450">
         浏览器不支持canvas
     </canvas>
     <script>
-        // 1.找到画布对象
-        let cvs=document.querySelector('#cvs');
-        // 2.上下文画笔
-        let ctx=cvs.getContext('2d');
-        ctx.moveTo(50,50);
-        ctx.lineTo(50,200);
-        ctx.lineTo(100,200);
-        ctx.lineTo(100,150);
+        let cvs = document.querySelector('#cvs');
+        let ctx = cvs.getContext('2d');
 
-
-        ctx.lineCap='round'
-        ctx.strokeStyle='aqua';
-        ctx.lineWidth=10;
-        ctx.stroke();
-        // ctx.fill()
-</script>
+        // 绘制图像ctx.drawImage
+        // ctx.drawImage(图片对象,图像裁剪位置x,y,图片裁剪宽高,图片位置x,y,宽度,高度)
+        let img = new Image();
+        img.src = './PC.jfif';
+        img.onload = () => {
+            ctx.drawImage(img, 100, 0, 300, 250, 0, 0, 400, 250);
+            ctx.fillStyle = 'white'
+            ctx.fillText('plumli', 10, 20);
+            console.log(img);
+        }
+    </script>
 </body>
+
 </html>
