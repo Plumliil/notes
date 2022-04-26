@@ -2,6 +2,12 @@
 
 ## Promise
 
+### 什么是Promise
+
+Promise是异步编程的一个解决方案：从语法上讲它是一个对象，可以获取到异步操作的消息，从本意上讲，它是一个承诺，承诺过一段时间后它会给你一个结果。Promise有三种状态：pending(等待)，fulilled(成功)，rejected(失败)，状态一旦改变就不会再变，创建Promise后会立即执行。
+
+### 为什么要使用Promise
+
 避免回调地狱
 
 ```javascript
@@ -35,75 +41,197 @@ new Promise(请求1)
     .catch(处理异常(异常信息))
 ```
 
-### Promise 的常用 API 如下：
+### Promise 的常用 API 
 
 - #### Promise.resolve(value)
 
-> 类方法，该方法返回一个以 value 值解析后的 Promise 对象 1、如果这个值是个 thenable（即带有 then 方法），返回的 Promise 对象会“跟随”这个 thenable 的对象，采用它的最终状态（指 resolved/rejected/pending/settled）
->  2、如果传入的 value 本身就是 Promise 对象，则该对象作为 Promise.resolve 方法的返回值返回。
->  3、其他情况以该值为成功状态返回一个 Promise 对象。
+类方法，该方法返回一个以 value 值解析后的 Promise 对象
 
-上面是 resolve 方法的解释，传入不同类型的 value 值，返回结果也有区别。这个 API 比较重要，建议大家通过练习一些小例子，并且配合上面的解释来熟悉它。如下几个小例子：
+1、如果这个值是个 thenable（即带有 then 方法），返回的 Promise 对象会“跟随”这个 thenable 的对象，采用它的最终状态（指 resolved/rejected/pending）
 
+2、如果传入的 value 本身就是 Promise 对象，则该对象作为 Promise.resolve 方法的返回值返回。
 
+3、其他情况以该值为成功状态返回一个 Promise 对象。
 
-```javascript
+```JavaScript
+let p0=Promise.resolve('success');
+p0.then(
+    res=>{
+        console.log(res);
+    },
+    err=>{
+        console.log(err);
+    }
+)
+// success
+// 和p1效果相同
+let p1=new Promise((resolve,reject)=>{
+    resolve('success')
+})
+p1.then(
+    res=>{
+        console.log(res);
+    },
+    err=>{
+        console.log(err);
+    }
+)
+// success
+
 //如果传入的 value 本身就是 Promise 对象，则该对象作为 Promise.resolve 方法的返回值返回。  
 function fn(resolve){
     setTimeout(function(){
         resolve(123);
     },3000);
 }
-let p0 = new Promise(fn);
-let p1 = Promise.resolve(p0);
+let p2 = new Promise(fn);
+let p3 = Promise.resolve(p2);
 // 返回为true，返回的 Promise 即是 入参的 Promise 对象。
-console.log(p0 === p1);
-```
-
-传入 thenable 对象，返回 Promise 对象跟随 thenable 对象的最终状态。
-
-> ES6 Promises 里提到了 Thenable 这个概念，简单来说它就是一个非常类似 Promise 的东西。最简单的例子就是 jQuery.ajax，它的返回值就是 thenable 对象。但是要谨记，并不是只要实现了 then 方法就一定能作为 Promise 对象来使用。
-
-
-
-```javascript
-//如果传入的 value 本身就是 thenable 对象，返回的 promise 对象会跟随 thenable 对象的状态。
-let promise = Promise.resolve($.ajax('/test/test.json'));// => promise对象
-promise.then(function(value){
-   console.log(value);
-});
-```
-
-返回一个状态已变成 resolved 的 Promise 对象。
-
-
-
-```jsx
-let p1 = Promise.resolve(123); 
-//打印p1 可以看到p1是一个状态置为resolved的Promise对象
-console.log(p1)
+console.log(p2 === p3);
+// true
 ```
 
 - #### Promise.reject
 
-> 类方法，且与 resolve 唯一的不同是，返回的 promise 对象的状态为 rejected。
+类方法，且与 resolve 唯一的不同是，返回的 promise 对象的状态为 rejected。
 
 - #### Promise.prototype.then
 
-> 实例方法，为 Promise 注册回调函数，函数形式：fn(vlaue){}，value 是上一个任务的返回结果，then 中的函数一定要 return 一个结果或者一个新的 Promise 对象，才可以让之后的then 回调接收。
+实例方法，为 Promise 注册回调函数，函数形式：fn(vlaue){}，value 是上一个任务的返回结果，then 中的函数一定要 return 一个结果或者一个新的 Promise 对象，才可以让之后的then 回调接收。
 
 - #### Promise.prototype.catch
 
-> 实例方法，捕获异常，函数形式：fn(err){}, err 是 catch 注册 之前的回调抛出的异常信息。
+实例方法，捕获异常，函数形式：fn(err){}, err 是 catch 注册 之前的回调抛出的异常信息。
 
-- #### Promise.race
+~~~javascript
+let p=Promise.resolve('0 success');
+p.then(
+    res=>{
+        console.log(res);
+        return '1 success'
+    }
+)
+.then(res=>{
+    console.log(res);
+    throw new Error('2 error')
+})
 
-> 类方法，多个 Promise 任务同时执行，返回最先执行结束的 Promise 任务的结果，不管这个 Promise 结果是成功还是失败。 。
+.catch(err=>{
+    console.log('catch',err);
+})
+// 0 success
+// 1 success
+// catch Error: 2 error
+~~~
 
-- #### Promise.all
+catch方法可以统一捕获then链式调用中产生的错误
 
-> 类方法，多个 Promise 任务同时执行。
->  如果全部成功执行，则以数组的方式返回所有 Promise 任务的执行结果。 如果有一个 Promise 任务 rejected，则只返回 rejected 任务的结果。
+- #### Promise.finally
+
+实例方法，用于指定不管Promise对象最后状态如何，都会执行的操作，不管Promise最后的状态，在执行完then或者catch指定的回调以后都会执行finally方法。可以进行任何必要的清理工作
+
+~~~js
+let p=Promise.resolve('0 success');
+p.then(
+    res=>{
+        console.log(res);
+        return '1 success'
+    }
+)
+.then(res=>{
+    console.log(res);
+    throw new Error('2 error')
+})
+
+.catch(err=>{
+    console.log('catch',err);
+})
+.finally(()=>{
+    console.log('p finally');
+})
+// 0 success
+// 1 success
+// catch Error: 2 error
+// p finally
+~~~
+
+- #### Promise.all([...])
+
+类方法，多个 Promise 任务同时执行，返回最先执行结束的 Promise 任务的结果，不管这个 Promise 结果是成功还是失败。 。
+
+~~~javascript
+let p1 = Promise.resolve('p1 success');
+let p2 = Promise.resolve('p2 success');
+let p3 = Promise.reject('p3 error')
+let arr = [p1, p2, p3]
+Promise.all(arr)
+    .then(
+        res => {
+            console.log(res);
+        },
+        err => {
+            console.log(err);
+        }
+    )
+    // p3 error
+
+~~~
+
+- #### Promise.race([...])
+
+类方法，多个 Promise 任务同时执行，返回最先执行结束的 Promise 任务的结果，不管这个 Promise 结果是成功还是失败。
+
+~~~javascript
+let p1 = Promise.resolve('p1 success');
+let p2 = Promise.resolve('p2 success');
+let p3 = Promise.reject('p3 error')
+let arr = [p1, p2, p3]
+Promise.race(arr)
+    .then(
+        res => {
+            console.log(res);
+        },
+        err => {
+            console.log(err);
+        }
+    )
+    // p1 success
+~~~
+
+- #### Promise.any([...])
+
+与all相似，但是会忽略拒绝，所以只需要完成一个而不是全部
+
+```JavaScript
+let p1 = Promise.reject('p1 error');
+let p2 = Promise.resolve('p2 success');
+let p3 = Promise.reject('p3 error')
+let arr = [p1, p2, p3]
+Promise.any(arr)
+    .then(
+        res => {
+            console.log(res);
+        },
+        err => {
+            console.log(err);
+        }
+    )
+// p2 success
+```
+
+#### 变式
+
+#### Promise.none([...])
+
+类似于all不过完成和拒绝的情况互换，只有所有的函数都被拒绝，该函数转化为完成值，反之亦然
+
+#### Promise.first([...])
+
+类似于any的竞争，只要第一个Promise完成，会忽略后边任何的拒绝和完成
+
+#### Promise.last([...])
+
+类似于first，但是只有最后一个完成胜出
 
 
 
@@ -124,33 +252,7 @@ console.log(p1)
 8、能不能手写一个 Promise 的 polyfill。
 	   链接：https://www.jianshu.com/p/84ef1b48fcce
 
-### 	通俗理解
 
-```javascript
-
-const isTrue = true;
-
-const newPromise = (name) => {
-    return new Promise((resolve, reject) => {
-        if (isTrue) {
-            resolve('孩他爹');
-        } else {
-            reject('老公');
-        }
-    })
-}
-
-newPromise()
-    .then(name => {
-        console.log(`男人成为了${name}`);
-    })
-    .catch(name => {
-        console.log(`男人成为了${name}`);
-    })
-    .finally(() => {
-        console.log('他们最终结婚了');
-    })
-```
 
 ### promise图片异步加载
 

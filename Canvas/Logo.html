@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo</title>
+</head>
+
+<body>
+    <canvas id="cvs" width="600" height="600"></canvas>
+    <script>
+        /** @type {HTMLCanvasElement} */
+        let cvs = document.querySelector('#cvs');
+        let ctx = cvs.getContext('2d');
+        // ctx.font = '30px 微软雅黑';
+        ctx.beginPath();
+        ctx.moveTo(10, 0);
+        ctx.lineTo(0, 100);
+        ctx.lineTo(70, 90);
+        ctx.lineWidth = 20;
+        // 设置阴影
+        ctx.stroke();
+    </script>
+</body>
+
+</html>
