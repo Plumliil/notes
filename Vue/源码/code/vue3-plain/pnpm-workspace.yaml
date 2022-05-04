@@ -1,0 +1,3 @@
+# 所有包都在packages下
+packages:
+  - 'packages/*'

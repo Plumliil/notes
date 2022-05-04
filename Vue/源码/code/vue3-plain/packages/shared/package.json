@@ -1,0 +1,13 @@
+{
+  "name": "@vue/shared",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.js",
+  "buildOptions":{
+    "name":"vueReactivity",
+    "formats":[
+      "cjs",
+      "esm-bundler"
+    ]
+  }
+}
