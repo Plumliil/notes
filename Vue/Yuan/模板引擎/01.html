@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <ul class="list">
+        
+    </ul>
+    <script>
+        let data = [{
+                "name": "小明",
+                "age": 12,
+                "sex": "男"
+            },
+            {
+                "name": "小红",
+                "age": 11,
+                "sex": "女"
+            },
+            {
+                "name": "小强",
+                "age": 12,
+                "sex": "男"
+            },
+        ]
+        // Dom方法
+        // let list = document.querySelector('.list');
+        // let fgm = document.createDocumentFragment();
+        // for (let i = 0; i < data.length; i++) {
+        //     let li = document.createElement('li');
+        //     li.innerHTML=data[i].name;
+        //     fgm.appendChild(li)
+        // }
+        // list.appendChild(fgm)
+        
+        // 数组join方法
+        // let list = document.querySelector('.list');
+        // for(let i=0;i<data.length;i++){
+        //     list.innerHTML+=[
+        //     '<li>',
+        //         '<div class="hd"></div>',
+        //         '<div class="bd">',
+        //         '<p>姓名:'+data[i].name+'</p>',
+        //         '<p>性别:'+data[i].sex+'</p>',
+        //         '<p>年龄:'+data[i].age+'</p>',
+        //         '</div>',
+        //     '</li>'
+        //     ].join('')
+        // }
+        // es6反引号
+        // let list = document.querySelector('.list');
+        // for(let i=0;i<data.length;i++){
+        //     list.innerHTML+=`
+        //     <li>
+        //         <div class="hd"></div>
+        //         <div class="bd">
+        //         <p>姓名:${data[i].name}</p>
+        //         <p>性别:${data[i].sex}</p>
+        //         <p>年龄:${data[i].age}</p>
+        //         </div>
+        //     </li>
+        //     `
+        // }
+    </script>
+</body>
+
+</html>
