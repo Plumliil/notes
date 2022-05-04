@@ -203,3 +203,17 @@ build({
 ###### 开发环境rollup打包
 
 ### vue3响应式原理
+
+#### vue3响应式
+
+##### vue3对比vue2的变化
+- 在vue2的时候使用defineProperty来进行数据劫持,需要对属性进行重写添加getter及setter性能差(defineProperty只能劫持以前存在的属性)
+- 当新增属性和删除属性时无法监控变化.需要通过$set和$delete实现
+- 数组不采用defineProperty来劫持(浪费性能,对所有索引进行劫持会造成性能浪费)需对数组单独进行处理
+> vue3中使用Proxy来实现响应式数据变化,从而解决了上述问题
+
+##### CompositionAPI
+- 在vue2中采用的是OptionsAPI,用户提供的data,props,methods,computed,watch等属性(用户编写复杂逻辑业务会出现反复横跳问题)
+- vue2中所有的属性都是通过this昂问,this存在指向明确问题
+- vue2中很多未使用方法或属性依旧会被打包,并且所有全局API都在vue对象上公开,CompoositionAPI对tree-shaking更加友好,代码也更加容易压缩
+- 组件逻辑共享问题,vue2采用mixins实现组件之间逻辑共享;但是会有数据来源不明确,命名冲突问题,vue3采用ComponsitionAPI提取公共逻辑非常方便
