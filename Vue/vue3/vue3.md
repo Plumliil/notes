@@ -1,13 +1,71 @@
 
-## 处理问题的方式
+### vue3 新特性
+
+#### ref
+##### vue2中
+在vue2中使用ref
+~~~html
+<!-- template -->
+<template>
+
+
+<!-- methods -->
+<script>
+  export default{
+    ...
+      this.$refs.liRef
+    ...
+  }
+</script>
+~~~
+##### vue3中
+使用时要创建一个和ref同名的函数(方法),自动的将节点对象传进来,我们可以对节点对象进行收集,然后通过数组的形式进行访问调用
+~~~html
+<template>
+  <div class="app">
+    <h1>Vue3</h1>
+    <li v-for="(item, index) in data" :key="index" :ref="users">
+      {{ item.name }}
+    </li>
+    <lii-button type="primary" size="small" @click="getRef"></lii-button>
+  </div>
+</template>
+<script setup>
+import { reactive, ref } from "@vue/reactivity";
+let state = reactive({
+  data: [
+    { name: "zs", age: 18 },
+    { name: "ls", age: 20 },
+    { name: "ww", age: 20 },
+  ],
+});
+let { data } = state;
+let usersData = [];
+
+const users = (el) => {
+  if (el) {
+    usersData.push(el);
+  }
+};
+const getRef = () => {
+  console.log(usersData);
+  usersData[0].innerText="zl"
+};
+</script>
+~~~
+
+#### $children
+
+
+
+
+### 处理问题的方式
 人面对复杂问题的处理方式
-- 任何一个人处理信息的逻辑能力是有限的
-- 当面对复杂问题事将问题进行拆解 
+#### 任何一个人处理信息的逻辑能力是有限的
+#### 当面对复杂问题事将问题进行拆解 
 
-
-
-### 1.
-#### vue3中data必须是一个函数，否则会报错
+### vue3
+vue3中data必须是一个函数，否则会报错
 #### 编程范式
 声明式编程：
 - what to do
@@ -76,7 +134,6 @@ methods是一个对象，通常我们会在这个对象中定义很多方法
 - setup
 - 生命周期
 
-### 2.
 #### methods方法绑定this
 - 不能使用箭头函数
     我们在methods中要使用data返回对象中的数据：
@@ -270,7 +327,7 @@ unmount 销毁 卸载真实dom上div
 
 patch打补丁
 
-### 04 计算属性
+### 计算属性
 #### 复杂data的处理方式
 在模板中可以直接通过插值语法显示一些data中的数据
 但是在某些情况下，我们可能需要对数据进行一些转化后在现实，或者将多个数据结合起来进行显示
