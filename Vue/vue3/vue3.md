@@ -1,7 +1,8 @@
 
 ### vue3 新特性
 
-#### ref
+#### $ref 
+获取节点对象
 ##### vue2中
 在vue2中使用ref
 ~~~html
@@ -56,6 +57,10 @@ const getRef = () => {
 
 #### $children
 
+##### vue2
+在vue2中使用this.$children可以获取到父组件中子组件的全部内容
+
+##### vue3
 
 
 
