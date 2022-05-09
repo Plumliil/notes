@@ -21,6 +21,7 @@ devServer: {
 
 ### 处理css兼容遇到的问题
 `npm install postcss-loader postcss-preset-env -D`
+`mini-css-extract-plugin`
 ~~~shell
 Module build failed (from ../node_modules/mini-css-extract-plugin/dist/loader.js):
 HookWebpackError: Module build failed (from ../node_modules/postcss-loader/dist/cjs.js):   
