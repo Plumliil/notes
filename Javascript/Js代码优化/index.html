@@ -9,26 +9,23 @@
 </head>
 
 <body>
-    <ul>
-        <li name="xx">javascript</li>
-        <li>html</li>
-        <li>css</li>
-    </ul>
     <script>
-        // 普通
-        document.querySelectorAll('li').forEach(e => {
-            e.onclick = function () {
-                console.log(111);
-            }
-        })
-        // 事件委托
-        document.querySelector('ul').onclick = (e) => {
-             e = e || window.event
-            let tar = e.target || e.srcElement;
-            if (tar.tagName.toLowerCase() == 'li') {
-                console.log(222);
+        function foo(){
+            console.log(this);
+        }
+        function addEvent(obj, type, fn) {
+            if (obj.addEventListener) {
+                obj.addEventListener(type, fn, false);
+            } else if (obj.attachEvent) {
+                obj.attachEvent('on' + type, fn)
+            } else {
+                obj['on' + type] = fn;
             }
         }
+        addEvent(oBtn,'click',foo);
+        addEvent(oBtn,'click',foo);
+        addEvent(oBtn,'click',foo);
+        addEvent(oBtn,'click',foo);
     </script>
 </body>
 
