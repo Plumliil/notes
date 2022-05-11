@@ -1,4 +1,4 @@
-### webpack-dev-server启动报错
+### 1.webpack-dev-server启动报错
 ~~~shell
 Invalid options object. Dev Server has been initialized using an options object that does not match the API schema.
  - options has an unknown property 'contentBase'. These properties are valid:
@@ -19,7 +19,7 @@ devServer: {
 }
 ~~~
 
-### 处理css兼容遇到的问题
+### 2.处理css兼容遇到的问题
 `npm install postcss-loader postcss-preset-env -D`
 `mini-css-extract-plugin`
 ~~~shell
