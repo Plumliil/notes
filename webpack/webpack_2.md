@@ -549,3 +549,25 @@ module.exports = {
     mode: 'development'
 }
 ~~~
+
+##### js和html代码压缩
+
+js压缩:将development改为production UglifyJsPlugin
+
+html代码压缩: 
+~~~JavaScript
+    ...
+    plugins: [
+        new htmlWebpackPlugin({
+            template: './src/index.html'
+            minify:{
+                // 移除空格
+                colllapseWhitespace:true,
+                // 移除注释
+                removeComments:true
+            }
+        })
+    ],
+    mode:'production'
+    ...
+~~~
