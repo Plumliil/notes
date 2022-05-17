@@ -431,3 +431,40 @@ plugins: [
     ],
 ...
 ~~~
+
+##### js语法检查
+`eslint-loader` `eslint`
+注意:只检查自己的编写的源代码,所引用第三方库不需要进行检查
+检查规则的设置:
+~~~javascript
+...
+    module:{
+        rules:[
+            {
+               test:/\.js$/,
+               exclude:/node_modules/,
+               loader:'eslint-loader',
+               options:{
+                // 自动修复
+                fix:true
+               }
+            }
+        ]
+    },
+...
+~~~
+风格指南:`airbnb`
+所依赖库:`eslint-config-airbnb-base` `eslint-plugin-import` `eslint`
+
+packag.json中所需配置文件
+~~~javascript
+  "eslintConfig": {
+    "extends": "airbnb-base"
+  }
+~~~
+
+当某一行不需要进行语法检查时可以使用 `eslint-disable-next-line` 禁用下一行代码 
+
+#####
+
+
