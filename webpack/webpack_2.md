@@ -571,3 +571,173 @@ html代码压缩:
     mode:'production'
     ...
 ~~~
+
+
+#### 生产环境webpack配置
+
+- enforce:'pre' loader优先执行
+
+~~~javascript
+const {
+    resolve
+} = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin'); // css压缩
+const HtmlWebpackPlugin=require('html-webpack-plugin');
+// 定义nodejs变量,决定使用browserslist哪个环境
+process.env.NODE_ENV = 'production';
+// 复用loader
+const commonCssLoade = [
+    MiniCssExtractPlugin.loader,
+    'css-loader',
+    {
+        // css兼容性处理 还需在package中定义browserslist
+        loader: 'postcss-loader',
+        options: {
+            postcssOptions: {
+                ident: 'postcss',
+                plugins: () => [
+                    // postcss插件
+                    require('postcss-preset-env')()
+                ]
+            }
+        }
+    }
+]
+
+module.exports = {
+    entry: './src/js/index.js',
+    output: {
+        filename: 'js/built.js',
+        path: resolve(__dirname, 'build')
+    },
+    module: {
+        rules: [{
+                test: /\.css$/,
+                use: [...commonCssLoade]
+            },
+            {
+                test: /\.less$/,
+                use: [...commonCssLoade, 'less-loader']
+            },
+            /* 
+                一个文件被多个loader处理,那么一定要指定loader执行先后顺序:
+                    先执行 eslint 再执行 babel
+            
+            */
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'eslint-loader',
+                enforce:'pre',
+                options: {
+                    fix: true
+                }
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader',
+                options: {
+                    presets: [
+                        ["@babel/preset-env", {
+                            "useBuiltIns": "usage",
+                            "corejs": {
+                                "version": 3
+                            },
+                            "targets": {
+                                "chrome": "60",
+                                "firefox": "60",
+                                "ie": "9",
+                                "safari": "10",
+                                "edge": "17"
+                            }
+                        }]
+                    ]
+                }
+            },
+            {
+                test:/\.(jpg|png|gif)/,
+                loader:'url-loader',
+                options:{
+                    limit:8*1024,
+                    name:'[hash:10].[ext]',
+                    outputPath:'imgs',
+                    esModule:false
+                }
+            },
+            {
+                test:/\.html$/,
+                loader:'html-loader',
+                minify:{
+                    collapseWhitespace:true,
+                    removeComments:true
+                }
+            },
+            {
+                exclude:/\.(js|css|html|jpg|png|gif)/,
+                loader:'file-loader',
+                options:{
+                    outputPath:'media'
+                }
+            }
+        ]
+    },
+    plugins: [
+        new MiniCssExtractPlugin({
+            filename: 'css/built.css'
+        }),
+        new CssMinimizerWebpackPlugin(),
+        new HtmlWebpackPlugin({
+            template:'./src/index.html'
+        })
+    ],
+    mode: 'production'
+}
+~~~
+
+package.json
+
+~~~javascript
+"devDependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.17.12",
+    "babel-loader": "^8.2.5",
+    "core-js": "^3.22.5",
+    "css-loader": "^6.7.1",
+    "css-minimizer-webpack-plugin": "^3.4.1",
+    "eslint": "^8.15.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-import": "^2.26.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "img-loader": "^4.0.0",
+    "less-loader": "^10.2.0",
+    "mini-css-extract-plugin": "^2.6.0",
+    "postcss-loader": "^6.2.1",
+    "postcss-preset-env": "^7.5.0",
+    "style-loader": "^3.3.1",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.8.1"
+  },
+  "dependencies": {
+    "html-loader": "^3.1.0"
+  },
+  "browserslist": {
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ]
+  }
+~~~
+
+#### 优化配置
