@@ -737,7 +737,12 @@ package.json
       "not dead",
       "not op_mini all"
     ]
+  },
+  "eslintConfig": {
+    "extends":"airbnb-base"
   }
 ~~~
 
 #### 优化配置
+
+##### 
