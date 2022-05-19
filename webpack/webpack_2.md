@@ -745,4 +745,67 @@ package.json
 
 #### 优化配置
 
-##### 
+##### HMR
+HMR:hot module replacement 热模块替换/模块热替换
+作用:一个模块发生变化,指挥重新打包这一个模块,而不是打包所有模块
+css文件:可以使用HMR功能:因为style-loader内部实现了
+js文件:默认不能使用HMR功能-->需要修改js代码,添加支持HMR功能的代码 只针对入口文件js
+html文件:默认不能使用HMR功能 (不用做热更新)
+
+webpack.config.js
+~~~javascript
+    ... 
+    devServer: {
+        static: {
+            directory: resolve(__dirname, 'build'),
+        },
+        compress: true,
+        port: 3000,
+        open: true,
+        hot:true
+    }
+~~~
+index.js
+~~~javascript
+if(module.hot){
+    // 一旦module.hot为true,说明开启了HMR功能.--->让HMR功能代码生效
+    module.hot.accept('./print.js',function(){
+        // 方法会监听11print.js文件变化,一旦发生变化,其他模块不会重新打包构建
+        // 会执行下面会掉函数
+        print()
+    })
+}
+~~~ 
+
+
+#####　source-map
+source-map:一种提供源代码到构建后代码映射计数(如果构建后代码出错,通过映射以追踪源代码错误)
+[inline-|hidden-|eval-] [cheap-[module-]]source-map
+source-map:外部
+    错误代码准确信息 和 源代码错误位置
+inline-source-map:内联
+    只生成一个内联source-map
+hidden-source-map:外部
+    错误代码错误原因,但是没有错误位置
+    不能追踪到源代码错误
+eval-source-map:内联
+    每一个文件都声称对于source-map都在eval
+nosources-source-map:外部
+    错误代码错误原因,但是没有错误位置
+cheap-source-map        
+    错误代码准确信息 和 源代码的错误位置
+    只能精确到行
+cheap-moudle-source-map
+    错误代码准确信息 和 源代码错误位置
+内联 和 外联的区别:1.外部生成了文件,内联没有 2.内联构建速度更快
+开发环境:速度快,调试更友好
+    速度快(eval>inline>cheap...)
+    调试更友好
+        source-map
+        cheap-moudle-source-map
+        cheap-source-map
+    调试首选:eval-source-map 性能首选:eval-cheap-module-source-map
+生产环境:源代码要不要隐藏,调试要不要更友好
+    内联让体积变大,所以生产环境不用内联
+    nosources-source-map
+    hidden-source-map

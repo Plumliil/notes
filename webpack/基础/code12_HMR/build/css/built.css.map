@@ -1,0 +1,1 @@
+{"version":3,"file":"css/built.css","mappings":";;iJACA,KACI,uBAAwB,CACxB,aACJ,CACA,IAEI,WAAY,CADZ,WAEJ","sources":["webpack:///./src/css/index.css"],"sourcesContent":["\r\nbody{\r\n    background-color: tomato;\r\n    color: aliceblue;\r\n}\r\ndiv{\r\n    width: 200px;\r\n    height: 30px;\r\n}"],"names":[],"sourceRoot":""}
