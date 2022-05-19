@@ -1,49 +1,38 @@
-import { isObject } from "@vue/shared"
+/* 
+    reactive:
+    条件:
+        传入的值必须是一个对象,可以创建代理
+    解决主要问题:
+        1.对象被重复代理:使用weakmap收集
+            const state1 = reactive(data);
+            const state2 = reactive(data);
+        2.代理已经代理过的对象:使用关键字,来命中靶向
+            const state1 = reactive(data);
+            const state2 = reactive(state1);
+*/
+
+import { isObject } from "@vue/shared";
+import { mutableHandlers, ReactiveFlags } from "./baseHandler";
 // 将数据转换成响应式数据
+const reactiveMap = new WeakMap();
+// 实现同一个对象代理多次,返回同一个代理
+// 代理对象再次被代理可以直接被返回 
 export function reactive(target) {
-    if (!isObject(target)) {
-        return
+    if (!isObject(target)) return;
+    if (target[ReactiveFlags.IS_REACTIVE]) {
+        return target;
     }
-    // 并没有重新定义属性,只是代理,在取值的时候调用get,
-    // 赋值的时候调用set
-    const proxy = new Proxy(target, {
-        // target 当前对象
-        // key 当前取的值的键名
-        // value 当前赋的值
-        // receiver 当前代理对象
-        get(target, key, receiver) {
-            return target[key]
-        },
-        set(target, key, value, receiver) {
-            target[key]=value;
-            return value;
-        }
-    })
+    // 检查是否已经代理(使用reactive(target))过
+    let exisitingProxy = reactiveMap.get(target);
+    if (exisitingProxy) {
+        return exisitingProxy;
+    }
+
+    // 普通对象代理通过new Proxy代理一次
+
+    // 下一次传递是proxy 可以检查一下有没有被代理过,
+    // 如果访问这个proxy由get方法时说明已经被访问过
+    const proxy = new Proxy(target, mutableHandlers)
+    reactiveMap.set(target, proxy);
     return proxy;
 }
-
-let target ={
-    name:'zs',
-    get alias(){
-        return this.name
-    }
-}
-
-const proxy = new Proxy(target, {
-    // target 当前对象
-    // key 当前取的值的键名
-    // value 当前赋的值
-    // receiver 当前代理对象
-    // Reflect 反射 将原对象this改为代理对象 替代对象完成一些特殊操作
-    // 如 属性访问 =赋值 in或with() delete new
-    get(target, key, receiver) {
-        console.log(key);
-        return Reflect.get(target,key,receiver)
-    },
-    set(target, key, value, receiver) {
-        target[key]=value;
-        return true;
-    }
-})
-
-proxy.alias
