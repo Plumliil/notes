@@ -208,7 +208,7 @@ build({
 
 ##### vue3对比vue2的变化
 - 在vue2的时候使用defineProperty来进行数据劫持,需要对属性进行重写添加getter及setter性能差(defineProperty只能劫持以前存在的属性)
-- 当新增属性和删除属性时无法监控变化.需要通过$set和$delete实现
+- 当新增属性和删除属性时无法监控变化.需要通过`$set`和`$delete`实现
 - 数组不采用defineProperty来劫持(浪费性能,对所有索引进行劫持会造成性能浪费)需对数组单独进行处理
 > vue3中使用Proxy来实现响应式数据变化,从而解决了上述问题
 
