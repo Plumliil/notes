@@ -217,3 +217,15 @@ build({
 - vue2中所有的属性都是通过this昂问,this存在指向明确问题
 - vue2中很多未使用方法或属性依旧会被打包,并且所有全局API都在vue对象上公开,CompoositionAPI对tree-shaking更加友好,代码也更加容易压缩
 - 组件逻辑共享问题,vue2采用mixins实现组件之间逻辑共享;但是会有数据来源不明确,命名冲突问题,vue3采用ComponsitionAPI提取公共逻辑非常方便
+
+#### Reactive，Effect
+##### reactive
+
+
+
+##### effect
+
+###### track
+一个对象对应某个属性，对应多个effect
+
+WeakMap = { 对象 ：Map { name：Set } } 

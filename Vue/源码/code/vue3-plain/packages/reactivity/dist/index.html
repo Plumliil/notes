@@ -28,14 +28,14 @@
         };
         const state= reactive(data);
         console.log(state);
-        const state1 = reactive(data);
-        const state2 = reactive(data);
-        console.log(state1===state2);
-        // effect(()=>{
-        //     // 默认会先执行一次,对响应式数据取值
-        //     document.querySelector('#app').innerHTML=state.name+'年龄是'+state.age
-        //     console.log(state);
-        // })
+        // const state1 = reactive(data);
+        // const state2 = reactive(data);
+        // console.log(state1===state2);
+        effect(()=>{
+            // 默认会先执行一次,对响应式数据取值
+            document.querySelector('#app').innerHTML=state.name+'年龄是'+state.age
+            console.log(state);
+        })
         // setTimeout(() => {
         //     state.age=22;
         //     state.hobbies={

@@ -1,4 +1,4 @@
-import { activeEffect } from "./effect";
+import { activeEffect, track } from "./effect";
 export const enum ReactiveFlags {
     IS_REACTIVE = '__v_isReactive'
 }
@@ -12,8 +12,10 @@ export const mutableHandlers = {
             return true;
         }
         debugger
+        activeEffect
+        track(target,'get',key)
         // 代理对象取值走 get
-        return Reflect.get(target.key, receiver)
+        return Reflect.get(target,key, receiver)
     },
     set(target, key, value, receiver) {
         // 监控用户取值
