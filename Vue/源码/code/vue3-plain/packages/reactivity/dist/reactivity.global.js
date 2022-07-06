@@ -3,9 +3,9 @@ var VueReactivity = (() => {
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __export = (target2, all) => {
+  var __export = (target, all) => {
     for (var name in all)
-      __defProp(target2, name, { get: all[name], enumerable: true });
+      __defProp(target, name, { get: all[name], enumerable: true });
   };
   var __copyProps = (to, from, except, desc) => {
     if (from && typeof from === "object" || typeof from === "function") {
@@ -25,7 +25,29 @@ var VueReactivity = (() => {
   });
 
   // packages/reactivity/src/effect.ts
-  function effect() {
+  var activeEffect = void 0;
+  var ReactiveEffect = class {
+    constructor(fn) {
+      this.active = true;
+      this.fn = null;
+    }
+    run() {
+      if (!this.active) {
+        this.fn();
+      }
+      ;
+      try {
+        debugger;
+        activeEffect = this;
+        this.fn();
+      } finally {
+        activeEffect = void 0;
+      }
+    }
+  };
+  function effect(fn) {
+    const _effect = new ReactiveEffect(fn);
+    _effect.run();
   }
 
   // packages/shared/src/index.ts
@@ -33,39 +55,36 @@ var VueReactivity = (() => {
     return typeof value === "object" && value !== null;
   };
 
-  // packages/reactivity/src/reactive.ts
-  function reactive(target2) {
-    if (!isObject(target2)) {
-      return;
-    }
-    const proxy2 = new Proxy(target2, {
-      get(target3, key, receiver) {
-        return target3[key];
-      },
-      set(target3, key, value, receiver) {
-        target3[key] = value;
-        return value;
+  // packages/reactivity/src/baseHandler.ts
+  var mutableHandlers = {
+    get(target, key, receiver) {
+      if (key === "__v_isReactive" /* IS_REACTIVE */) {
+        return true;
       }
-    });
-    return proxy2;
-  }
-  var target = {
-    name: "zs",
-    get alias() {
-      return this.name;
+      debugger;
+      return Reflect.get(target.key, receiver);
+    },
+    set(target, key, value, receiver) {
+      return Reflect.set(target.key, value, receiver);
     }
   };
-  var proxy = new Proxy(target, {
-    get(target2, key, receiver) {
-      console.log(key);
-      return Reflect.get(target2, key, receiver);
-    },
-    set(target2, key, value, receiver) {
-      target2[key] = value;
-      return true;
+
+  // packages/reactivity/src/reactive.ts
+  var reactiveMap = /* @__PURE__ */ new WeakMap();
+  function reactive(target) {
+    if (!isObject(target))
+      return;
+    if (target["__v_isReactive" /* IS_REACTIVE */]) {
+      return target;
     }
-  });
-  proxy.alias;
+    let exisitingProxy = reactiveMap.get(target);
+    if (exisitingProxy) {
+      return exisitingProxy;
+    }
+    const proxy = new Proxy(target, mutableHandlers);
+    reactiveMap.set(target, proxy);
+    return proxy;
+  }
   return __toCommonJS(src_exports);
 })();
 //# sourceMappingURL=reactivity.global.js.map

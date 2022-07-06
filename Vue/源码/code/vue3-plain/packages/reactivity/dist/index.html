@@ -14,8 +14,10 @@
     <div id="app"></div>
     <script>
         const {
-            effect, // 副作用函数,如果此函数以来的数据发生变化会重新执行
+            effect, 
+            // 副作用函数,如果此函数以来的数据发生变化会重新执行 重新更新
             reactive
+            // 响应式函数 将数据改变成响应式
         } = VueReactivity;
         const data = {
             name: 'zs',
@@ -24,16 +26,24 @@
                 eat: 'junk food'
             }
         };
+        const state= reactive(data);
+        console.log(state);
         const state1 = reactive(data);
-        const state2 = reactive(state1);
+        const state2 = reactive(data);
         console.log(state1===state2);
         // effect(()=>{
         //     // 默认会先执行一次,对响应式数据取值
         //     document.querySelector('#app').innerHTML=state.name+'年龄是'+state.age
+        //     console.log(state);
         // })
         // setTimeout(() => {
         //     state.age=22;
-        // }, 1000);
+        //     state.hobbies={
+        //         eat:'junk food',
+        //         sleep:'8 houre'
+        //     }
+        //     console.log(state);
+        // }, 2000);
     </script>
 </body>
 

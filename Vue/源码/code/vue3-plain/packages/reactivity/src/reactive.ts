@@ -36,3 +36,51 @@ export function reactive(target) {
     reactiveMap.set(target, proxy);
     return proxy;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// reactive只能做对象的代理
+
+// import {
+//     isObject
+// } from "@vue/shared";
+
+// const reactiveMap = new WeakMap(); // key只能是对象
+// const enum ReactiveFlags {
+//     IS_REACTIVE = '__V_isReactive';
+// }
+
+// export function reactive(target) {
+//     if (!isObject(target)) return;
+//     if (target[ReactiveFlags.IS_REACTIVE]) {
+//         return target
+//     }
+//     let exisitingProxy = reactiveMap.get(target);
+
+//     if (exisitingProxy) {
+//         return exisitingProxy
+//     }
+//     // 没有重新定义，只是代理，取值的时候调用get，赋值的时候调用set
+//     const proxy = new Proxy(target, {
+//         get(target, key, receiver) {
+//             if (key === ReactiveFlags.IS_REACTIVE) {
+//                 return true;
+//             }
+//             return Reflect.get(target, key, receiver)
+//         },
+//         set(target, key, value, receiver) {
+//             return Reflect.set(target, key, value, receiver)
+//         }
+//     })
+//     reactiveMap.set(target, proxy);
+//     return proxy;
+// }
