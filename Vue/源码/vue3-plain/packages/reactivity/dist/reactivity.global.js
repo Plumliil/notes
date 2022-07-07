@@ -69,6 +69,8 @@ var VueReactivity = (() => {
     let shouldTrack = !dep.has(activeEffect);
     if (shouldTrack) {
       dep.add(activeEffect);
+      debugger;
+      activeEffect.deps.push(dep);
     }
   }
 
