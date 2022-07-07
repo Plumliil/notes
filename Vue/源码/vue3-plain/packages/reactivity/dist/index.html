@@ -27,7 +27,7 @@
             }
         };
         const state= reactive(data);
-        console.log(state);
+        // console.log(state);
         // const state1 = reactive(data);
         // const state2 = reactive(data);
         // console.log(state1===state2);
@@ -36,14 +36,10 @@
             document.querySelector('#app').innerHTML=state.name+'年龄是'+state.age
             console.log(state);
         })
-        // setTimeout(() => {
-        //     state.age=22;
-        //     state.hobbies={
-        //         eat:'junk food',
-        //         sleep:'8 houre'
-        //     }
-        //     console.log(state);
-        // }, 2000);
+        setTimeout(() => {
+            state.age=21;
+            console.log(state);
+        }, 2000);
     </script>
 </body>
 

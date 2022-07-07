@@ -39,7 +39,6 @@ var VueReactivity = (() => {
       }
       ;
       try {
-        debugger;
         this.parent = activeEffect;
         activeEffect = this;
         return this.fn();
@@ -55,7 +54,6 @@ var VueReactivity = (() => {
   }
   var targetMap = /* @__PURE__ */ new WeakMap();
   function track(target, type, key) {
-    debugger;
     if (!activeEffect)
       return;
     let depsMap = targetMap.get(target);
@@ -69,7 +67,6 @@ var VueReactivity = (() => {
     let shouldTrack = !dep.has(activeEffect);
     if (shouldTrack) {
       dep.add(activeEffect);
-      debugger;
       activeEffect.deps.push(dep);
     }
   }
@@ -85,13 +82,17 @@ var VueReactivity = (() => {
       if (key === "__v_isReactive" /* IS_REACTIVE */) {
         return true;
       }
-      debugger;
-      activeEffect;
       track(target, "get", key);
       return Reflect.get(target, key, receiver);
     },
     set(target, key, value, receiver) {
-      return Reflect.set(target.key, value, receiver);
+      let oldValue = target[key];
+      let result = Reflect.set(target, key, value, receiver);
+      console.log(oldValue === value);
+      if (oldValue !== value) {
+        trigger(target, "set", key, value, oldValue);
+      }
+      return result;
     }
   };
 
