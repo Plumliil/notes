@@ -53,7 +53,7 @@
 
 #### vue2响应式
 - 核心:
-  -  对象:通过defineProperty对对象1已有属性值的读取和修改进行劫持(监视/拦截)
+  -  对象:通过defineProperty对象已有属性值的读取和修改进行劫持(监视/拦截)
   ~~~js
   /*
   const vm=new Vue({
@@ -91,7 +91,7 @@
   vm.sex='男'; // 不会执行set方法
   console.log(vm.sex); // 不会执行get方法
   ~~~
-  - 数组:通过重写数组更新数组一系列更新元素的方法来试下按元素的修改劫持
+  - 数组:通过重写数组更新数组一系列更新元素的方法来实现元素的修改劫持
   - >数组的push,pop,splice等法昂发之所以能正常使用,其实是被vue重写
   ~~~js
   // 将方法放对象里面
@@ -118,7 +118,7 @@
   // arr.__prroto__= Array.prototype;
 
   arr.__proto__=obj; // 将数组的隐式原型指向obj
-  // 我们知道arr.__proto__等于它的构造函数的原型,也就是Array.prototype,所以arrr可以执行push,pop等方法,但是现在arr.__proto__又等于obj了,所以arr.push相当于obj.push用defineProperty进行监听,执行obj.push()就会执行value函数
+  // 我们知道arr.__proto__等于它的构造函数的原型,也就是Array.prototype,所以arr可以执行push,pop等方法,但是现在arr.__proto__又等于obj了,所以arr.push相当于obj.push用defineProperty进行监听,执行obj.push()就会执行value函数
   ~~~
 
 #### vue3响应式
