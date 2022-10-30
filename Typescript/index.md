@@ -191,3 +191,6 @@ let chartParamObj: type_ChartParam = { width: 50, height: 90 };
 let square = new Square(chartParamObj);
 console.log(square.getArea()); // 4500
 ~~~
+
+
+### 单件设计模式
