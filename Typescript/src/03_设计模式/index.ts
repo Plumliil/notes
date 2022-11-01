@@ -36,8 +36,46 @@
 // // 我是一个undefind静态属性,用来指向一个对象空间的静态属性
 // // 只打印一次
 
+// class MyLocalStorage {
+//   static localstorage: MyLocalStorage;
+//   static count: number = 3;
+//   private setItem(key: string, value: any) {
+//     localStorage.setItem(key, JSON.stringify(value));
+//   }
+//   public static getItem(key: string) {
+//     let value = localStorage.getItem(key);
+//     return value ? JSON.parse(value) : null;
+//   }
+//   private constructor() {
+//     console.log("ts 单件设计模式静态方法构造器");
+//   }
+//   //   提供外部获取得到一个对象
+//   public static getInstance() {
+//     if (!this.localstorage) {
+//       this.localstorage = new MyLocalStorage();
+//       console.log("我是一个undefind静态属性,用来指向一个对象空间的静态属性");
+//     }
+//     return this.localstorage;
+//   }
+// }
+
+// console.log(MyLocalStorage.getInstance());
+// console.log(MyLocalStorage.getInstance());
+// console.log(MyLocalStorage.getItem("loginUser"));
+// console.log(MyLocalStorage.count);
+
+// console.log('MyLocalStorage.addTotal()--1',MyLocalStorage.addTotal());
+// console.log(MyLocalStorage.total);
+// console.log('MyLocalStorage.addTotal()--2',MyLocalStorage.addTotal());
+// console.log(MyLocalStorage.total);
+
+// 饿汉式设计模式
+// 第一步:把构造器设置职位私有的,不允许外部来创建类的实例
+// 第二步:建立一个静态的引用属性,同时把这个静态引用属性直接指向一个对象(new MyLocalStorage)
+// 第三步:外部调用第二部提供的静态方法
+
 class MyLocalStorage {
-  static localstorage: MyLocalStorage;
+  static localstorage: MyLocalStorage = new MyLocalStorage();
   static count: number = 3;
   private setItem(key: string, value: any) {
     localStorage.setItem(key, JSON.stringify(value));
@@ -51,25 +89,6 @@ class MyLocalStorage {
   }
   //   提供外部获取得到一个对象
   public static getInstance() {
-    // if (!this.localstorage) {
-    //   this.localstorage = new MyLocalStorage();
-    //   console.log("我是一个undefind静态属性,用来指向一个对象空间的静态属性");
-    // }
-    // return this.localstorage;
-    return this.count;
-  }
-  static total: number = 0;
-  public static addTotal() {
-    this.total++;
+    return this.localstorage;
   }
 }
-
-// console.log(MyLocalStorage.getInstance());
-// console.log(MyLocalStorage.getInstance());
-// console.log(MyLocalStorage.getItem("loginUser"));
-// console.log(MyLocalStorage.count);
-
-console.log('MyLocalStorage.addTotal()--1',MyLocalStorage.addTotal());
-console.log(MyLocalStorage.total);
-console.log('MyLocalStorage.addTotal()--2',MyLocalStorage.addTotal());
-console.log(MyLocalStorage.total);

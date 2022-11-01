@@ -211,11 +211,36 @@ console.log(square.getArea()); // 4500
 ##### 饿汉式单间设计模式
 无论是否用到了对象实例,一开始就建立了这个唯一对象
 
-##### 懒汉式设计模式
-在真正用到是
+##### 懒汉式设计模式(延迟使用)
+在真正用到是才会创建对象
+~~~ts
+class MyLocalStorage {
+  static localstorage: MyLocalStorage;
+  static count: number = 3;
+  private setItem(key: string, value: any) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  public static getItem(key: string) {
+    let value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  }
+  private constructor() {
+    console.log("ts 单件设计模式静态方法构造器");
+  }
+  //   提供外部获取得到一个对象
+  public static getInstance() {
+    if (!this.localstorage) {
+      this.localstorage = new MyLocalStorage();
+      console.log("我是一个undefind静态属性,用来指向一个对象空间的静态属性");
+    }
+    return this.localstorage;
+  }
+}
+~~~
+当外部使用`getInstance`才会创建这个对象
 #### 单间设计模式真实应用场景
 
-### 构建单件设计模式
+#### 构建单件设计模式
 - 第一步:把构造器设为私有,不允许外部来创建类的实例(对象)
 - 第二步:至少应该提供一个外部访问的方法或者属性,外部可以通过这个方法或者属性来得到一个,所以应该把这个方法设为静态方法
 - 第三步:外部调用第二步提供的静态方法来获取一个对象
@@ -286,3 +311,27 @@ console.log(MyLocalStorage.getInstance());
 
 应用3:当-个类中某个方法只有一个或者1-2个对象属性，而且更重要的是.你创建这个类的对象毫无意义，我们只需要使用这个类的一个或者多方法就可以了.那么这个方法就应该定义为静态方法。常见的工具类中的方法通常都应该定义为静态方法。比如StringUtil,FileUtil 等,我们以FileUtill为例进行讲解思考题定文一个文件工具类[ FileUtil] ，编写一个读取文件方法[readFile方法]方便外部调用，那这样的方法应该定义为静态方法吗?
 
+#### 饿汉式单件设计模式
+
+~~~ts
+class MyLocalStorage {
+  static localstorage: MyLocalStorage = new MyLocalStorage();
+  static count: number = 3;
+  private setItem(key: string, value: any) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  public static getItem(key: string) {
+    let value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
+  }
+  private constructor() {
+    console.log("ts 单件设计模式静态方法构造器");
+  }
+  //   提供外部获取得到一个对象
+  public static getInstance() {
+    return this.localstorage;
+  }
+}
+~~~
+
+### 继承
