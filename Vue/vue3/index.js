@@ -1,15 +1,4 @@
 "use strict";
-const baseHandler = {
-    get(target, key, receiver) {
-        if (key === "__v_isReactive" /* ReactiveFlags.IS_REACTIVE */) {
-            return true;
-        }
-        return Reflect.get(target, key, receiver);
-    },
-    set(target, key, value, receiver) {
-        return Reflect.set(target, key, value, receiver);
-    },
-};
 let data = { name: "zs", age: 19 };
 const reactiveState = new WeakMap();
 function reactive(obj) {
@@ -22,7 +11,17 @@ function reactive(obj) {
     let exisitingProxy = reactiveState.has(obj);
     if (exisitingProxy)
         return reactiveState.get(obj);
-    const proxy = new Proxy(obj, baseHandler);
+    const proxy = new Proxy(obj, {
+        get(target, key, receiver) {
+            if (key === "__v_isReactive" /* ReactiveFlags.IS_REACTIVE */) {
+                return true;
+            }
+            return Reflect.get(target, key, receiver);
+        },
+        set(target, key, value, receiver) {
+            return Reflect.set(target, key, value, receiver);
+        },
+    });
     reactiveState.set(obj, proxy);
     return proxy;
 }
