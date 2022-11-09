@@ -181,6 +181,11 @@ if (value === Direction.Up) {
 
 ### 泛型 generics 
 
+泛型是指在定义函数接口和类的时候不指定具体类型,而是在使用的时候指定具体类型特征
+
+类似一个占位符或者变量,在定义的时候传入,原封不动输出
+
+使用表达式无法明确类型绑定,使用泛型可以确定
 ~~~ts
 function echo<T>(arg: T): T {
   return arg;
@@ -199,6 +204,131 @@ const result2 = swap(["string", 123]);
 console.log(result2);
 
 ~~~
+
+#### 约束泛型
+在泛型中使用extends关键值来使传入类型具有约束条件
+~~~ts
+interface IWithLength {
+  length: number;
+}
+
+function echoWithLength<T extends IWithLength>(arg: T): T {
+  console.log(arg.length);
+  return arg;
+}
+
+const str = echoWithLength("str");
+const arrA = echoWithLength(["a", "b", "c"]);
+const obj = echoWithLength({ length: 10 });
+console.log(str); // str
+console.log(arrA); // [ 'a', 'b', 'c' ]
+console.log(obj); // { length: 10 }
+
+~~~
+
+#### 在接口中的使用
+
+创建一个公有特定类型的容器,类似一个可变参数,用的时候传入,生成一个容器
+~~~ts
+class Queue<T> {
+  private data = [];
+  push(item: T) {
+    return this.data.push(item);
+  }
+  pop(): T {
+    return this.data.shift();
+  }
+}
+
+const queue = new Queue<number>();
+queue.push(1);
+// queue.push("str");
+console.log(queue.pop());
+
+
+interface KeyPair<T, U> {
+  key: T;
+  value: U;
+}
+
+let kp1:KeyPair<number,string>={key:1,value:'string'}
+let kp2:KeyPair<string,number>={key:'str',value:2}
+console.log(kp1);
+console.log(kp2);
+~~~
+
+### 类型别名,字面量和交叉类型
+类型别名
+~~~ts
+type PlusType = (x: number, y: number) => number;
+let sum: PlusType = (x, y) => {
+  return x + y;
+};
+const result = sum(1, 2);
+const result2 = sum(2, 3);
+console.log(result, result2); // 3 5
+
+type StrOrNumber = string | number;
+let result3: StrOrNumber = "123";
+result3 = 123;
+~~~
+
+字符串字面量
+~~~ts
+const str: "name" = "name";
+const number: 1 = 1;
+
+type Directions = "Up" | "Down" | "Left" | "Right";
+let toWhere: Directions = "Left";
+~~~
+交叉类型
+~~~ts
+interface IName {
+  name: string;
+}
+
+type IPerson = IName & { age: number };
+let person: IPerson = { name: "zs", age: 19 };
+
+~~~
+
+### 声明文件
+TypeScript 作为 JavaScript 的超集，在开发过程中不可避免要引用其他第三方的 JavaScript 的库。虽然通过直接引用可以调用库的类和方法，但是却无法使用TypeScript 诸如类型检查等特性功能。为了解决这个问题，需要将这些库里的函数和方法体去掉后只保留导出类型声明，而产生了一个描述 JavaScript 库和模块信息的声明文件。通过引用这个声明文件，就可以借用 TypeScript 的各种特性来使用库文件了。
+
+
+### 内置类型
+类似Date,RegExp...
+~~~ts
+const a: Array<number> = [1, 2, 3];
+const date = new Date();
+
+console.log(date.getTime());
+const reg = /abc/;
+console.log(reg.test("abc"));
+
+console.log(Math.pow(2, 2));
+
+let body = document.body;
+let allLis = body.querySelectorAll("li");
+allLis.length;
+body.addEventListener("click", (e) => {
+  console.log(e);
+  e.preventDefault()
+});
+
+~~~
+
+- Omit 去除类型中某些项
+  - `type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;`
+  - Omit会构造一个除类型K外具有T性质的类型
+- Pick 选取类型中指定类型
+  - `type Pick<T, K extends keyof T> = { [P in K] : T[P]; };`
+  - 从T中选择一组属性，将它们在K中联合
+- Partial 将类型中所有选项变为可选，即加上？
+  - `type Partial<T> = {[P in keyof T]?: T[P];};`
+- Required 将类型中所有选项变为必选，去除所有？
+  - `type Required<T> = {[P in keyof T]-?: T[P];};`
+
 
 ### 原型问题
 

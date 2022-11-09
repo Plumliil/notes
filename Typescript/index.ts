@@ -1,20 +1,11 @@
-// function echo<T>(arg: T): T {
-//   return arg;
-// }
-
-// // const result: string = echo(123);
-// // const str: string = "str";
-// // const result = echo("str");
-// // const result = echo("str");
-
-// function swap<T, U>(tuple: [T, U]): [U, T] {
-//   return [tuple[1], tuple[0]];
-// }
-
-// const result2 = swap(["string", 123]);
-// console.log(result2);
-
-function echoWithArr<T>(arg: T[]): T[] {
-  console.log(arg.length);
-  return 
+interface IPerson {
+  name: string;
+  age: number;
 }
+
+let person: IPerson = { name: "zs", age: 19 };
+type IPartial = Partial<IPerson>;
+let person2: IPartial = { name: "ls" };
+let person3: IPartial = { age: 21 };
+type IOmit = Omit<IPartial, "name">;
+let person4: IOmit = { age: 22 };
