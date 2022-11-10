@@ -1,3 +1,23 @@
+### 全局API修改
+
+~~~js
+import { createApp } from "vue";
+import App from "./App.vue";
+const app = createApp(App);
+app.config.isCustomElement = (tag) => tag.startsWith("app-");
+app.use();
+app.mixin();
+app.component();
+app.directive();
+app.config.globalProperties.isCustomElement = () => {};
+app.mount("#app");
+~~~
+
+- 全局配置 Vue.config-> app.config
+- 全局注册 Vue.component -> app.component
+- 全局指令 Vue.directive -> app.directive
+- 全局混入 Vue.mixin -> app.mixin
+- 全局注册 Vue.use -> app.use
 ### 新增特性
 
 - Componsition API (组合式api)
@@ -9,8 +29,41 @@
   - ...
 - 新组件
   - Fargment-文档碎片
-  - Teleport-瞬移组件的位置
+  - Teleport-瞬移组件的位置 :是一个内置组件，它可以将一个组件内部的一部分模板“传送”到该组件的 DOM 结构外层的位置去。而不是直接放在#app里,例如model
   - Suspense-异步加载组件的loading界面
+~~~vue
+<!-- 父组件 -->
+  <Suspense>
+    <template #default>
+      <async-show></async-show>
+    </template>
+    <template #fallback> <h2>loading!...</h2> </template>
+  </Suspense>
+
+  <!-- 子组件 -->
+  <template>
+  <h2>{{ result }}</h2>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  setup() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        return resolve({
+          result: 42,
+        });
+      }, 3000);
+    });
+  },
+});
+</script>
+
+<style lang="less" scoped></style>
+
+~~~
 - 其他API更新
   - 全局api修改
   - 将原来的全局Api抓安逸到应用对象
