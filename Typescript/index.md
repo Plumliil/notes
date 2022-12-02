@@ -693,13 +693,4 @@ class MyLocalStorage {
 }
 ```
 
-### 继承
 
-#### 继承带来的好处
-
-- 子类可以访问父类的实例属性
-- 子类可以访问父类原型对象空间中的属性和方法
-
-#### 原型链继承
-
-原型链继承的实现本质是改变 Son 构造函数的原型对象变量的指向(就是 Son.prototype 的指向),Son.prototype=new Parent().那么 Son.prototype 可以访问 Parent 对象空间和方法,所以顺着[proto 属性],Son 类也可以访问 Parent 类的原型对象空间中的所有属性和方法
