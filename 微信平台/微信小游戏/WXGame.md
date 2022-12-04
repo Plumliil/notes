@@ -1,4 +1,6 @@
 在微信平台编写小游戏canvas是不可缺少的
+
+#### canvas
 context2d的重要方法
 由于此次我们开发的小游戏是2D平面游戏，所以均使用context2d对象米进行绘图操作。因此，先来了解一下
 context2d都有哪些游戏中经常会用到的方法(函数)。
@@ -15,3 +17,11 @@ width、height是图片 在canvas.上的绘制大小
 - fillText(strx, y)
 绘制一个文木，str为 文木显示的内容
 使用前可以通过font属性设置字体，fllstyle设置文字颜色。
+
+
+#### audio
+通过new Audio()方法可以创建一个音频对象
+- src属性指定音频存放路径
+- currentTime指从音频的那一秒开始播放
+- loop属性指定音频是否循环播放
+- play()方法则是播放
